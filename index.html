@@ -523,7 +523,11 @@ calcMietdauer();
     $("days").value=days;
     const wd=['So','Mo','Di','Mi','Do','Fr','Sa'],p=n=>('0'+n).slice(-2);
     const lbl=d=>wd[d.getDay()]+' '+p(d.getDate())+'.'+p(d.getMonth()+1)+'. '+p(d.getHours())+':'+p(d.getMinutes());
-    $("date-hint").innerHTML=lbl(d1)+' <span class="arrow">→</span> '+lbl(d2)+' · '+Math.round(hours)+' Std = '+days+(days===1?" Tag":" Tage");
+    const fullDaysLB=Math.floor(hours/24);
+    const restHoursLB=Math.round(hours-fullDaysLB*24);
+    let durLabel=days+(days===1?" Tag":" Tage");
+    if(fullDaysLB>0&&restHoursLB>0) durLabel=fullDaysLB+(fullDaysLB===1?" Tag":" Tage")+' und '+restHoursLB+' Std.';
+    $("date-hint").innerHTML=lbl(d1)+' <span class="arrow">→</span> '+lbl(d2)+' · '+durLabel;
     render();
   }
 
