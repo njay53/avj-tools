@@ -17,6 +17,8 @@
     min-height: 100vh;
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  /* ── Header ── */
   .header {
     background: #1a1a18;
     padding: 14px 20px;
@@ -27,105 +29,175 @@
     top: 0;
     z-index: 100;
   }
-  .header img {
-    width: 36px; height: 36px; border-radius: 50%;
-    object-fit: contain; background: #fff; padding: 2px;
-  }
-  .header-title { font-size: 16px; font-weight: 500; color: #ffffff; letter-spacing: -0.01em; }
-  .nav {
-    background: #ffffff; border-bottom: 1px solid #e0dfd8;
-    display: flex; overflow-x: auto; scrollbar-width: none;
-  }
-  .nav::-webkit-scrollbar { display: none; }
+  .header img { width:36px;height:36px;border-radius:50%;object-fit:contain;background:#fff;padding:2px; }
+  .header-title { font-size:16px;font-weight:500;color:#fff;letter-spacing:-0.01em; }
+
+  /* ── Nav ── */
+  .nav { background:#fff;border-bottom:1px solid #e0dfd8;display:flex;overflow-x:auto;scrollbar-width:none; }
+  .nav::-webkit-scrollbar { display:none; }
   .nav-btn {
-    flex: 1; min-width: 120px; padding: 12px 16px;
-    font-size: 13px; font-family: inherit; font-weight: 500;
-    color: #888880; background: none; border: none;
-    border-bottom: 2px solid transparent; cursor: pointer;
-    white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+    flex:1;min-width:110px;padding:12px 16px;font-size:13px;font-family:inherit;font-weight:500;
+    color:#888880;background:none;border:none;border-bottom:2px solid transparent;
+    cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;
   }
-  .nav-btn.active { color: #1a1a18; border-bottom-color: #1c1c1a; }
-  .content { padding: 1.25rem 1rem; max-width: 480px; margin: 0 auto; }
-  .tool { display: none; }
-  .tool.active { display: block; }
+  .nav-btn.active { color:#1a1a18;border-bottom-color:#1a1a18; }
 
-  /* Mietdauer */
+  /* ── Content ── */
+  .content { padding:1.25rem 1rem;max-width:520px;margin:0 auto; }
+  .tool { display:none; }
+  .tool.active { display:block; }
+
+  /* ── Shared card ── */
   .card {
-    background: #ffffff; border: 1px solid #e0dfd8; border-radius: 14px;
-    padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+    padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);
   }
-  .tool-title { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 1.25rem; }
-  .section-label {
-    font-size: 11px; font-weight: 600; color: #999992;
-    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
-  }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.1rem; }
-  .field label { display: block; font-size: 12px; color: #888880; margin-bottom: 4px; }
+  .tool-title { font-size:14px;font-weight:500;color:#1a1a18;margin-bottom:1.25rem; }
+  .section-label { font-size:11px;font-weight:600;color:#999992;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px; }
+  .two-col { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.1rem; }
+  .field label { display:block;font-size:12px;color:#888880;margin-bottom:4px; }
   .field input {
-    width: 100%; padding: 8px 10px; font-size: 14px; font-family: inherit;
-    color: #1a1a18; background: #fafaf8; border: 1px solid #ddddd5;
-    border-radius: 8px; outline: none; transition: border-color 0.15s;
+    width:100%;padding:8px 10px;font-size:14px;font-family:inherit;
+    color:#1a1a18;background:#fafaf8;border:1px solid #ddddd5;
+    border-radius:8px;outline:none;transition:border-color .15s;
   }
-  .field input:focus { border-color: #888880; background: #fff; }
-  hr { border: none; border-top: 1px solid #e8e8e2; margin: 0.25rem 0 1.1rem; }
-  .result-box { background: #f5f5f2; border-radius: 10px; padding: 1.1rem; text-align: center; }
-  .result-label { font-size: 12px; color: #888880; margin-bottom: 5px; }
-  .result-num { font-size: 38px; font-weight: 500; color: #1a1a18; line-height: 1; letter-spacing: -0.02em; }
-  .result-sub { font-size: 16px; color: #666660; margin-top: 5px; }
-  .md-error { border-left: 3px solid #c8a000; }
+  .field input:focus { border-color:#888880;background:#fff; }
+  .divider { border:none;border-top:1px solid #e8e8e2;margin:.25rem 0 1.1rem; }
+  .result-box { background:#f5f5f2;border-radius:10px;padding:1.1rem;text-align:center; }
+  .result-label { font-size:12px;color:#888880;margin-bottom:5px; }
+  .result-num { font-size:38px;font-weight:500;color:#1a1a18;line-height:1;letter-spacing:-.02em; }
+  .result-sub { font-size:16px;color:#666660;margin-top:5px; }
+  .md-error { border-left:3px solid #c8a000; }
 
-  /* Rabatt */
+  /* ── Rabatt ── */
   #tool-rabatt .inner {
-    --ink: #1c2b22; --paper: #ffffff; --line: #d8d2c2; --accent: #c8a000;
-    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-    color: var(--ink); background: var(--paper);
-    border: 1px solid #e0dfd8; border-radius: 14px;
-    padding: 24px 22px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --ink:#1c2b22;--paper:#fff;--line:#d8d2c2;--accent:#c8a000;
+    font-family:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+    color:var(--ink);background:var(--paper);
+    border:1px solid #e0dfd8;border-radius:14px;
+    padding:24px 22px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);
   }
-  #tool-rabatt .head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 22px;
+  #tool-rabatt .rb-head {
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:22px;
   }
-  #tool-rabatt .head h1 {
-    font-family: Georgia, 'Iowan Old Style', serif; font-size: 19px;
-    font-weight: 700; margin: 0; letter-spacing: -0.01em;
-  }
-  #tool-rabatt .head span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
-  #tool-rabatt .rb-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  #tool-rabatt .rb-row label { width: 64px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #5a6b5f; }
-  #tool-rabatt .rb-field { position: relative; flex: 1; }
+  #tool-rabatt .rb-head h2 { font-family:Georgia,serif;font-size:19px;font-weight:700;margin:0;letter-spacing:-.01em; }
+  #tool-rabatt .rb-head span { font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent); }
+  #tool-rabatt .rb-row { display:flex;align-items:center;gap:10px;margin-bottom:14px; }
+  #tool-rabatt .rb-row label { width:64px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5a6b5f; }
+  #tool-rabatt .rb-field { position:relative;flex:1; }
   #tool-rabatt .rb-field input {
-    width: 100%; box-sizing: border-box;
-    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-    font-size: 17px; padding: 9px 32px 9px 12px;
-    border: 1px solid var(--line); border-radius: 3px;
-    background: #fff; color: var(--ink); outline: none; transition: border-color 0.15s;
+    width:100%;box-sizing:border-box;
+    font-family:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+    font-size:17px;padding:9px 32px 9px 12px;
+    border:1px solid var(--line);border-radius:3px;
+    background:#fff;color:var(--ink);outline:none;transition:border-color .15s;
   }
-  #tool-rabatt .rb-field input:focus { border-color: var(--accent); }
-  #tool-rabatt .rb-field::after {
-    content: '\20AC'; position: absolute; right: 12px; top: 50%;
-    transform: translateY(-50%); color: #9aa39c; font-size: 14px; pointer-events: none;
-  }
-  #tool-rabatt .arrow { text-align: center; color: #9aa39c; font-size: 13px; margin: -6px 0 8px 74px; }
-  #tool-rabatt .result { margin-top: 20px; border-top: 1px dashed var(--line); padding-top: 18px; }
-  #tool-rabatt .big {
-    font-family: Georgia, 'Iowan Old Style', serif; font-size: 40px;
-    font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em;
-  }
-  #tool-rabatt .big sup { font-size: 18px; margin-left: 2px; }
-  #tool-rabatt .sub { font-size: 11px; color: #5a6b5f; margin-top: 6px; }
-  #tool-rabatt .sub b { color: var(--ink); }
+  #tool-rabatt .rb-field input:focus { border-color:var(--accent); }
+  #tool-rabatt .rb-field::after { content:'\20AC';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#9aa39c;font-size:14px;pointer-events:none; }
+  #tool-rabatt .rb-arrow { text-align:center;color:#9aa39c;font-size:13px;margin:-6px 0 8px 74px; }
+  #tool-rabatt .rb-result { margin-top:20px;border-top:1px dashed var(--line);padding-top:18px; }
+  #tool-rabatt .rb-big { font-family:Georgia,serif;font-size:40px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.02em; }
+  #tool-rabatt .rb-big sup { font-size:18px;margin-left:2px; }
+  #tool-rabatt .rb-sub { font-size:11px;color:#5a6b5f;margin-top:6px; }
+  #tool-rabatt .rb-sub b { color:var(--ink); }
   #tool-rabatt .copy-btn {
-    margin-top: 14px; width: 100%;
-    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-    font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
-    padding: 9px 0; border: 1px solid var(--ink); background: var(--ink);
-    color: #f6f3ec; border-radius: 3px; cursor: pointer; transition: opacity 0.15s;
+    margin-top:14px;width:100%;
+    font-family:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+    font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+    padding:9px 0;border:1px solid var(--ink);background:var(--ink);
+    color:#f6f3ec;border-radius:3px;cursor:pointer;transition:opacity .15s;
   }
-  #tool-rabatt .copy-btn:active { opacity: 0.7; }
-  #tool-rabatt .copy-btn.copied { background: var(--accent); border-color: var(--accent); color: #fff; }
-  #tool-rabatt .rb-error { font-size: 11px; color: var(--accent); margin-top: 6px; min-height: 14px; }
-  #tool-rabatt .note { margin-top: 16px; font-size: 10.5px; color: #9aa39c; text-align: center; font-family: 'IBM Plex Mono', monospace; }
+  #tool-rabatt .copy-btn:active { opacity:.7; }
+  #tool-rabatt .copy-btn.copied { background:var(--accent);border-color:var(--accent);color:#fff; }
+  #tool-rabatt .rb-error { font-size:11px;color:var(--accent);margin-top:6px;min-height:14px; }
+  #tool-rabatt .rb-note { margin-top:16px;font-size:10.5px;color:#9aa39c;text-align:center; }
+
+  /* ── LB Preistool ── */
+  #tool-lb {
+    --teal:#0B6E6E;--teal-dark:#084C4C;--teal-deep:#063838;
+    --orange:#E87B33;--orange-soft:#F4A968;
+    --ink:#12211F;--muted:#5E706E;--line:#D3DEDC;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+  }
+  #tool-lb .lb-card {
+    background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+    padding:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px;
+  }
+  #tool-lb .lb-sub { color:var(--muted);font-size:13px;margin-bottom:16px; }
+  #tool-lb .lb-sub b { color:var(--orange);font-weight:700; }
+  #tool-lb .lb-inputs { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px; }
+  #tool-lb .lb-field { background:#fafaf8;border:1px solid #ddddd5;border-radius:10px;padding:10px 12px; }
+  #tool-lb .lb-field label { display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px; }
+  #tool-lb .lb-field input {
+    width:100%;border:none;outline:none;background:transparent;
+    font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink);padding:0;
+  }
+  #tool-lb .lb-field input[type=number] { font-size:26px; }
+  #tool-lb .lb-field .hint { font-size:11px;color:var(--muted);margin-top:3px;min-height:13px; }
+  #tool-lb .dt { display:flex;gap:6px;align-items:center; }
+  #tool-lb .dt input[type=date] { flex:1 1 auto;min-width:0;font-size:15px;font-weight:600;font-family:var(--mono);border:none;outline:none;background:transparent;color:var(--ink); }
+  #tool-lb .dt input[type=time] { flex:0 0 auto;width:80px;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);border:none;outline:none;background:transparent;border-left:1px solid var(--line);padding-left:6px; }
+  #tool-lb .lb-field.focus { border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,110,110,.10); }
+  #tool-lb .date-hint { font-family:var(--mono);font-size:12px;color:var(--teal-deep);font-weight:600;text-align:center;min-height:16px;margin-bottom:10px; }
+  #tool-lb .date-hint .arrow { color:var(--orange); }
+  #tool-lb .lb-result {
+    background:var(--teal-deep);color:#fff;border-radius:12px;padding:18px 20px;margin-bottom:12px;
+    box-shadow:0 8px 24px -14px rgba(6,56,56,.7);
+  }
+  #tool-lb .lb-result .headline { display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap; }
+  #tool-lb .lb-result .big { font-family:var(--mono);font-size:42px;font-weight:700;line-height:1;letter-spacing:-.02em; }
+  #tool-lb .lb-result .big .cur { font-size:22px;opacity:.8;margin-right:3px; }
+  #tool-lb .lb-result .dur { font-size:12px;letter-spacing:.05em;text-transform:uppercase;opacity:.75; }
+  #tool-lb .lb-result hr { border:none;border-top:1px solid rgba(255,255,255,.16);margin:14px 0; }
+  #tool-lb .lb-rows { display:grid;gap:8px; }
+  #tool-lb .lb-row { display:flex;justify-content:space-between;align-items:baseline;font-size:13px; }
+  #tool-lb .lb-row .k { opacity:.78; }
+  #tool-lb .lb-row .v { font-family:var(--mono);font-weight:600; }
+  #tool-lb .lb-row.km .v { color:var(--orange-soft); }
+  #tool-lb .lb-row.total { border-top:1px solid rgba(255,255,255,.16);padding-top:10px;margin-top:2px;font-size:15px; }
+  #tool-lb .lb-row.total .v { font-size:18px; }
+  #tool-lb .note-approx { font-size:11px;opacity:.6;margin-top:10px;letter-spacing:.02em; }
+  #tool-lb table { width:100%;border-collapse:collapse;font-size:13px; }
+  #tool-lb th,#tool-lb td { text-align:right;padding:8px 14px;font-family:var(--mono); }
+  #tool-lb th { font-family:inherit;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line); }
+  #tool-lb th:first-child,#tool-lb td:first-child { text-align:left; }
+  #tool-lb tbody tr { border-bottom:1px solid #EEF3F2; }
+  #tool-lb tbody tr:last-child { border-bottom:none; }
+  #tool-lb tbody tr.week td { background:#F0F7F6; }
+  #tool-lb tbody tr.month td { background:#FBF1E8; }
+  #tool-lb td .tag { font-family:inherit;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-left:5px; }
+  #tool-lb td.wk { font-family:inherit;font-weight:600;color:var(--teal-deep); }
+  #tool-lb tbody tr.hl td { background:#E7F3F1 !important;box-shadow:inset 3px 0 0 var(--teal); }
+  #tool-lb details.settings { background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden;margin-bottom:12px; }
+  #tool-lb details.settings > summary {
+    cursor:pointer;list-style:none;padding:12px 16px;font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center;
+  }
+  #tool-lb details.settings > summary::-webkit-details-marker { display:none; }
+  #tool-lb details.settings > summary::after { content:"einstellen";font-size:10px;color:var(--teal);letter-spacing:.05em; }
+  #tool-lb details.settings[open] > summary::after { content:"schließen"; }
+  #tool-lb .settings-body { padding:4px 16px 16px;border-top:1px solid var(--line); }
+  #tool-lb .sgrid { display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px; }
+  #tool-lb .sgrid .col { display:flex;flex-direction:column;gap:3px; }
+  #tool-lb .sgrid .col .d { font-size:10px;text-align:center;color:var(--muted);font-weight:600; }
+  #tool-lb .sgrid input { width:100%;font-family:var(--mono);font-size:12px;text-align:center;padding:5px 2px;border:1px solid var(--line);border-radius:6px;outline:none; }
+  #tool-lb .sgrid input:focus { border-color:var(--teal); }
+  #tool-lb .slabel { font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:12px 0 2px; }
+  #tool-lb .anchors { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px; }
+  #tool-lb .anchors .a { display:flex;flex-direction:column;gap:3px; }
+  #tool-lb .anchors .a span { font-size:11px;color:var(--muted); }
+  #tool-lb .anchors input { font-family:var(--mono);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;outline:none; }
+  #tool-lb .anchors input:focus { border-color:var(--teal); }
+  #tool-lb .reset { margin-top:14px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;padding:6px 12px;border-radius:7px;cursor:pointer; }
+  #tool-lb .reset:hover { border-color:var(--orange);color:var(--orange); }
+  #tool-lb .lb-footer { margin-top:12px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.02em; }
+  @media(max-width:480px){
+    #tool-lb .lb-inputs { grid-template-columns:1fr; }
+    #tool-lb .lb-result .big { font-size:34px; }
+    #tool-lb .sgrid { grid-template-columns:repeat(4,1fr); }
+    #tool-lb .anchors { grid-template-columns:1fr; }
+  }
 </style>
 </head>
 <body>
@@ -136,26 +208,28 @@
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" onclick="showTool('mietdauer', this)">Mietdauer</button>
-  <button class="nav-btn" onclick="showTool('rabatt', this)">Rabatt</button>
+  <button class="nav-btn active" onclick="showTool('mietdauer',this)">Mietdauer</button>
+  <button class="nav-btn" onclick="showTool('rabatt',this)">Rabatt</button>
+  <button class="nav-btn" onclick="showTool('lb',this)">LB-Preis</button>
 </div>
 
 <div class="content">
 
+  <!-- ═══ MIETDAUER ═══ -->
   <div class="tool active" id="tool-mietdauer">
     <div class="card">
       <div class="tool-title">Mietdauer-Rechner</div>
       <div class="section-label">Startdatum</div>
-      <div class="row">
+      <div class="two-col">
         <div class="field"><label>Datum</label><input type="date" id="startDate" /></div>
         <div class="field"><label>Uhrzeit</label><input type="time" id="startTime" value="10:00" /></div>
       </div>
       <div class="section-label">Enddatum</div>
-      <div class="row">
+      <div class="two-col">
         <div class="field"><label>Datum</label><input type="date" id="endDate" /></div>
         <div class="field"><label>Uhrzeit</label><input type="time" id="endTime" value="10:00" /></div>
       </div>
-      <hr />
+      <hr class="divider" />
       <div class="result-box" id="mdResultBox">
         <div class="result-label">Mietdauer</div>
         <div class="result-num" id="mdResultDays">—</div>
@@ -164,34 +238,110 @@
     </div>
   </div>
 
+  <!-- ═══ RABATT ═══ -->
   <div class="tool" id="tool-rabatt">
     <div class="inner">
-      <div class="head">
-        <h1>Rabatt&nbsp;Rechner</h1>
+      <div class="rb-head">
+        <h2>Rabatt&nbsp;Rechner</h2>
         <span>rentsoft</span>
       </div>
       <div class="rb-row">
         <label for="von">Von</label>
         <div class="rb-field"><input id="von" inputmode="decimal" placeholder="66,30" autocomplete="off" /></div>
       </div>
-      <div class="arrow">&#8595;</div>
+      <div class="rb-arrow">&#8595;</div>
       <div class="rb-row">
         <label for="auf">Auf</label>
         <div class="rb-field"><input id="auf" inputmode="decimal" placeholder="60,00" autocomplete="off" /></div>
       </div>
       <div class="rb-error" id="rbError"></div>
-      <div class="result">
-        <div class="big" id="rbBig">&#8211;<sup>%</sup></div>
-        <div class="sub" id="rbSub">Trage beide Preise ein.</div>
+      <div class="rb-result">
+        <div class="rb-big" id="rbBig">&#8211;<sup>%</sup></div>
+        <div class="rb-sub" id="rbSub">Trage beide Preise ein.</div>
         <button class="copy-btn" id="copyBtn">Wert kopieren</button>
       </div>
-      <div class="note">5 Nachkommastellen &middot; Komma oder Punkt</div>
+      <div class="rb-note">5 Nachkommastellen &middot; Komma oder Punkt</div>
     </div>
   </div>
 
-</div>
+  <!-- ═══ LB PREISTOOL ═══ -->
+  <div class="tool" id="tool-lb">
+    <div class="lb-card">
+      <p class="lb-sub">Low-Budget-Klasse (Yaris) — Tage rein, Preis und Frei-km raus. Über Frei-km: <b>0,15 €/km</b>.</p>
+
+      <div class="lb-inputs dates">
+        <div class="lb-field" id="f-from">
+          <label for="from">Abholung</label>
+          <div class="dt">
+            <input id="from" type="date">
+            <input id="from-t" type="time" value="09:00">
+          </div>
+        </div>
+        <div class="lb-field" id="f-to">
+          <label for="to">Rückgabe</label>
+          <div class="dt">
+            <input id="to" type="date">
+            <input id="to-t" type="time" value="09:00">
+          </div>
+        </div>
+      </div>
+      <div class="date-hint" id="date-hint"></div>
+
+      <div class="lb-inputs">
+        <div class="lb-field" id="f-days">
+          <label for="days">Mietdauer (Tage)</label>
+          <input id="days" type="number" min="1" step="1" value="2" inputmode="numeric">
+          <div class="hint" id="days-hint"></div>
+        </div>
+        <div class="lb-field" id="f-km">
+          <label for="km">Gefahrene km <span style="text-transform:none;font-weight:400;">(optional)</span></label>
+          <input id="km" type="number" min="0" step="1" placeholder="—" inputmode="numeric">
+          <div class="hint" id="km-hint"></div>
+        </div>
+      </div>
+
+      <div class="lb-result" id="lb-result">
+        <div class="headline">
+          <div class="big" id="lb-price"><span class="cur">€</span>0</div>
+          <div class="dur" id="lb-dur">—</div>
+        </div>
+        <hr />
+        <div class="lb-rows" id="lb-rows"></div>
+      </div>
+    </div>
+
+    <div class="lb-card">
+      <div class="section-label" style="margin-bottom:10px;">Übersicht</div>
+      <table>
+        <thead><tr><th>Dauer</th><th>Preis</th><th>€/Tag</th><th>Frei-km</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <details class="settings">
+      <summary>Einstellungen</summary>
+      <div class="settings-body">
+        <div class="slabel">Preis je Tag (€)</div>
+        <div class="sgrid" id="grid-price"></div>
+        <div class="slabel">Frei-km je Tag</div>
+        <div class="sgrid" id="grid-km"></div>
+        <div class="slabel">Anker</div>
+        <div class="anchors">
+          <div class="a"><span>Monatspreis (€)</span><input id="a-monthprice" type="number"></div>
+          <div class="a"><span>Monats-km</span><input id="a-monthkm" type="number"></div>
+          <div class="a"><span>Mehr-km (€/km)</span><input id="a-overkm" type="number" step="0.01"></div>
+        </div>
+        <button class="reset" id="reset">Zurücksetzen</button>
+      </div>
+    </details>
+
+    <div class="lb-footer">Offline nutzbar &middot; keine Daten verlassen den Browser &middot; Zwischenwerte &gt;7 Tage werden interpoliert</div>
+  </div>
+
+</div><!-- /content -->
 
 <script>
+// ── Navigation ──
 function showTool(id, btn) {
   document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -199,10 +349,11 @@ function showTool(id, btn) {
   btn.classList.add('active');
 }
 
-function pad(n) { return String(n).padStart(2, '0'); }
+// ── Mietdauer ──
+function pad(n) { return String(n).padStart(2,'0'); }
 function todayStr() {
   const d = new Date();
-  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 }
 const startDate    = document.getElementById('startDate');
 const startTime    = document.getElementById('startTime');
@@ -214,23 +365,20 @@ const mdResultBox  = document.getElementById('mdResultBox');
 startDate.value = todayStr();
 
 function calcMietdauer() {
-  const sd = startDate.value, st = startTime.value || '10:00';
-  const ed = endDate.value,   et = endTime.value   || '10:00';
-  if (!sd || !ed) { mdResultDays.textContent='—'; mdResultHours.textContent=''; mdResultBox.classList.remove('md-error'); return; }
-  const start = new Date(sd+'T'+st+':00'), end = new Date(ed+'T'+et+':00');
-  const diffMs = end - start;
-  if (diffMs < 0) {
-    mdResultDays.textContent='—'; mdResultHours.textContent='Enddatum liegt vor Startdatum';
-    mdResultBox.classList.add('md-error'); return;
-  }
+  const sd=startDate.value, st=startTime.value||'10:00';
+  const ed=endDate.value,   et=endTime.value||'10:00';
+  if (!sd||!ed) { mdResultDays.textContent='—';mdResultHours.textContent='';mdResultBox.classList.remove('md-error');return; }
+  const start=new Date(sd+'T'+st+':00'), end=new Date(ed+'T'+et+':00');
+  const diffMs=end-start;
+  if (diffMs<0) { mdResultDays.textContent='—';mdResultHours.textContent='Enddatum liegt vor Startdatum';mdResultBox.classList.add('md-error');return; }
   mdResultBox.classList.remove('md-error');
-  const totalMinutes = Math.floor(diffMs/60000), totalHours = diffMs/3600000;
-  const days = Math.ceil(totalHours/24), fullDays = Math.floor(totalHours/24);
-  const restMinutes = totalMinutes - fullDays*1440;
-  const restHours = Math.floor(restMinutes/60), restMins = restMinutes%60;
-  if (totalMinutes===0) { mdResultDays.textContent='0'; mdResultHours.textContent='Start = Ende'; }
-  else if (totalMinutes<60) { mdResultDays.textContent='1 Tag'; mdResultHours.textContent=totalMinutes+' Min.'; }
-  else if (restHours===0 && restMins===0) { mdResultDays.textContent=days+(days===1?' Tag':' Tage'); mdResultHours.textContent=''; }
+  const totalMinutes=Math.floor(diffMs/60000), totalHours=diffMs/3600000;
+  const days=Math.ceil(totalHours/24), fullDays=Math.floor(totalHours/24);
+  const restMinutes=totalMinutes-fullDays*1440;
+  const restHours=Math.floor(restMinutes/60), restMins=restMinutes%60;
+  if (totalMinutes===0) { mdResultDays.textContent='0';mdResultHours.textContent='Start = Ende'; }
+  else if (totalMinutes<60) { mdResultDays.textContent='1 Tag';mdResultHours.textContent=totalMinutes+' Min.'; }
+  else if (restHours===0&&restMins===0) { mdResultDays.textContent=days+(days===1?' Tag':' Tage');mdResultHours.textContent=''; }
   else {
     const dLabel=fullDays+(fullDays===1?' Tag':' Tage');
     let sub='';
@@ -244,6 +392,7 @@ function calcMietdauer() {
 [startDate,startTime,endDate,endTime].forEach(el=>el.addEventListener('input',calcMietdauer));
 calcMietdauer();
 
+// ── Rabatt ──
 (function(){
   const vonEl=document.getElementById('von'), aufEl=document.getElementById('auf');
   const bigEl=document.getElementById('rbBig'), subEl=document.getElementById('rbSub');
@@ -257,23 +406,139 @@ calcMietdauer();
   }
   function calc() {
     const von=parseNum(vonEl.value), auf=parseNum(aufEl.value);
-    errEl.textContent=''; lastValue=null;
-    if (von===null||auf===null) { bigEl.innerHTML='&#8211;<sup>%</sup>'; subEl.textContent='Trage beide Preise ein.'; return; }
-    if (von<=0) { errEl.textContent='"Von" muss größer als 0 sein.'; bigEl.innerHTML='&#8211;<sup>%</sup>'; subEl.textContent=''; return; }
+    errEl.textContent='';lastValue=null;
+    if (von===null||auf===null) { bigEl.innerHTML='&#8211;<sup>%</sup>';subEl.textContent='Trage beide Preise ein.';return; }
+    if (von<=0) { errEl.textContent='"Von" muss größer als 0 sein.';bigEl.innerHTML='&#8211;<sup>%</sup>';subEl.textContent='';return; }
     if (auf>von) errEl.textContent='Das ist ein Aufschlag, kein Rabatt.';
     const pct=(1-auf/von)*100, rounded=pct.toFixed(5);
     lastValue=rounded;
     bigEl.innerHTML=rounded.replace('.',',')+' <sup>%</sup>';
-    subEl.innerHTML='<b>'+von.toFixed(2).replace('.',',')+' €</b> → <b>'+auf.toFixed(2).replace('.',',')+'  €</b>';
+    subEl.innerHTML='<b>'+von.toFixed(2).replace('.',',')+' €</b> → <b>'+auf.toFixed(2).replace('.',',')+' €</b>';
   }
   vonEl.addEventListener('input',calc); aufEl.addEventListener('input',calc);
   copyBtn.addEventListener('click',function(){
     if (lastValue===null) return;
     const plain=Math.abs(parseFloat(lastValue)).toFixed(5);
-    navigator.clipboard.writeText(plain.replace('.',',')).catch(function(){});
-    copyBtn.textContent='Kopiert ✓'; copyBtn.classList.add('copied');
-    setTimeout(function(){ copyBtn.textContent='Wert kopieren'; copyBtn.classList.remove('copied'); },1200);
+    navigator.clipboard.writeText(plain.replace('.',',')).catch(()=>{});
+    copyBtn.textContent='Kopiert ✓';copyBtn.classList.add('copied');
+    setTimeout(()=>{copyBtn.textContent='Wert kopieren';copyBtn.classList.remove('copied');},1200);
   });
+})();
+
+// ── LB Preistool ──
+(function(){
+  "use strict";
+  const DEFAULTS={price:[45,85,120,150,175,195,210],km:[400,700,1000,1250,1450,1650,1800],monthPrice:620,monthKm:3500,overKm:0.15};
+  let cfg=structuredClone(DEFAULTS);
+  const $=id=>document.getElementById(id);
+  const eur=n=>"€"+Math.round(n).toLocaleString("de-DE");
+  const num=n=>Math.round(n).toLocaleString("de-DE");
+  const roundTo=(n,s)=>Math.round(n/s)*s;
+
+  function quote(days){
+    days=Math.max(1,Math.floor(days||0));
+    let price,freeKm,exact=true;
+    if(days<=7){price=cfg.price[days-1];freeKm=cfg.km[days-1];}
+    else{
+      const wkPrice=cfg.price[6],wkKm=cfg.km[6],t=(days-7)/(30-7);
+      price=Math.round(wkPrice+t*(cfg.monthPrice-wkPrice));
+      freeKm=roundTo(wkKm+t*(cfg.monthKm-wkKm),50);exact=false;
+    }
+    return{days,price,freeKm,exact};
+  }
+
+  function render(){
+    const days=parseInt($("days").value,10);
+    const kmRaw=$("km").value.trim();
+    const drivenKm=kmRaw===""?null:Math.max(0,parseInt(kmRaw,10)||0);
+    if(!days||days<1){
+      $("lb-price").innerHTML='<span class="cur">€</span>0';$("lb-dur").textContent="—";
+      $("lb-rows").innerHTML='<div class="lb-row"><span class="k">Bitte Mietdauer eingeben.</span></div>';
+      $("days-hint").textContent="";$("km-hint").textContent="";highlight(null);return;
+    }
+    const q=quote(days);
+    $("lb-price").innerHTML='<span class="cur">€</span>'+num(q.price);
+    let dur=q.days+(q.days===1?" Tag":" Tage");
+    if(q.days===7)dur="Woche";else if(q.days===30)dur="Monat";
+    $("lb-dur").textContent=dur;
+    $("days-hint").textContent="≈ "+(q.price/q.days).toFixed(2).replace(".",",")+" €/Tag";
+    let rows="";
+    rows+=rowHTML("Mietpreis",eur(q.price));
+    rows+=rowHTML("Frei-km inklusive",num(q.freeKm)+" km","km");
+    if(drivenKm!==null){
+      const over=Math.max(0,drivenKm-q.freeKm),kmCost=over*cfg.overKm;
+      rows+=rowHTML("Gefahren",num(drivenKm)+" km");
+      if(over>0){rows+=rowHTML("Mehr-km",num(over)+" km × "+cfg.overKm.toFixed(2).replace(".",",")+" € = "+eur(kmCost),"km");$("km-hint").textContent=num(over)+" km über Freigrenze";}
+      else{rows+=rowHTML("Mehr-km","0 km — alles frei");$("km-hint").textContent=num(q.freeKm-drivenKm)+" km unter Freigrenze";}
+      rows+=rowHTML("Gesamt",eur(q.price+kmCost),"total");
+    }else{$("km-hint").textContent="";}
+    if(!q.exact) rows+='<div class="note-approx">Über 7 Tage: interpolierter Richtwert zwischen Woche und Monat.</div>';
+    $("lb-rows").innerHTML=rows;
+    highlight(days);
+  }
+
+  function rowHTML(k,v,cls){return'<div class="lb-row '+(cls||'')+'"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';}
+
+  const TABLE_DAYS=[1,2,3,4,5,6,7,10,14,21,30];
+  function buildTable(){
+    let html="";
+    TABLE_DAYS.forEach(d=>{
+      const q=quote(d);
+      let label,cls="";
+      if(d===7){label='<td class="wk">Woche</td>';cls="week";}
+      else if(d===30){label='<td class="wk">Monat</td>';cls="month";}
+      else label='<td>'+d+' Tage</td>';
+      html+='<tr class="'+cls+'" data-days="'+d+'">'+label+'<td>'+eur(q.price)+'</td><td>'+(q.price/d).toFixed(0)+'</td><td>'+num(q.freeKm)+'</td></tr>';
+    });
+    $("tbody").innerHTML=html;
+  }
+  function highlight(days){
+    document.querySelectorAll("#tbody tr").forEach(tr=>{tr.classList.toggle("hl",days!==null&&parseInt(tr.dataset.days,10)===days);});
+  }
+
+  function buildSettings(){
+    let gp="",gk="";
+    for(let i=0;i<7;i++){
+      gp+='<div class="col"><div class="d">'+(i+1)+'T</div><input type="number" data-i="'+i+'" data-t="price" value="'+cfg.price[i]+'"></div>';
+      gk+='<div class="col"><div class="d">'+(i+1)+'T</div><input type="number" data-i="'+i+'" data-t="km" value="'+cfg.km[i]+'"></div>';
+    }
+    $("grid-price").innerHTML=gp;$("grid-km").innerHTML=gk;
+    $("a-monthprice").value=cfg.monthPrice;$("a-monthkm").value=cfg.monthKm;$("a-overkm").value=cfg.overKm;
+  }
+  function readSettings(){
+    document.querySelectorAll('[data-t="price"]').forEach(inp=>{cfg.price[+inp.dataset.i]=+inp.value||0;});
+    document.querySelectorAll('[data-t="km"]').forEach(inp=>{cfg.km[+inp.dataset.i]=+inp.value||0;});
+    cfg.monthPrice=+$("a-monthprice").value||0;cfg.monthKm=+$("a-monthkm").value||0;cfg.overKm=parseFloat($("a-overkm").value)||0;
+    buildTable();render();
+  }
+
+  function computeDays(){
+    const f=$("from").value,t=$("to").value;
+    if(!f||!t){$("date-hint").textContent="";return;}
+    const ft=$("from-t").value||"00:00",tt=$("to-t").value||"00:00";
+    const d1=new Date(f+"T"+ft+":00"),d2=new Date(t+"T"+tt+":00");
+    const ms=d2-d1;
+    if(ms<=0){$("date-hint").innerHTML='<span style="color:var(--orange)">Rückgabe liegt vor der Abholung.</span>';return;}
+    const hours=ms/3600000,days=Math.max(1,Math.ceil(hours/24));
+    $("days").value=days;
+    const wd=['So','Mo','Di','Mi','Do','Fr','Sa'],p=n=>('0'+n).slice(-2);
+    const lbl=d=>wd[d.getDay()]+' '+p(d.getDate())+'.'+p(d.getMonth()+1)+'. '+p(d.getHours())+':'+p(d.getMinutes());
+    $("date-hint").innerHTML=lbl(d1)+' <span class="arrow">→</span> '+lbl(d2)+' · '+Math.round(hours)+' Std = '+days+(days===1?" Tag":" Tage");
+    render();
+  }
+
+  ["from","to","from-t","to-t"].forEach(id=>$(id).addEventListener("change",computeDays));
+  ["days","km"].forEach(id=>{
+    $(id).addEventListener("input",render);
+    $(id).addEventListener("focus",()=>$("f-"+id).classList.add("focus"));
+    $(id).addEventListener("blur",()=>$("f-"+id).classList.remove("focus"));
+  });
+  $("grid-price").addEventListener("input",readSettings);
+  $("grid-km").addEventListener("input",readSettings);
+  ["a-monthprice","a-monthkm","a-overkm"].forEach(id=>$(id).addEventListener("input",readSettings));
+  $("reset").addEventListener("click",()=>{cfg=structuredClone(DEFAULTS);buildSettings();buildTable();render();});
+
+  buildSettings();buildTable();render();
 })();
 </script>
 </body>
