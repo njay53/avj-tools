@@ -115,89 +115,628 @@
 
   /* ── LB Preistool ── */
   #tool-lb {
-    --teal:#0B6E6E;--teal-dark:#084C4C;--teal-deep:#063838;
-    --orange:#E87B33;--orange-soft:#F4A968;
-    --ink:#12211F;--muted:#5E706E;--line:#D3DEDC;
-    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
-  }
-  #tool-lb .lb-card {
-    background:#fff;border:1px solid #e0dfd8;border-radius:14px;
-    padding:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px;
-  }
-  #tool-lb .lb-sub { color:var(--muted);font-size:13px;margin-bottom:16px; }
-  #tool-lb .lb-sub b { color:var(--orange);font-weight:700; }
-  #tool-lb .lb-inputs { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px; }
-  #tool-lb .lb-field { background:#fafaf8;border:1px solid #ddddd5;border-radius:10px;padding:10px 12px; }
-  #tool-lb .lb-field label { display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px; }
-  #tool-lb .lb-field input {
-    width:100%;border:none;outline:none;background:transparent;
-    font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink);padding:0;
-  }
-  #tool-lb .lb-field input[type=number] { font-size:26px; }
-  #tool-lb .lb-field .hint { font-size:11px;color:var(--muted);margin-top:3px;min-height:13px; }
-  #tool-lb .dt { display:flex;gap:6px;align-items:center; }
-  #tool-lb .dt input[type=date] { flex:1 1 auto;min-width:0;font-size:15px;font-weight:600;font-family:var(--mono);border:none;outline:none;background:transparent;color:var(--ink); }
-  #tool-lb .dt input[type=time] { flex:0 0 auto;width:80px;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);border:none;outline:none;background:transparent;border-left:1px solid var(--line);padding-left:6px; }
-  #tool-lb .lb-field.focus { border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,110,110,.10); }
-  #tool-lb .date-hint { font-family:var(--mono);font-size:12px;color:var(--teal-deep);font-weight:600;text-align:center;min-height:16px;margin-bottom:10px; }
-  #tool-lb .date-hint .arrow { color:var(--orange); }
-  #tool-lb .lb-result {
-    background:var(--teal-deep);color:#fff;border-radius:12px;padding:18px 20px;margin-bottom:12px;
-    box-shadow:0 8px 24px -14px rgba(6,56,56,.7);
-  }
-  #tool-lb .lb-result .headline { display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap; }
-  #tool-lb .lb-result .big { font-family:var(--mono);font-size:42px;font-weight:700;line-height:1;letter-spacing:-.02em; }
-  #tool-lb .lb-result .big .cur { font-size:22px;opacity:.8;margin-right:3px; }
-  #tool-lb .lb-result .dur { font-size:12px;letter-spacing:.05em;text-transform:uppercase;opacity:.75; }
-  #tool-lb .lb-result hr { border:none;border-top:1px solid rgba(255,255,255,.16);margin:14px 0; }
-  #tool-lb .lb-rows { display:grid;gap:8px; }
-  #tool-lb .lb-row { display:flex;justify-content:space-between;align-items:baseline;font-size:13px; }
-  #tool-lb .lb-row .k { opacity:.78; }
-  #tool-lb .lb-row .v { font-family:var(--mono);font-weight:600; }
-  #tool-lb .lb-row.km .v { color:var(--orange-soft); }
-  #tool-lb .lb-row.total { border-top:1px solid rgba(255,255,255,.16);padding-top:10px;margin-top:2px;font-size:15px; }
-  #tool-lb .lb-row.total .v { font-size:18px; }
-  #tool-lb .note-approx { font-size:11px;opacity:.6;margin-top:10px;letter-spacing:.02em; }
-  #tool-lb table { width:100%;border-collapse:collapse;font-size:13px; }
-  #tool-lb th,#tool-lb td { text-align:right;padding:8px 14px;font-family:var(--mono); }
-  #tool-lb th { font-family:inherit;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line); }
-  #tool-lb th:first-child,#tool-lb td:first-child { text-align:left; }
-  #tool-lb tbody tr { border-bottom:1px solid #EEF3F2; }
-  #tool-lb tbody tr:last-child { border-bottom:none; }
-  #tool-lb tbody tr.week td { background:#F0F7F6; }
-  #tool-lb tbody tr.month td { background:#FBF1E8; }
-  #tool-lb td .tag { font-family:inherit;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-left:5px; }
-  #tool-lb td.wk { font-family:inherit;font-weight:600;color:var(--teal-deep); }
-  #tool-lb tbody tr.hl td { background:#E7F3F1 !important;box-shadow:inset 3px 0 0 var(--teal); }
-  #tool-lb details.settings { background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden;margin-bottom:12px; }
-  #tool-lb details.settings > summary {
-    cursor:pointer;list-style:none;padding:12px 16px;font-size:11px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center;
-  }
-  #tool-lb details.settings > summary::-webkit-details-marker { display:none; }
-  #tool-lb details.settings > summary::after { content:"einstellen";font-size:10px;color:var(--teal);letter-spacing:.05em; }
-  #tool-lb details.settings[open] > summary::after { content:"schließen"; }
-  #tool-lb .settings-body { padding:4px 16px 16px;border-top:1px solid var(--line); }
-  #tool-lb .sgrid { display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px; }
-  #tool-lb .sgrid .col { display:flex;flex-direction:column;gap:3px; }
-  #tool-lb .sgrid .col .d { font-size:10px;text-align:center;color:var(--muted);font-weight:600; }
-  #tool-lb .sgrid input { width:100%;font-family:var(--mono);font-size:12px;text-align:center;padding:5px 2px;border:1px solid var(--line);border-radius:6px;outline:none; }
-  #tool-lb .sgrid input:focus { border-color:var(--teal); }
-  #tool-lb .slabel { font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:12px 0 2px; }
-  #tool-lb .anchors { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px; }
-  #tool-lb .anchors .a { display:flex;flex-direction:column;gap:3px; }
-  #tool-lb .anchors .a span { font-size:11px;color:var(--muted); }
-  #tool-lb .anchors input { font-family:var(--mono);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;outline:none; }
-  #tool-lb .anchors input:focus { border-color:var(--teal); }
-  #tool-lb .reset { margin-top:14px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;padding:6px 12px;border-radius:7px;cursor:pointer; }
-  #tool-lb .reset:hover { border-color:var(--orange);color:var(--orange); }
-  #tool-lb .lb-footer { margin-top:12px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.02em; }
-  @media(max-width:480px){
-    #tool-lb .lb-inputs { grid-template-columns:1fr; }
-    #tool-lb .lb-result .big { font-size:34px; }
-    #tool-lb .sgrid { grid-template-columns:repeat(4,1fr); }
-    #tool-lb .anchors { grid-template-columns:1fr; }
-  }
+  --ink:#111C2E;--muted:#5A6675;--line:#DCE3EA;
+  --blue:#1B2FC4;--blue-deep:#101C6E;--yellow:#F5EC22;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+}
+#tool-lb .lb-card{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+  padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px;
+}
+#tool-lb .lb-sub{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:18px;}
+#tool-lb .lb-sub b{color:var(--ink);font-weight:650;}
+
+#tool-lb .lb-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+#tool-lb .lb-field{
+  background:#F7F9FB;border:1.5px solid var(--line);border-radius:14px;
+  padding:11px 14px;transition:border-color .15s,box-shadow .15s;
+}
+#tool-lb .lb-field:focus-within,#tool-lb .lb-field.focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;
+}
+#tool-lb .lb-field label{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px;
+}
+#tool-lb .lb-field input{
+  width:100%;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+}
+#tool-lb .lb-field input[type=number]{font-size:22px;font-weight:700;letter-spacing:-.01em;}
+#tool-lb .lb-field .hint{font-size:11.5px;color:var(--muted);margin-top:4px;min-height:15px;}
+#tool-lb .dt{display:flex;gap:7px;align-items:center;}
+#tool-lb .dt input[type=date]{flex:1 1 auto;min-width:0;}
+#tool-lb .dt input[type=time]{
+  flex:0 0 auto;width:76px;border-left:1px solid var(--line);padding-left:8px;
+}
+#tool-lb .date-hint{
+  min-height:20px;font-size:12.5px;font-weight:600;color:var(--blue-deep);
+  text-align:center;margin:0 0 14px;
+}
+#tool-lb .date-hint .arrow{color:var(--blue);}
+
+#tool-lb .lb-result{
+  background:var(--blue-deep);color:#fff;border-radius:18px;
+  padding:22px 24px 20px;margin-bottom:12px;
+  box-shadow:0 14px 34px -20px rgba(16,28,110,.75);
+}
+#tool-lb .lb-result .headline{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+#tool-lb .lb-result .big{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.03em;}
+#tool-lb .lb-result .big .cur{font-size:23px;font-weight:600;opacity:.75;margin-right:3px;}
+#tool-lb .lb-result .dur{
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;
+}
+#tool-lb .lb-result hr{border:none;border-top:1px solid rgba(255,255,255,.16);margin:18px 0 16px;}
+#tool-lb .lb-rows{display:grid;gap:9px;}
+#tool-lb .lb-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;font-size:13.5px;}
+#tool-lb .lb-row .k{opacity:.76;}
+#tool-lb .lb-row .v{font-weight:650;text-align:right;}
+#tool-lb .lb-row.km .v{color:var(--yellow);}
+#tool-lb .lb-row.total{
+  border-top:1px solid rgba(255,255,255,.16);padding-top:11px;margin-top:2px;font-size:15px;
+}
+#tool-lb .lb-row.total .v{font-size:18px;font-weight:750;}
+#tool-lb .note-approx{font-size:11.5px;opacity:.6;margin-top:10px;line-height:1.45;}
+
+#tool-lb table{width:100%;border-collapse:collapse;font-size:13px;}
+#tool-lb th,#tool-lb td{text-align:right;padding:8px 12px;font-family:var(--mono);}
+#tool-lb th{
+  font-family:inherit;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;border-bottom:1px solid var(--line);
+}
+#tool-lb th:first-child,#tool-lb td:first-child{text-align:left;}
+#tool-lb tbody tr{border-bottom:1px solid #EEF2F6;}
+#tool-lb tbody tr:last-child{border-bottom:none;}
+#tool-lb tbody tr.week td{background:#F4F6FF;}
+#tool-lb tbody tr.month td{background:#FCFBE8;}
+#tool-lb td.wk{font-family:inherit;font-weight:650;color:var(--blue-deep);}
+#tool-lb tbody tr.hl td{background:#E8ECFF !important;box-shadow:inset 3px 0 0 var(--blue);}
+
+#tool-lb details.settings{
+  background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;
+}
+#tool-lb details.settings > summary{
+  cursor:pointer;list-style:none;padding:12px 16px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#tool-lb details.settings > summary::-webkit-details-marker{display:none;}
+#tool-lb details.settings > summary::after{content:"oeffnen";font-size:9.5px;color:var(--blue);letter-spacing:.05em;}
+#tool-lb details.settings[open] > summary::after{content:"schliessen";}
+#tool-lb .settings-body{padding:4px 16px 16px;border-top:1px solid var(--line);}
+#tool-lb .sgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px;}
+#tool-lb .sgrid .col{display:flex;flex-direction:column;gap:3px;}
+#tool-lb .sgrid .col .d{font-size:9.5px;text-align:center;color:#8A96A3;font-weight:600;}
+#tool-lb .sgrid input{
+  width:100%;box-sizing:border-box;font-family:var(--mono);font-size:11.5px;text-align:center;
+  padding:5px 2px;border:1px solid var(--line);border-radius:6px;outline:none;color:var(--ink);
+}
+#tool-lb .sgrid input:focus{border-color:var(--blue);}
+#tool-lb .slabel{
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin:14px 0 4px;
+}
+#tool-lb .anchors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
+#tool-lb .anchors .a{display:flex;flex-direction:column;gap:3px;}
+#tool-lb .anchors .a span{font-size:10.5px;color:var(--muted);font-weight:600;}
+#tool-lb .anchors input{
+  font-family:var(--mono);font-size:13px;padding:7px 9px;
+  border:1px solid var(--line);border-radius:8px;outline:none;color:var(--ink);
+}
+#tool-lb .anchors input:focus{border-color:var(--blue);}
+#tool-lb .reset{
+  margin-top:14px;background:none;border:1px solid var(--line);color:var(--muted);
+  font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
+}
+#tool-lb .reset:hover{border-color:#C0392B;color:#C0392B;}
+#tool-lb .lb-footer{
+  margin-top:12px;font-size:11px;color:var(--muted);text-align:center;line-height:1.5;
+}
+@media(max-width:480px){
+  #tool-lb .lb-inputs{grid-template-columns:1fr;}
+  #tool-lb .lb-result .big{font-size:36px;}
+  #tool-lb .sgrid{grid-template-columns:repeat(4,1fr);}
+  #tool-lb .anchors{grid-template-columns:1fr;}
+}
+
+/* ── Rechner-Tabs (9-Sitzer / Transporter) ── */
+.calc-wrap{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+  padding:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.calc-wrap .avj-calc,.calc-wrap .avjt-calc{max-width:none;}
+.calc-wrap .avj-head h3,.calc-wrap .avjt-head h3{font-size:20px;}
+.nav-btn{min-width:96px;}
+
+/* ═══ Trigger-Zeile ═══ */
+
+/* ═══ Overlay ═══ */
+@keyframes avjFade{from{opacity:0}to{opacity:1}}
+@keyframes avjRise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:560px){
+  .avj-cta{padding:13px 20px;gap:10px;}
+  .avj-cta .avj-wa{width:30px;height:30px;}
+  .avj-cta-txt .t{font-size:15px;}
+  .avj-overlay{padding:0;align-items:flex-end;}
+  .avj-modal{max-width:none;border-radius:20px 20px 0 0;max-height:92vh;}
+  .avj-scroll{padding:26px 18px 22px;}
+  .avj-open-txt{font-size:16px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .avj-backdrop,.avj-modal{animation:none;}
+}
+
+
+.avj-calc{
+  --ink:#111C2E;
+  --ink-soft:#5A6675;
+  --line:#DCE3EA;
+  --blue:#1B2FC4;
+  --blue-deep:#101C6E;
+  --yellow:#F5EC22;
+  --field:#F7F9FB;
+  --radius:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  max-width:660px;
+  margin:0 auto;
+  -webkit-font-smoothing:antialiased;
+}
+.avj-calc *{box-sizing:border-box;}
+
+/* Head */
+.avj-head{margin-bottom:22px;}
+.avj-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:8px;
+}
+.avj-head h3{
+  font-size:26px;line-height:1.15;font-weight:700;margin:0 0 8px;letter-spacing:-.02em;
+}
+.avj-head p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-soft);}
+
+/* Fahrzeugwahl */
+.avj-cars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.avj-car{
+  text-align:left;font-family:inherit;cursor:pointer;
+  background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:13px 15px;transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avj-car .n{display:block;font-size:15px;font-weight:650;letter-spacing:-.01em;}
+.avj-car .d{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+.avj-car:hover{border-color:#B9C4D0;}
+.avj-car.is-active{
+  border-color:var(--blue);background:#F4F6FF;
+  box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avj-car:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Felder */
+.avj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.avj-f{
+  display:block;background:var(--field);border:1.5px solid var(--line);
+  border-radius:var(--radius);padding:11px 14px;transition:border-color .15s,box-shadow .15s;
+}
+.avj-f:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);}
+.avj-f .l{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;
+}
+.avj-f .l em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;}
+.avj-f .dt{display:flex;align-items:center;gap:7px;}
+.avj-f input{
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  border:none;background:transparent;outline:none;padding:0;width:100%;min-width:0;
+}
+.avj-f .dt input[type=time]{
+  flex:0 0 74px;width:74px;border-left:1px solid var(--line);padding-left:8px;
+}
+.avj-km{margin-bottom:16px;}
+.avj-km input{font-size:20px;font-weight:700;}
+.avj-km .h{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:4px;min-height:15px;}
+
+.avj-durline{
+  min-height:20px;font-size:12.5px;font-weight:600;color:var(--blue-deep);
+  text-align:center;margin:0 0 14px;letter-spacing:.01em;
+}
+.avj-durline .warn{color:#C0392B;}
+
+/* Selbstbeteiligung */
+.avj-sb{border:none;padding:0;margin:0 0 20px;}
+.avj-sb legend{
+  padding:0;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;
+}
+.avj-sbrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.avj-sbrow button{
+  font-family:inherit;cursor:pointer;background:#fff;
+  border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avj-sbrow button .v{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em;}
+.avj-sbrow button .p{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.avj-sbrow button:hover{border-color:#B9C4D0;}
+.avj-sbrow button.is-active{
+  border-color:var(--blue);background:#F4F6FF;box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avj-sbrow button:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Ergebnis */
+.avj-out{
+  background:var(--blue-deep);color:#fff;border-radius:18px;
+  padding:22px 24px 20px;box-shadow:0 14px 34px -20px rgba(16,28,110,.75);
+}
+.avj-out-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.avj-out-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.68;margin-bottom:5px;
+}
+.avj-price{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.03em;}
+.avj-price .c{font-size:23px;font-weight:600;opacity:.75;margin-right:3px;}
+.avj-badge{
+  flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--yellow);color:#101C6E;padding:5px 10px;border-radius:20px;
+}
+.avj-badge:empty{display:none;}
+.avj-lines{
+  list-style:none;margin:18px 0 0;padding:16px 0 0;
+  border-top:1px solid rgba(255,255,255,.16);display:grid;gap:9px;
+}
+.avj-lines li{display:flex;justify-content:space-between;gap:14px;font-size:13.5px;align-items:baseline;}
+.avj-lines li .k{opacity:.76;}
+.avj-lines li .v{font-weight:650;text-align:right;}
+.avj-lines li.km .v{color:var(--yellow);}
+.avj-lines li.sum{
+  border-top:1px solid rgba(255,255,255,.16);padding-top:11px;margin-top:2px;font-size:15px;
+}
+.avj-lines li.sum .v{font-size:18px;font-weight:750;}
+.avj-lines li.hint{display:block;font-size:11.5px;opacity:.6;line-height:1.45;}
+
+
+@media(max-width:560px){
+  .avj-head h3{font-size:22px;}
+  .avj-cars,.avj-grid{grid-template-columns:1fr;}
+  .avj-price{font-size:36px;}
+  .avj-sbrow{grid-template-columns:1fr;}
+  .avj-sbrow button{display:flex;justify-content:space-between;align-items:baseline;padding:11px 14px;}
+  .avj-sbrow button .p{margin-top:0;}
+}
+@media(prefers-reduced-motion:reduce){
+  .avj-calc *{transition:none!important;}
+}
+
+/* Zeit-Dropdown statt Safari-Zeitstrahl */
+.avj-f .dt select{
+  flex:0 0 auto;width:82px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#111C2E;
+  border:none;border-left:1px solid #DCE3EA;background:transparent;
+  outline:none;padding:0 0 0 8px;margin:0;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;
+  padding-right:14px;
+}
+.avj-f .dt select:focus{outline:none;}
+
+/* Hinweise unter Datum/Uhrzeit */
+.avj-f .h{
+  display:block;font-size:11.5px;line-height:1.35;color:#5A6675;
+  margin-top:5px;min-height:0;
+}
+.avj-f .h.tresor{color:#A8710C;font-weight:600;}
+.avj-f .h.warn{color:#C0392B;font-weight:600;}
+.avj-f .dt select option.tresor{color:#A8710C;}
+
+/* ── Zusatzposten ── */
+.avj-extras{margin:0 0 16px;}
+.avj-extras-head{
+  font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:#5A6675;margin-bottom:7px;
+}
+.avj-xrow{display:grid;grid-template-columns:1fr 108px 30px;gap:8px;margin-bottom:7px;align-items:center;}
+.avj-xrow input{
+  width:100%;box-sizing:border-box;padding:9px 11px;font-size:14px;font-family:inherit;
+  color:#111C2E;background:#F7F9FB;border:1.5px solid #DCE3EA;border-radius:10px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.avj-xrow input:focus{border-color:#1B2FC4;box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;}
+.avj-xrow input.amt{text-align:right;font-weight:650;}
+.avj-xdel{
+  border:none;background:none;cursor:pointer;color:#A9B4BF;font-size:19px;line-height:1;
+  padding:4px;border-radius:6px;font-family:inherit;transition:color .15s;
+}
+.avj-xdel:hover{color:#C0392B;}
+.avj-xdel[hidden]{visibility:hidden;}
+
+/* ── Einstellungen ── */
+.avj-settings{
+  background:#fff;border:1px solid #DCE3EA;border-radius:12px;
+  overflow:hidden;margin:16px 0 0;
+}
+.avj-settings > summary{
+  cursor:pointer;list-style:none;padding:12px 16px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#5A6675;font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.avj-settings > summary::-webkit-details-marker{display:none;}
+.avj-settings > summary::after{content:"oeffnen";font-size:9.5px;color:#1B2FC4;letter-spacing:.05em;}
+.avj-settings[open] > summary::after{content:"schliessen";}
+.avj-set-body{padding:4px 16px 16px;border-top:1px solid #DCE3EA;}
+.avj-slabel{
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#5A6675;
+  font-weight:700;margin:14px 0 6px;
+}
+.avj-sgrid{display:grid;gap:5px;margin-bottom:2px;}
+.avj-sgrid.d7{grid-template-columns:repeat(7,1fr);}
+.avj-sgrid.p4{grid-template-columns:repeat(4,1fr);}
+.avj-sgrid.p3{grid-template-columns:repeat(3,1fr);}
+.avj-sgrid.r3{grid-template-columns:repeat(3,1fr);}
+.avj-scol{display:flex;flex-direction:column;gap:3px;}
+.avj-scol .d{font-size:9.5px;text-align:center;color:#8A96A3;font-weight:600;}
+.avj-sgrid input{
+  width:100%;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:11.5px;
+  text-align:center;padding:5px 2px;border:1px solid #DCE3EA;border-radius:6px;outline:none;color:#111C2E;
+}
+.avj-sgrid input:focus{border-color:#1B2FC4;}
+.avj-sreset{
+  margin-top:14px;background:none;border:1px solid #DCE3EA;color:#5A6675;
+  font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
+}
+.avj-sreset:hover{border-color:#C0392B;color:#C0392B;}
+.avj-snote{font-size:10.5px;color:#8A96A3;margin-top:10px;line-height:1.45;}
+@media(max-width:560px){
+  .avj-sgrid.d7{grid-template-columns:repeat(4,1fr);}
+  .avj-xrow{grid-template-columns:1fr 92px 28px;}
+}
+
+.avj-f .h.offhint{color:#7A8592;font-weight:600;}
+.avj-f .dt select option.offhours{color:#9AA5B1;background:#F0F2F5;}
+
+
+/* Trigger-Zeile */
+
+/* Overlay */
+@keyframes avjtFade{from{opacity:0}to{opacity:1}}
+@keyframes avjtRise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:560px){
+  .avjt-cta{padding:13px 20px;gap:10px;}
+  .avjt-cta .avjt-wa{width:30px;height:30px;}
+  .avjt-cta-txt .t{font-size:15px;}
+  .avjt-overlay{padding:0;align-items:flex-end;}
+  .avjt-modal{max-width:none;border-radius:20px 20px 0 0;max-height:92vh;}
+  .avjt-scroll{padding:26px 18px 22px;}
+  .avjt-open-txt{font-size:16px;}
+}
+@media(prefers-reduced-motion:reduce){.avjt-backdrop,.avjt-modal{animation:none;}}
+
+
+.avjt-calc{
+  --ink:#111C2E;
+  --ink-soft:#5A6675;
+  --line:#DCE3EA;
+  --blue:#1B2FC4;
+  --blue-deep:#101C6E;
+  --yellow:#F5EC22;
+  --field:#F7F9FB;
+  --radius:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  max-width:660px;
+  margin:0 auto;
+  -webkit-font-smoothing:antialiased;
+}
+.avjt-calc *{box-sizing:border-box;}
+
+/* Head */
+.avjt-head{margin-bottom:22px;}
+.avjt-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:8px;
+}
+.avjt-head h3{
+  font-size:26px;line-height:1.15;font-weight:700;margin:0 0 8px;letter-spacing:-.02em;
+}
+.avjt-head p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-soft);}
+
+/* Fahrzeugwahl */
+.avjt-cars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.avjt-car{
+  text-align:left;font-family:inherit;cursor:pointer;
+  background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:13px 15px;transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avjt-car .n{display:block;font-size:15px;font-weight:650;letter-spacing:-.01em;}
+.avjt-car .d{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+.avjt-car:hover{border-color:#B9C4D0;}
+.avjt-car.is-active{
+  border-color:var(--blue);background:#F4F6FF;
+  box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avjt-car:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Felder */
+.avjt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.avjt-f{
+  display:block;background:var(--field);border:1.5px solid var(--line);
+  border-radius:var(--radius);padding:11px 14px;transition:border-color .15s,box-shadow .15s;
+}
+.avjt-f:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);}
+.avjt-f .l{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;
+}
+.avjt-f .l em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;}
+.avjt-f .dt{display:flex;align-items:center;gap:7px;}
+.avjt-f input{
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  border:none;background:transparent;outline:none;padding:0;width:100%;min-width:0;
+}
+.avjt-f .dt input[type=time]{
+  flex:0 0 74px;width:74px;border-left:1px solid var(--line);padding-left:8px;
+}
+.avjt-km{margin-bottom:16px;}
+.avjt-km input{font-size:20px;font-weight:700;}
+.avjt-km .h{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:4px;min-height:15px;}
+
+.avjt-durline{
+  min-height:20px;font-size:12.5px;font-weight:600;color:var(--blue-deep);
+  text-align:center;margin:0 0 14px;letter-spacing:.01em;
+}
+.avjt-durline .warn{color:#C0392B;}
+
+/* Selbstbeteiligung */
+.avjt-sb{border:none;padding:0;margin:0 0 20px;}
+.avjt-sb legend{
+  padding:0;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;
+}
+.avjt-sbrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.avjt-sbrow button{
+  font-family:inherit;cursor:pointer;background:#fff;
+  border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avjt-sbrow button .v{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em;}
+.avjt-sbrow button .p{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.avjt-sbrow button:hover{border-color:#B9C4D0;}
+.avjt-sbrow button.is-active{
+  border-color:var(--blue);background:#F4F6FF;box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avjt-sbrow button:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Ergebnis */
+.avjt-out{
+  background:var(--blue-deep);color:#fff;border-radius:18px;
+  padding:22px 24px 20px;box-shadow:0 14px 34px -20px rgba(16,28,110,.75);
+}
+.avjt-out-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.avjt-out-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.68;margin-bottom:5px;
+}
+.avjt-price{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.03em;}
+.avjt-price .c{font-size:23px;font-weight:600;opacity:.75;margin-right:3px;}
+.avjt-badge{
+  flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--yellow);color:#101C6E;padding:5px 10px;border-radius:20px;
+}
+.avjt-badge:empty{display:none;}
+.avjt-lines{
+  list-style:none;margin:18px 0 0;padding:16px 0 0;
+  border-top:1px solid rgba(255,255,255,.16);display:grid;gap:9px;
+}
+.avjt-lines li{display:flex;justify-content:space-between;gap:14px;font-size:13.5px;align-items:baseline;}
+.avjt-lines li .k{opacity:.76;}
+.avjt-lines li .v{font-weight:650;text-align:right;}
+.avjt-lines li.km .v{color:var(--yellow);}
+.avjt-lines li.sum{
+  border-top:1px solid rgba(255,255,255,.16);padding-top:11px;margin-top:2px;font-size:15px;
+}
+.avjt-lines li.sum .v{font-size:18px;font-weight:750;}
+.avjt-lines li.hint{display:block;font-size:11.5px;opacity:.6;line-height:1.45;}
+
+
+@media(max-width:560px){
+  .avjt-head h3{font-size:22px;}
+  .avjt-cars,.avjt-grid{grid-template-columns:1fr;}
+  .avjt-price{font-size:36px;}
+  .avjt-sbrow{grid-template-columns:1fr;}
+  .avjt-sbrow button{display:flex;justify-content:space-between;align-items:baseline;padding:11px 14px;}
+  .avjt-sbrow button .p{margin-top:0;}
+}
+@media(prefers-reduced-motion:reduce){
+  .avjt-calc *{transition:none!important;}
+}
+
+/* Zeit-Dropdown statt Safari-Zeitstrahl */
+.avjt-f .dt select{
+  flex:0 0 auto;width:82px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#111C2E;
+  border:none;border-left:1px solid #DCE3EA;background:transparent;
+  outline:none;padding:0 0 0 8px;margin:0;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;
+  padding-right:14px;
+}
+.avjt-f .dt select:focus{outline:none;}
+
+/* Hinweise unter Datum/Uhrzeit */
+.avjt-f .h{
+  display:block;font-size:11.5px;line-height:1.35;color:#5A6675;
+  margin-top:5px;min-height:0;
+}
+.avjt-f .h.tresor{color:#A8710C;font-weight:600;}
+.avjt-f .h.warn{color:#C0392B;font-weight:600;}
+.avjt-f .dt select option.tresor{color:#A8710C;}
+
+/* ── Zusatzposten ── */
+.avjt-extras{margin:0 0 16px;}
+.avjt-extras-head{
+  font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:#5A6675;margin-bottom:7px;
+}
+.avjt-xrow{display:grid;grid-template-columns:1fr 108px 30px;gap:8px;margin-bottom:7px;align-items:center;}
+.avjt-xrow input{
+  width:100%;box-sizing:border-box;padding:9px 11px;font-size:14px;font-family:inherit;
+  color:#111C2E;background:#F7F9FB;border:1.5px solid #DCE3EA;border-radius:10px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.avjt-xrow input:focus{border-color:#1B2FC4;box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;}
+.avjt-xrow input.amt{text-align:right;font-weight:650;}
+.avjt-xdel{
+  border:none;background:none;cursor:pointer;color:#A9B4BF;font-size:19px;line-height:1;
+  padding:4px;border-radius:6px;font-family:inherit;transition:color .15s;
+}
+.avjt-xdel:hover{color:#C0392B;}
+.avjt-xdel[hidden]{visibility:hidden;}
+
+/* ── Einstellungen ── */
+.avjt-settings{
+  background:#fff;border:1px solid #DCE3EA;border-radius:12px;
+  overflow:hidden;margin:16px 0 0;
+}
+.avjt-settings > summary{
+  cursor:pointer;list-style:none;padding:12px 16px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#5A6675;font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.avjt-settings > summary::-webkit-details-marker{display:none;}
+.avjt-settings > summary::after{content:"oeffnen";font-size:9.5px;color:#1B2FC4;letter-spacing:.05em;}
+.avjt-settings[open] > summary::after{content:"schliessen";}
+.avjt-set-body{padding:4px 16px 16px;border-top:1px solid #DCE3EA;}
+.avjt-slabel{
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#5A6675;
+  font-weight:700;margin:14px 0 6px;
+}
+.avjt-sgrid{display:grid;gap:5px;margin-bottom:2px;}
+.avjt-sgrid.d7{grid-template-columns:repeat(7,1fr);}
+.avjt-sgrid.p4{grid-template-columns:repeat(4,1fr);}
+.avjt-sgrid.p3{grid-template-columns:repeat(3,1fr);}
+.avjt-sgrid.r3{grid-template-columns:repeat(3,1fr);}
+.avjt-scol{display:flex;flex-direction:column;gap:3px;}
+.avjt-scol .d{font-size:9.5px;text-align:center;color:#8A96A3;font-weight:600;}
+.avjt-sgrid input{
+  width:100%;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:11.5px;
+  text-align:center;padding:5px 2px;border:1px solid #DCE3EA;border-radius:6px;outline:none;color:#111C2E;
+}
+.avjt-sgrid input:focus{border-color:#1B2FC4;}
+.avjt-sreset{
+  margin-top:14px;background:none;border:1px solid #DCE3EA;color:#5A6675;
+  font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
+}
+.avjt-sreset:hover{border-color:#C0392B;color:#C0392B;}
+.avjt-snote{font-size:10.5px;color:#8A96A3;margin-top:10px;line-height:1.45;}
+@media(max-width:560px){
+  .avjt-sgrid.d7{grid-template-columns:repeat(4,1fr);}
+  .avjt-xrow{grid-template-columns:1fr 92px 28px;}
+}
+
+.avjt-f .h.offhint{color:#7A8592;font-weight:600;}
+.avjt-f .dt select option.offhours{color:#9AA5B1;background:#F0F2F5;}
+
 </style>
 </head>
 <body>
@@ -211,6 +750,8 @@
   <button class="nav-btn active" onclick="showTool('mietdauer',this)">Mietdauer</button>
   <button class="nav-btn" onclick="showTool('rabatt',this)">Rabatt</button>
   <button class="nav-btn" onclick="showTool('lb',this)">LB-Preis</button>
+  <button class="nav-btn" onclick="showTool('neun',this)">9-Sitzer</button>
+  <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
 </div>
 
 <div class="content">
@@ -336,6 +877,172 @@
     </details>
 
     <div class="lb-footer">Offline nutzbar &middot; keine Daten verlassen den Browser &middot; Zwischenwerte &gt;7 Tage werden interpoliert</div>
+  </div>
+
+
+  <!-- 9-SITZER -->
+  <div class="tool" id="tool-neun">
+    <div class="calc-wrap">
+<div class="avj-calc">
+
+  <div class="avj-head">
+    <div class="avj-eyebrow">Preisrechner</div>
+    <h3>Was kostet dein 9-Sitzer?</h3>
+    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
+  </div>
+
+  <!-- Fahrzeugwahl -->
+  <div class="avj-cars">
+    <button class="avj-car is-active" data-car="sprinter">
+      <span class="n">Sprinter Tourer</span>
+      <span class="d">214 &middot; kurz &middot; Handschaltung</span>
+    </button>
+    <button class="avj-car" data-car="vito">
+      <span class="n">Vito Tourer</span>
+      <span class="d">119 &middot; extralang &middot; Automatik</span>
+    </button>
+  </div>
+
+  <!-- Zeitraum -->
+  <div class="avj-grid">
+    <label class="avj-f">
+      <span class="l">Abholung</span>
+      <span class="dt">
+        <input type="date" id="avjFrom">
+        <select id="avjFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjFromHint"></span>
+    </label>
+    <label class="avj-f">
+      <span class="l">R&uuml;ckgabe</span>
+      <span class="dt">
+        <input type="date" id="avjTo">
+        <select id="avjToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjToHint"></span>
+    </label>
+  </div>
+
+  <div class="avj-durline" id="avjDur"></div>
+
+  <!-- Kilometer -->
+  <label class="avj-f avj-km">
+    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
+    <input type="number" id="avjKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
+    <span class="h" id="avjKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
+  </label>
+
+  <!-- Haftung -->
+  <fieldset class="avj-sb">
+    <legend>Selbstbeteiligung je Schadenfall</legend>
+    <div class="avj-sbrow" id="avjSbRow"></div>
+  </fieldset>
+
+  <!-- Ergebnis -->
+  <div class="avj-extras">
+    <div class="avj-extras-head">Zusatzposten</div>
+    <div id="avjExtraRows"></div>
+  </div>
+
+  <div class="avj-out" id="avjOut">
+    <div class="avj-out-top">
+      <div>
+        <div class="avj-out-label" id="avjTarifLabel">Richtpreis</div>
+        <div class="avj-price"><span class="c">&euro;</span><span id="avjPrice">&mdash;</span></div>
+      </div>
+      <div class="avj-badge" id="avjBadge"></div>
+    </div>
+    <ul class="avj-lines" id="avjLines"></ul>
+</div>
+
+  <details class="avj-settings">
+    <summary>Preise anpassen</summary>
+    <div class="avj-set-body" id="avjSetBody"></div>
+  </details>
+</div>
+    </div>
+  </div>
+
+  <div class="tool" id="tool-trans">
+    <div class="calc-wrap">
+<div class="avjt-calc">
+
+  <div class="avjt-head">
+    <div class="avjt-eyebrow">Preisrechner</div>
+    <h3>Was kostet dein Transporter?</h3>
+    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
+  </div>
+
+  <!-- Fahrzeugwahl -->
+  <div class="avjt-cars">
+    <button class="avjt-car is-active" data-car="m">
+      <span class="n">Transporter M</span>
+      <span class="d">z.&#8239;B. Renault Trafic L2H1</span>
+    </button>
+    <button class="avjt-car" data-car="xl">
+      <span class="n">Transporter XL</span>
+      <span class="d">z.&#8239;B. Mercedes Sprinter L3</span>
+    </button>
+  </div>
+
+  <!-- Zeitraum -->
+  <div class="avjt-grid">
+    <label class="avjt-f">
+      <span class="l">Abholung</span>
+      <span class="dt">
+        <input type="date" id="avjTFrom">
+        <select id="avjTFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjTFromHint"></span>
+    </label>
+    <label class="avjt-f">
+      <span class="l">R&uuml;ckgabe</span>
+      <span class="dt">
+        <input type="date" id="avjTTo">
+        <select id="avjTToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjTToHint"></span>
+    </label>
+  </div>
+
+  <div class="avjt-durline" id="avjTDur"></div>
+
+  <!-- Kilometer -->
+  <label class="avjt-f avjt-km">
+    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
+    <input type="number" id="avjTKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
+    <span class="h" id="avjTKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
+  </label>
+
+  <!-- Haftung -->
+  <fieldset class="avjt-sb">
+    <legend>Selbstbeteiligung je Schadenfall</legend>
+    <div class="avjt-sbrow" id="avjTSbRow"></div>
+  </fieldset>
+
+  <!-- Ergebnis -->
+  <div class="avjt-extras">
+    <div class="avjt-extras-head">Zusatzposten</div>
+    <div id="avjTExtraRows"></div>
+  </div>
+
+  <div class="avjt-out" id="avjTOut">
+    <div class="avjt-out-top">
+      <div>
+        <div class="avjt-out-label" id="avjTTarifLabel">Richtpreis</div>
+        <div class="avjt-price"><span class="c">&euro;</span><span id="avjTPrice">&mdash;</span></div>
+      </div>
+      <div class="avjt-badge" id="avjTBadge"></div>
+    </div>
+    <ul class="avjt-lines" id="avjTLines"></ul>
+</div>
+
+  <details class="avjt-settings">
+    <summary>Preise anpassen</summary>
+    <div class="avjt-set-body" id="avjTSetBody"></div>
+  </details>
+</div>
+    </div>
   </div>
 
 </div><!-- /content -->
@@ -518,7 +1225,7 @@ calcMietdauer();
     const ft=$("from-t").value||"00:00",tt=$("to-t").value||"00:00";
     const d1=new Date(f+"T"+ft+":00"),d2=new Date(t+"T"+tt+":00");
     const ms=d2-d1;
-    if(ms<=0){$("date-hint").innerHTML='<span style="color:var(--orange)">Rückgabe liegt vor der Abholung.</span>';return;}
+    if(ms<=0){$("date-hint").innerHTML='<span style="color:#C0392B">Rückgabe liegt vor der Abholung.</span>';return;}
     const hours=ms/3600000,days=Math.max(1,Math.ceil(hours/24));
     $("days").value=days;
     const wd=['So','Mo','Di','Mi','Do','Fr','Sa'],p=n=>('0'+n).slice(-2);
@@ -544,6 +1251,1366 @@ calcMietdauer();
 
   buildSettings();buildTable();render();
 })();
+
+
+/* ═══ 9-SITZER ═══ */
+/* ─── GA4-Events ─────────────────────────────────────────────
+   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
+function avjTrack(name, params){
+  try{
+    if(typeof window.gtag === "function"){
+      window.gtag("event", name, params || {});
+    }
+  }catch(e){}
+}
+
+/* ═══ Popup-Steuerung ═══ */
+(function(){
+  "use strict";
+  var ov    = document.getElementById("avjOverlay");
+  var open  = document.getElementById("avjOpen");
+  var close = document.getElementById("avjClose");
+  if(!ov || !open) return;
+  var lastFocus = null;
+
+  /* Overlay aus dem Onepage-Abschnitt herausl\u00F6sen und direkt an <body> h\u00E4ngen.
+     Sonst kann ein transform/z-index auf dem Elternabschnitt das Popup einsperren. */
+  if(ov.parentNode !== document.body){
+    document.body.appendChild(ov);
+  }
+
+  function show(){
+    lastFocus = document.activeElement;
+    ov.hidden = false;
+    avjTrack("rechner_geoeffnet", { kategorie: "9-Sitzer" });
+    document.body.style.overflow = "hidden";
+    var first = ov.querySelector(".avj-car");
+    if(first) first.focus();
+  }
+  function hide(){
+    ov.hidden = true;
+    document.body.style.overflow = "";
+    if(lastFocus) lastFocus.focus();
+  }
+
+  open.addEventListener("click", show);
+  if(close) close.addEventListener("click", hide);
+  ov.addEventListener("click", function(e){
+    if(e.target.hasAttribute("data-close")) hide();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && !ov.hidden) hide();
+  });
+
+  /* Fokus im Dialog halten */
+  ov.addEventListener("keydown", function(e){
+    if(e.key !== "Tab") return;
+    var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    var first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+})();
+
+
+(function(){
+  "use strict";
+
+  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
+  var CARS = {
+    sprinter: {
+      name: "Sprinter Tourer",
+      frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      planKm: 0.18,   // vorab geplante Mehrkilometer
+      overKm: 0.33,   // ungeplant bei R\u00FCckgabe
+      // Wochenendtarif Fr 12:00 bis Mo 10:00
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [200,130], [500,150], [800,175], [1200,225] ],
+      dayFrSa: [ [200,150], [500,175], [800,200], [1200,250] ],
+      weekend: [ [200,245], [600,275], [900,330], [1200,395] ],
+      // Staffel Tag 1-7 + Frei-km
+      tier:   [130, 255, 375, 475, 555, 615, 650],
+      tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+      sb: [
+        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]        },
+        { label:"1.000 \u20AC", we:25, tier:[15,30,43,54,63,70,75] },
+        { label:"500 \u20AC",   we:60, tier:[30,58,78,90,98,102,105] }
+      ]
+    },
+    vito: {
+      name: "Vito Tourer",
+      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      planKm: 0.22,   // vorab geplante Mehrkilometer
+      overKm: 0.37,   // ungeplant bei R\u00FCckgabe
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [200,160], [500,195], [800,230], [1200,275] ],
+      dayFrSa: [ [200,170], [500,210], [800,250], [1200,300] ],
+      weekend: [ [200,275], [600,345], [900,395], [1200,460] ],
+      tier:   [160, 315, 465, 600, 730, 845, 950],
+      tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+      sb: [
+        { label:"2.000 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]           },
+        { label:"1.000 \u20AC", we:35, tier:[18,36,52,68,82,92,100]   },
+        { label:"500 \u20AC",   we:75, tier:[35,68,95,118,134,144,150] }
+      ]
+    }
+  };
+
+  var _trackTimer = null, _lastSig = null;
+  var carKey = "sprinter";
+  var sbIdx  = 0;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+  var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+
+  /* ─── Datum / Dauer ──────────────────────────────────────── */
+  function parseDT(dEl, tEl){
+    var d = $(dEl).value, t = $(tEl).value || "09:00";
+    if(!d) return null;
+    return new Date(d + "T" + t + ":00");
+  }
+
+  function duration(){
+    var a = parseDT("avjFrom","avjFromT");
+    var b = parseDT("avjTo","avjToT");
+    if(!a || !b) return null;
+    var ms = b - a;
+    if(ms <= 0) return { invalid:true };
+    var hours = ms / 3600000;
+    return {
+      from: a, to: b, hours: hours,
+      days: Math.max(1, Math.ceil(hours / 24)),
+      fullDays: Math.floor(hours / 24),
+      restHours: Math.round(hours - Math.floor(hours/24)*24)
+    };
+  }
+
+  // Wochenendtarif: Abholung Fr ab 12:00 oder Sa, Rückgabe bis Mo 10:00
+  function isWeekend(d){
+    if(!d || d.invalid) return false;
+    var wdA = d.from.getDay();           // 5 = Fr, 6 = Sa
+    var wdB = d.to.getDay();             // 0 = So, 1 = Mo
+    var hA  = d.from.getHours() + d.from.getMinutes()/60;
+    var hB  = d.to.getHours()   + d.to.getMinutes()/60;
+    if(d.hours > 96) return false;       // l\u00E4nger als Fr\u2013Di \u2192 normale Staffel
+    var startOk = (wdA === 5 && hA >= 11) || wdA === 6;
+    var endOk   = (wdB === 1 && hB <= 11) || wdB === 0;
+    return startOk && endOk;
+  }
+
+  /* ─── km-Stufe wählen ────────────────────────────────────── */
+  /* Zwischen je zwei Paketstufen die Mitte einziehen:
+     aus 100/75 und 400/115 wird zusaetzlich 250/95.
+     Entspricht der bisherigen Handrechnung (beide Pakete addieren, halbieren). */
+  function expand(steps){
+    var out = [];
+    for(var i=0;i<steps.length;i++){
+      out.push(steps[i]);
+      if(i+1 < steps.length){
+        out.push([
+          Math.round((steps[i][0] + steps[i+1][0]) / 2),
+          Math.round((steps[i][1] + steps[i+1][1]) / 2)
+        ]);
+      }
+    }
+    return out;
+  }
+
+  var _gridCache = {};
+  function gridFor(car, key){
+    var id = car.name + "|" + key;
+    if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
+    return _gridCache[id];
+  }
+
+  /* Guenstigste Variante fuer den Kunden waehlen: entweder das naechstgroessere
+     Paket, oder ein kleineres Paket plus vorab geplante Mehrkilometer.
+     Ohne km-Angabe wird die kleinste Stufe gezeigt. */
+  function pickStep(steps, km, rate){
+    if(km === null) return { idx:0, km:steps[0][0], price:steps[0][1] };
+    if(!rate){
+      for(var i=0;i<steps.length;i++){
+        if(km <= steps[i][0]) return { idx:i, km:steps[i][0], price:steps[i][1] };
+      }
+      var last = steps[steps.length-1];
+      return { idx:steps.length-1, km:last[0], price:last[1] };
+    }
+    var best = null;
+    for(var j=0;j<steps.length;j++){
+      var over = Math.max(0, km - steps[j][0]);
+      var cost = steps[j][1] + over * rate;
+      if(best === null || cost < best.cost - 0.001){
+        best = { idx:j, km:steps[j][0], price:steps[j][1], cost:cost };
+      }
+    }
+    return best;
+  }
+
+  /* ─── Preisberechnung ────────────────────────────────────── */
+  function quote(){
+    var car = CARS[carKey];
+    var d   = duration();
+    if(!d) return { empty:true };
+    if(d.invalid) return { invalid:true };
+
+    var kmRaw = $("avjKm").value.trim();
+    var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
+
+    var mode, base, freeKm, sbCost, tarifLabel, badge = "";
+
+    var wd   = d.from.getDay();
+    var frSa = (wd === 5 || wd === 6);
+
+    if(isWeekend(d)){
+      /* Wochenendtarif: eigenes Paketraster */
+      mode = "we";
+      var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
+      base = stW.price; freeKm = stW.km;
+      sbCost = car.sb[sbIdx].we;
+      tarifLabel = "Wochenendtarif";
+      badge = "Fr-Mo";
+
+    } else if(d.days <= 2){
+      /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
+      mode = "pkg";
+      var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
+      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
+      base   = stD.price * d.days;
+      freeKm = stD.km    * d.days;
+      sbCost = car.sb[sbIdx].tier[d.days - 1];
+      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
+      badge = frSa ? "Fr/Sa" : "Mo-Do";
+
+    } else {
+      /* ab 3 Tagen: Staffel Richtung Wochentarif */
+      mode = "tier";
+      var i = Math.min(d.days, 7) - 1;
+      base   = car.tier[i];
+      freeKm = car.tierKm[i];
+      if(d.days > 7){
+        var extra = d.days - 7;
+        base   += extra * (car.tier[6] / 7) * 0.92;
+        freeKm += Math.round(extra * car.tierKm[6] / 7);
+      }
+      var sbTier = car.sb[sbIdx].tier;
+      sbCost = sbTier[Math.min(d.days, 7) - 1];
+      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+      tarifLabel = d.days + " Tage";
+      if(d.days === 7) badge = "Wochentarif";
+    }
+
+    var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
+    var overCost = overKm * car.planKm;
+    var total    = base + sbCost + overCost;
+
+    return {
+      car: car, d: d, mode: mode, km: km,
+      base: base, freeKm: freeKm, sbCost: sbCost,
+      overKm: overKm, overCost: overCost, total: total,
+      tarifLabel: tarifLabel, badge: badge
+    };
+  }
+
+  /* ─── Rendering ──────────────────────────────────────────── */
+  function renderSb(){
+    var car = CARS[carKey];
+    var html = "";
+    for(var i=0;i<car.sb.length;i++){
+      var s = car.sb[i];
+      var p = s.tier[0] === 0 ? "inklusive" : "ab " + s.tier[0] + " \u20AC/Tag";
+      html += '<button type="button" data-sb="'+i+'"'+(i===sbIdx?' class="is-active"':'')+'>'
+            +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
+            + '</button>';
+    }
+    $("avjSbRow").innerHTML = html;
+  }
+
+  function renderDur(){
+    var d = duration();
+    var el = $("avjDur");
+    if(!d){ el.textContent = ""; return; }
+    if(d.invalid){
+      el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
+      return;
+    }
+    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+    var p  = function(n){ return ("0"+n).slice(-2); };
+    var f  = function(x){
+      return wd[x.getDay()]+" "+p(x.getDate())+"."+p(x.getMonth()+1)+". "+p(x.getHours())+":"+p(x.getMinutes());
+    };
+    var lbl = d.days + (d.days === 1 ? " Tag" : " Tage");
+    if(d.fullDays > 0 && d.restHours > 0){
+      lbl = d.fullDays + (d.fullDays === 1 ? " Tag" : " Tage") + " und " + d.restHours + " Std.";
+    }
+    el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
+  }
+
+  function render(){
+    renderDur();
+    var q = $("avjOut");
+    var r = quote();
+
+    if(r.empty || r.invalid){
+      $("avjPrice").textContent = "\u2014";
+      $("avjTarifLabel").textContent = "Richtpreis";
+      $("avjBadge").textContent = "";
+      $("avjLines").innerHTML =
+        '<li class="hint">'+(r.invalid
+          ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
+          : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
+      $("avjKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      return;
+    }
+
+    $("avjPrice").textContent = eur(r.total + extrasSum());
+    $("avjTarifLabel").textContent = r.tarifLabel;
+    $("avjBadge").textContent = r.badge;
+
+    var L = "";
+    L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
+    L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
+
+    if(r.km !== null){
+      L += '<li><span class="k">Geplante Fahrleistung</span><span class="v">'+num(r.km)+' km</span></li>';
+      if(r.overKm > 0){
+        L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
+          +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
+        $("avjKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
+      } else {
+        $("avjKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
+      }
+    } else {
+      $("avjKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
+    }
+
+    if(r.sbCost > 0){
+      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+    } else {
+      L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
+    }
+
+    /* Zusatzposten */
+    var _xsum = 0;
+    for(var xi=0; xi<_extras.length; xi++){
+      var xa = parseFloat(String(_extras[xi].amount).replace(",", "."));
+      if(isNaN(xa) || xa === 0) continue;
+      _xsum += xa;
+      var xl = _extras[xi].label || "Zusatzposten";
+      L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
+    }
+
+    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(r.total + _xsum)+' \u20AC</span></li>';
+
+    L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
+      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
+
+    if(r.mode === "tier" && r.d.days > 7){
+      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
+    }
+    if(r.mode === "we"){
+      L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
+    }
+
+    $("avjLines").innerHTML = L;
+
+    /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
+    clearTimeout(_trackTimer);
+    _trackTimer = setTimeout(function(){
+      var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
+      if(sig === _lastSig) return;
+      _lastSig = sig;
+      avjTrack("preis_berechnet", {
+        kategorie: "9-Sitzer",
+        fahrzeug:  r.car.name,
+        tage:      r.d.days,
+        tarif:     r.mode,
+        kilometer: r.km === null ? 0 : r.km,
+        preis:     Math.round(r.total)
+      });
+    }, 1200);
+  }
+
+  /* ─── Events ─────────────────────────────────────────────── */
+  var cars = document.querySelectorAll(".avj-car");
+  for(var i=0;i<cars.length;i++){
+    cars[i].addEventListener("click", function(){
+      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
+      this.classList.add("is-active");
+      carKey = this.getAttribute("data-car");
+      sbIdx = 0;
+      avjTrack("fahrzeug_gewechselt", { kategorie: "9-Sitzer", fahrzeug: CARS[carKey].name });
+      renderSb();
+      render();
+    });
+  }
+
+  $("avjSbRow").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-sb]");
+    if(!b) return;
+    sbIdx = parseInt(b.getAttribute("data-sb"),10);
+    renderSb();
+    render();
+  });
+
+  ["avjFrom","avjTo"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  ["avjFromT","avjToT"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  $("avjKm").addEventListener("input", render);
+
+
+  /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
+  /* Abholung nur zu Geschaeftszeiten, Rueckgabe rund um die Uhr
+     ueber den Schluesseltresor. */
+  var HOURS = {
+    1:[8,18], 2:[8,18], 3:[8,18], 4:[8,18], 5:[8,18],   /* Mo-Fr */
+    6:[8,13],                                            /* Sa    */
+    0:null                                               /* So    */
+  };
+
+  function hoursFor(dateStr){
+    if(!dateStr) return HOURS[1];
+    var wd = new Date(dateStr + "T12:00:00").getDay();
+    return HOURS[wd];
+  }
+
+  function minutesOf(hhmm){
+    var p = hhmm.split(":");
+    return parseInt(p[0],10)*60 + parseInt(p[1],10);
+  }
+
+  function pad2(n){ return ("0"+n).slice(-2); }
+
+  /* Liste aufbauen. mode "start": nur Oeffnungszeiten.
+     mode "end": voller Tag, ausserhalb der Zeiten als Tresor markiert. */
+  function fillTimes(sel, dateStr, mode){
+    var h = hoursFor(dateStr);
+    var keep = sel.value;
+    var html = "", first = null;
+
+    if(mode === "start"){
+      for(var m = 0; m < 24*60; m += 30){
+        var v = pad2(Math.floor(m/60)) + ":" + pad2(m%60);
+        var inOpen = h && m >= h[0]*60 && m <= h[1]*60;
+        if(first === null && inOpen) first = v;
+        html += '<option value="'+v+'"'+(inOpen?"":' class="offhours"')+'>'
+             +  v + (inOpen ? "" : " \u00B7 ausserhalb") + '</option>';
+      }
+      if(first === null) first = "10:00";
+    } else {
+      for(var t = 0; t < 24*60; t += 30){
+        var v2 = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
+        var inside = h && t >= h[0]*60 && t <= h[1]*60;
+        if(first === null) first = v2;
+        html += '<option value="'+v2+'"'+(inside?"":' class="tresor"')+'>'
+             +  v2 + (inside ? "" : " \u00B7 Tresor") + '</option>';
+      }
+    }
+    sel.innerHTML = html;
+    /* bisherige Auswahl halten, sonst erste gueltige Zeit */
+    var ok = false;
+    for(var i=0;i<sel.options.length;i++) if(sel.options[i].value === keep) ok = true;
+    sel.value = ok ? keep : (mode === "start" ? (first || "") : (keep || "10:00"));
+    if(!sel.value && sel.options.length) sel.value = sel.options[0].value;
+  }
+
+  function refreshTimes(){
+    var fromEl = $("avjFromT"), toEl = $("avjToT");
+    fillTimes(fromEl, $("avjFrom").value, "start");
+    fillTimes(toEl,   $("avjTo").value,   "end");
+
+    /* Hinweis Abholung */
+    var hF = hoursFor($("avjFrom").value);
+    var eF = $("avjFromHint");
+    var mF = minutesOf(fromEl.value || "10:00");
+    var insideF = hF && mF >= hF[0]*60 && mF <= hF[1]*60;
+    if(insideF){
+      eF.textContent = "\u00D6ffnungszeit " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
+      eF.className = "h";
+    } else if(hF){
+      eF.textContent = "Ausserhalb der \u00D6ffnungszeit (" + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00) \u2013 Sonderabsprache";
+      eF.className = "h offhint";
+    } else {
+      eF.textContent = "Sonntag \u2013 regul\u00E4r geschlossen, Sonderabsprache";
+      eF.className = "h offhint";
+    }
+
+    /* Hinweis Rueckgabe */
+    var hT = hoursFor($("avjTo").value);
+    var eT = $("avjToHint");
+    var mT = minutesOf(toEl.value || "10:00");
+    var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
+    if(insideT){
+      eT.textContent = "R\u00FCckgabe pers\u00F6nlich m\u00F6glich";
+      eT.className = "h";
+    } else {
+      eT.textContent = "Ausserhalb der \u00D6ffnungszeiten \u2013 R\u00FCckgabe \u00FCber Schl\u00FCsseltresor";
+      eT.className = "h tresor";
+    }
+  }
+
+  /* Startwert: heute */
+  (function(){
+    var d = new Date();
+    $("avjFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+  })();
+  refreshTimes();
+
+
+  /* ═══ Zusatzposten ═══════════════════════════════════════ */
+  var _extras = [{ label:"", amount:"" }];
+
+  function extrasSum(){
+    var s = 0;
+    for(var i=0;i<_extras.length;i++){
+      var v = parseFloat(String(_extras[i].amount).replace(",", "."));
+      if(!isNaN(v)) s += v;
+    }
+    return s;
+  }
+
+  function renderExtras(){
+    var box = $("avjExtraRows");
+    var html = "";
+    for(var i=0;i<_extras.length;i++){
+      var e = _extras[i];
+      var last = (i === _extras.length - 1);
+      html += '<div class="avj-xrow">'
+           +  '<input type="text" data-x="'+i+'" data-f="label" placeholder="z.\u202FB. Zusatzfahrer" value="'+
+              String(e.label).replace(/"/g,"&quot;")+'">'
+           +  '<input type="text" class="amt" inputmode="decimal" data-x="'+i+'" data-f="amount" placeholder="0,00 \u20AC" value="'+
+              String(e.amount).replace(/"/g,"&quot;")+'">'
+           +  '<button type="button" class="avj-xdel" data-del="'+i+'" title="Zeile entfernen"'+
+              (last && !e.label && !e.amount ? " hidden" : "")+'>&times;</button>'
+           +  '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function onExtraInput(e){
+    var el = e.target;
+    var i  = el.getAttribute("data-x");
+    if(i === null) return;
+    i = parseInt(i,10);
+    _extras[i][el.getAttribute("data-f")] = el.value;
+
+    /* Ist die letzte Zeile befuellt? Dann eine neue anhaengen. */
+    var last = _extras[_extras.length-1];
+    if(last.label || last.amount){
+      _extras.push({ label:"", amount:"" });
+      var pos = el.selectionStart;
+      renderExtras();
+      var again = $("avjExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
+      if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(err){} }
+    } else {
+      var btn = $("avjExtraRows").querySelector('[data-del="'+i+'"]');
+      if(btn) btn.hidden = (i === _extras.length-1 && !last.label && !last.amount);
+    }
+    render();
+  }
+
+  function onExtraClick(e){
+    var b = e.target.closest("button[data-del]");
+    if(!b) return;
+    var i = parseInt(b.getAttribute("data-del"),10);
+    _extras.splice(i,1);
+    if(!_extras.length) _extras.push({ label:"", amount:"" });
+    renderExtras();
+    render();
+  }
+
+  $("avjExtraRows").addEventListener("input", onExtraInput);
+  $("avjExtraRows").addEventListener("click", onExtraClick);
+  renderExtras();
+
+  /* ═══ Einstellungen ══════════════════════════════════════ */
+  var _defaults = JSON.parse(JSON.stringify(CARS));
+  var _storeKey = "avj_preise_v1";
+
+  function loadCfg(){
+    try{
+      var raw = window.localStorage.getItem(_storeKey);
+      if(!raw) return;
+      var saved = JSON.parse(raw);
+      for(var k in saved){ if(CARS[k]) for(var f in saved[k]) CARS[k][f] = saved[k][f]; }
+    }catch(e){}
+  }
+  function saveCfg(){
+    try{ window.localStorage.setItem(_storeKey, JSON.stringify(CARS)); }catch(e){}
+  }
+
+  function numRow(cls, label, arr, key, sub, step){
+    var h = '<div class="avj-slabel">'+label+'</div><div class="avj-sgrid '+cls+'">';
+    for(var i=0;i<arr.length;i++){
+      var val = (sub === null) ? arr[i] : arr[i][sub];
+      h += '<div class="avj-scol"><div class="d">'+
+           (sub === null ? (i+1)+"T" :
+            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))+'</div>'
+        +  '<input type="number" step="'+(step||1)+'" data-set="'+key+'" data-i="'+i+'"'+
+           (sub === null ? "" : ' data-sub="'+sub+'"')+' value="'+val+'"></div>';
+    }
+    return h + '</div>';
+  }
+
+  function renderSettings(){
+    var car = CARS[carKey];
+    var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. \u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</div>';
+
+    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
+    h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
+
+    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
+    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
+    h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
+    h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
+
+    var wcls = car.weekend.length === 3 ? "p3" : "p4";
+    h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
+    h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
+
+    h += '<div class="avj-slabel">Mehrkilometer (\u20AC/km)</div><div class="avj-sgrid r3">'
+      +  '<div class="avj-scol"><div class="d">geplant</div>'
+      +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
+      +  '<div class="avj-scol"><div class="d">ungeplant</div>'
+      +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
+      +  '<div class="avj-scol"><div class="d">Fr/Sa-Zuschlag</div>'
+      +  '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
+      +  '</div>';
+
+    for(var s=1;s<car.sb.length;s++){
+      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
+      h += '<div class="avj-slabel">SB '+car.sb[s].label+" \u2013 Wochenende (\u20AC)</div>"
+        +  '<div class="avj-sgrid r3"><div class="avj-scol"><div class="d">WE</div>'
+        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
+    }
+
+    h += '<button type="button" class="avj-sreset" id="avjSReset">Auf Standard zur\u00FCcksetzen</button>';
+    $("avjSetBody").innerHTML = h;
+  }
+
+  function onSettingInput(e){
+    var el = e.target, car = CARS[carKey];
+    var v  = parseFloat(el.value);
+    if(isNaN(v)) return;
+
+    var key = el.getAttribute("data-set");
+    if(key){
+      var i = parseInt(el.getAttribute("data-i"),10);
+      var sub = el.getAttribute("data-sub");
+      if(key.indexOf("sb") === 0 && key.length > 2){
+        car.sb[parseInt(key.slice(2),10)].tier[i] = v;
+      } else if(sub === null){
+        car[key][i] = v;
+      } else {
+        car[key][i][parseInt(sub,10)] = v;
+      }
+    }
+    var rate = el.getAttribute("data-rate");
+    if(rate) car[rate] = v;
+
+    var sbwe = el.getAttribute("data-sbwe");
+    if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
+
+    _gridCache = {};      /* Paketraster neu berechnen */
+    saveCfg();
+    renderSb();
+    render();
+  }
+
+  $("avjSetBody").addEventListener("input", onSettingInput);
+  $("avjSetBody").addEventListener("click", function(e){
+    if(e.target.id !== "avjSReset") return;
+    for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
+    _gridCache = {};
+    try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+    renderSettings(); renderSb(); render();
+  });
+
+  loadCfg();
+  renderSettings();
+
+  renderSb();
+  render();
+})();
+
+
+/* ═══ TRANSPORTER ═══ */
+/* ─── GA4-Events ─────────────────────────────────────────────
+   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
+function avjtTrack(name, params){
+  try{
+    if(typeof window.gtag === "function"){
+      window.gtag("event", name, params || {});
+    }
+  }catch(e){}
+}
+
+/* Popup-Steuerung */
+(function(){
+  "use strict";
+  var ov    = document.getElementById("avjTOverlay");
+  var open  = document.getElementById("avjTOpen");
+  var close = document.getElementById("avjTClose");
+  if(!ov || !open) return;
+  var lastFocus = null;
+
+  if(ov.parentNode !== document.body){ document.body.appendChild(ov); }
+
+  function show(){
+    lastFocus = document.activeElement;
+    ov.hidden = false;
+    avjtTrack("rechner_geoeffnet", { kategorie: "Transporter" });
+    document.body.style.overflow = "hidden";
+    var first = ov.querySelector(".avjt-car");
+    if(first) first.focus();
+  }
+  function hide(){
+    ov.hidden = true;
+    document.body.style.overflow = "";
+    if(lastFocus) lastFocus.focus();
+  }
+  open.addEventListener("click", show);
+  if(close) close.addEventListener("click", hide);
+  ov.addEventListener("click", function(e){ if(e.target.hasAttribute("data-close")) hide(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !ov.hidden) hide(); });
+  ov.addEventListener("keydown", function(e){
+    if(e.key !== "Tab") return;
+    var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    var first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+})();
+
+
+(function(){
+  "use strict";
+
+  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
+  var CARS = {
+    m: {
+      name: "Transporter M",
+      frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Renault Trafic L2H1",
+      planKm: 0.20,   // vorab geplante Mehrkilometer
+      overKm: 0.30,   // ungeplant bei R\u00FCckgabe
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,75],  [400,115], [800,155], [1200,200] ],
+      dayFrSa: [ [100,80],  [400,125], [800,165], [1200,220] ],
+      weekend: [ [200,175], [600,225], [1200,325] ],
+      tier:   [75, 150, 225, 290, 350, 395, 425],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      sb: [
+        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]         },
+        { label:"1.000 \u20AC", we:35, tier:[15,30,42,52,62,70,75]  },
+        { label:"500 \u20AC",   we:60, tier:[25,50,75,98,118,133,145] }
+      ]
+    },
+    xl: {
+      name: "Transporter XL",
+      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Mercedes Sprinter L3",
+      planKm: 0.26,
+      overKm: 0.37,
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,110], [400,155], [800,199], [1200,249] ],
+      dayFrSa: [ [100,120], [400,165], [800,210], [1200,270] ],
+      weekend: [ [200,225], [600,355], [1200,465] ],
+      tier:   [110, 220, 330, 430, 520, 595, 645],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      sb: [
+        { label:"2.000 \u20AC", we:0,   tier:[0,0,0,0,0,0,0]           },
+        { label:"1.000 \u20AC", we:65,  tier:[25,50,72,95,115,133,150] },
+        { label:"500 \u20AC",   we:120, tier:[45,90,132,175,212,255,295] }
+      ]
+    }
+  };
+
+  var _trackTimer = null, _lastSig = null;
+  var carKey = "m";
+  var sbIdx  = 0;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+  var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+
+  /* ─── Datum / Dauer ──────────────────────────────────────── */
+  function parseDT(dEl, tEl){
+    var d = $(dEl).value, t = $(tEl).value || "09:00";
+    if(!d) return null;
+    return new Date(d + "T" + t + ":00");
+  }
+
+  function duration(){
+    var a = parseDT("avjTFrom","avjTFromT");
+    var b = parseDT("avjTTo","avjTToT");
+    if(!a || !b) return null;
+    var ms = b - a;
+    if(ms <= 0) return { invalid:true };
+    var hours = ms / 3600000;
+    return {
+      from: a, to: b, hours: hours,
+      days: Math.max(1, Math.ceil(hours / 24)),
+      fullDays: Math.floor(hours / 24),
+      restHours: Math.round(hours - Math.floor(hours/24)*24)
+    };
+  }
+
+  // Wochenendtarif: Abholung Fr ab 12:00 oder Sa, Rückgabe bis Mo 10:00
+  function isWeekend(d){
+    if(!d || d.invalid) return false;
+    var wdA = d.from.getDay();           // 5 = Fr, 6 = Sa
+    var wdB = d.to.getDay();             // 0 = So, 1 = Mo
+    var hA  = d.from.getHours() + d.from.getMinutes()/60;
+    var hB  = d.to.getHours()   + d.to.getMinutes()/60;
+    if(d.hours > 96) return false;       // l\u00E4nger als Fr\u2013Di \u2192 normale Staffel
+    var startOk = (wdA === 5 && hA >= 11) || wdA === 6;
+    var endOk   = (wdB === 1 && hB <= 11) || wdB === 0;
+    return startOk && endOk;
+  }
+
+  /* ─── km-Stufe wählen ────────────────────────────────────── */
+  /* Zwischen je zwei Paketstufen die Mitte einziehen:
+     aus 100/75 und 400/115 wird zusaetzlich 250/95.
+     Entspricht der bisherigen Handrechnung (beide Pakete addieren, halbieren). */
+  function expand(steps){
+    var out = [];
+    for(var i=0;i<steps.length;i++){
+      out.push(steps[i]);
+      if(i+1 < steps.length){
+        out.push([
+          Math.round((steps[i][0] + steps[i+1][0]) / 2),
+          Math.round((steps[i][1] + steps[i+1][1]) / 2)
+        ]);
+      }
+    }
+    return out;
+  }
+
+  var _gridCache = {};
+  function gridFor(car, key){
+    var id = car.name + "|" + key;
+    if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
+    return _gridCache[id];
+  }
+
+  /* Guenstigste Variante fuer den Kunden waehlen: entweder das naechstgroessere
+     Paket, oder ein kleineres Paket plus vorab geplante Mehrkilometer.
+     Ohne km-Angabe wird die kleinste Stufe gezeigt. */
+  function pickStep(steps, km, rate){
+    if(km === null) return { idx:0, km:steps[0][0], price:steps[0][1] };
+    if(!rate){
+      for(var i=0;i<steps.length;i++){
+        if(km <= steps[i][0]) return { idx:i, km:steps[i][0], price:steps[i][1] };
+      }
+      var last = steps[steps.length-1];
+      return { idx:steps.length-1, km:last[0], price:last[1] };
+    }
+    var best = null;
+    for(var j=0;j<steps.length;j++){
+      var over = Math.max(0, km - steps[j][0]);
+      var cost = steps[j][1] + over * rate;
+      if(best === null || cost < best.cost - 0.001){
+        best = { idx:j, km:steps[j][0], price:steps[j][1], cost:cost };
+      }
+    }
+    return best;
+  }
+
+  /* ─── Preisberechnung ────────────────────────────────────── */
+  function quote(){
+    var car = CARS[carKey];
+    var d   = duration();
+    if(!d) return { empty:true };
+    if(d.invalid) return { invalid:true };
+
+    var kmRaw = $("avjTKm").value.trim();
+    var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
+
+    var mode, base, freeKm, sbCost, tarifLabel, badge = "";
+
+    var wd   = d.from.getDay();
+    var frSa = (wd === 5 || wd === 6);
+
+    if(isWeekend(d)){
+      /* Wochenendtarif: eigenes Paketraster */
+      mode = "we";
+      var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
+      base = stW.price; freeKm = stW.km;
+      sbCost = car.sb[sbIdx].we;
+      tarifLabel = "Wochenendtarif";
+      badge = "Fr-Mo";
+
+    } else if(d.days <= 2){
+      /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
+      mode = "pkg";
+      var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
+      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
+      base   = stD.price * d.days;
+      freeKm = stD.km    * d.days;
+      sbCost = car.sb[sbIdx].tier[d.days - 1];
+      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
+      badge = frSa ? "Fr/Sa" : "Mo-Do";
+
+    } else {
+      /* ab 3 Tagen: Staffel Richtung Wochentarif */
+      mode = "tier";
+      var i = Math.min(d.days, 7) - 1;
+      base   = car.tier[i];
+      freeKm = car.tierKm[i];
+      if(d.days > 7){
+        var extra = d.days - 7;
+        base   += extra * (car.tier[6] / 7) * 0.92;
+        freeKm += Math.round(extra * car.tierKm[6] / 7);
+      }
+      var sbTier = car.sb[sbIdx].tier;
+      sbCost = sbTier[Math.min(d.days, 7) - 1];
+      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+      tarifLabel = d.days + " Tage";
+      if(d.days === 7) badge = "Wochentarif";
+    }
+
+    var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
+    var overCost = overKm * car.planKm;
+    var total    = base + sbCost + overCost;
+
+    return {
+      car: car, d: d, mode: mode, km: km,
+      base: base, freeKm: freeKm, sbCost: sbCost,
+      overKm: overKm, overCost: overCost, total: total,
+      tarifLabel: tarifLabel, badge: badge
+    };
+  }
+
+  /* ─── Rendering ──────────────────────────────────────────── */
+  function renderSb(){
+    var car = CARS[carKey];
+    var html = "";
+    for(var i=0;i<car.sb.length;i++){
+      var s = car.sb[i];
+      var p = s.tier[0] === 0 ? "inklusive" : "ab " + s.tier[0] + " \u20AC/Tag";
+      html += '<button type="button" data-sb="'+i+'"'+(i===sbIdx?' class="is-active"':'')+'>'
+            +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
+            + '</button>';
+    }
+    $("avjTSbRow").innerHTML = html;
+  }
+
+  function renderDur(){
+    var d = duration();
+    var el = $("avjTDur");
+    if(!d){ el.textContent = ""; return; }
+    if(d.invalid){
+      el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
+      return;
+    }
+    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+    var p  = function(n){ return ("0"+n).slice(-2); };
+    var f  = function(x){
+      return wd[x.getDay()]+" "+p(x.getDate())+"."+p(x.getMonth()+1)+". "+p(x.getHours())+":"+p(x.getMinutes());
+    };
+    var lbl = d.days + (d.days === 1 ? " Tag" : " Tage");
+    if(d.fullDays > 0 && d.restHours > 0){
+      lbl = d.fullDays + (d.fullDays === 1 ? " Tag" : " Tage") + " und " + d.restHours + " Std.";
+    }
+    el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
+  }
+
+  function render(){
+    renderDur();
+    var q = $("avjTOut");
+    var r = quote();
+
+    if(r.empty || r.invalid){
+      $("avjTPrice").textContent = "\u2014";
+      $("avjTTarifLabel").textContent = "Richtpreis";
+      $("avjTBadge").textContent = "";
+      $("avjTLines").innerHTML =
+        '<li class="hint">'+(r.invalid
+          ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
+          : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
+      $("avjTKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      return;
+    }
+
+    $("avjTPrice").textContent = eur(r.total + extrasSum());
+    $("avjTTarifLabel").textContent = r.tarifLabel;
+    $("avjTBadge").textContent = r.badge;
+
+    var L = "";
+    L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
+    L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
+
+    if(r.km !== null){
+      L += '<li><span class="k">Geplante Fahrleistung</span><span class="v">'+num(r.km)+' km</span></li>';
+      if(r.overKm > 0){
+        L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
+          +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
+        $("avjTKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
+      } else {
+        $("avjTKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
+      }
+    } else {
+      $("avjTKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
+    }
+
+    if(r.sbCost > 0){
+      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+    } else {
+      L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
+    }
+
+    /* Zusatzposten */
+    var _xsum = 0;
+    for(var xi=0; xi<_extras.length; xi++){
+      var xa = parseFloat(String(_extras[xi].amount).replace(",", "."));
+      if(isNaN(xa) || xa === 0) continue;
+      _xsum += xa;
+      var xl = _extras[xi].label || "Zusatzposten";
+      L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
+    }
+
+    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(r.total + _xsum)+' \u20AC</span></li>';
+
+    L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
+      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
+
+    if(r.mode === "tier" && r.d.days > 7){
+      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
+    }
+    if(r.mode === "we"){
+      L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
+    }
+
+    $("avjTLines").innerHTML = L;
+
+    /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
+    clearTimeout(_trackTimer);
+    _trackTimer = setTimeout(function(){
+      var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
+      if(sig === _lastSig) return;
+      _lastSig = sig;
+      avjtTrack("preis_berechnet", {
+        kategorie: "Transporter",
+        fahrzeug:  r.car.name,
+        tage:      r.d.days,
+        tarif:     r.mode,
+        kilometer: r.km === null ? 0 : r.km,
+        preis:     Math.round(r.total)
+      });
+    }, 1200);
+  }
+
+  /* ─── Events ─────────────────────────────────────────────── */
+  var cars = document.querySelectorAll(".avjt-car");
+  for(var i=0;i<cars.length;i++){
+    cars[i].addEventListener("click", function(){
+      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
+      this.classList.add("is-active");
+      carKey = this.getAttribute("data-car");
+      sbIdx = 0;
+      avjtTrack("fahrzeug_gewechselt", { kategorie: "Transporter", fahrzeug: CARS[carKey].name });
+      renderSb();
+      render();
+    });
+  }
+
+  $("avjTSbRow").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-sb]");
+    if(!b) return;
+    sbIdx = parseInt(b.getAttribute("data-sb"),10);
+    renderSb();
+    render();
+  });
+
+  ["avjTFrom","avjTTo"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  ["avjTFromT","avjTToT"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  $("avjTKm").addEventListener("input", render);
+
+
+  /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
+  /* Abholung nur zu Geschaeftszeiten, Rueckgabe rund um die Uhr
+     ueber den Schluesseltresor. */
+  var HOURS = {
+    1:[8,18], 2:[8,18], 3:[8,18], 4:[8,18], 5:[8,18],   /* Mo-Fr */
+    6:[8,13],                                            /* Sa    */
+    0:null                                               /* So    */
+  };
+
+  function hoursFor(dateStr){
+    if(!dateStr) return HOURS[1];
+    var wd = new Date(dateStr + "T12:00:00").getDay();
+    return HOURS[wd];
+  }
+
+  function minutesOf(hhmm){
+    var p = hhmm.split(":");
+    return parseInt(p[0],10)*60 + parseInt(p[1],10);
+  }
+
+  function pad2(n){ return ("0"+n).slice(-2); }
+
+  /* Liste aufbauen. mode "start": nur Oeffnungszeiten.
+     mode "end": voller Tag, ausserhalb der Zeiten als Tresor markiert. */
+  function fillTimes(sel, dateStr, mode){
+    var h = hoursFor(dateStr);
+    var keep = sel.value;
+    var html = "", first = null;
+
+    if(mode === "start"){
+      for(var m = 0; m < 24*60; m += 30){
+        var v = pad2(Math.floor(m/60)) + ":" + pad2(m%60);
+        var inOpen = h && m >= h[0]*60 && m <= h[1]*60;
+        if(first === null && inOpen) first = v;
+        html += '<option value="'+v+'"'+(inOpen?"":' class="offhours"')+'>'
+             +  v + (inOpen ? "" : " \u00B7 ausserhalb") + '</option>';
+      }
+      if(first === null) first = "10:00";
+    } else {
+      for(var t = 0; t < 24*60; t += 30){
+        var v2 = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
+        var inside = h && t >= h[0]*60 && t <= h[1]*60;
+        if(first === null) first = v2;
+        html += '<option value="'+v2+'"'+(inside?"":' class="tresor"')+'>'
+             +  v2 + (inside ? "" : " \u00B7 Tresor") + '</option>';
+      }
+    }
+    sel.innerHTML = html;
+    /* bisherige Auswahl halten, sonst erste gueltige Zeit */
+    var ok = false;
+    for(var i=0;i<sel.options.length;i++) if(sel.options[i].value === keep) ok = true;
+    sel.value = ok ? keep : (mode === "start" ? (first || "") : (keep || "10:00"));
+    if(!sel.value && sel.options.length) sel.value = sel.options[0].value;
+  }
+
+  function refreshTimes(){
+    var fromEl = $("avjTFromT"), toEl = $("avjTToT");
+    fillTimes(fromEl, $("avjTFrom").value, "start");
+    fillTimes(toEl,   $("avjTTo").value,   "end");
+
+    /* Hinweis Abholung */
+    var hF = hoursFor($("avjTFrom").value);
+    var eF = $("avjTFromHint");
+    var mF = minutesOf(fromEl.value || "10:00");
+    var insideF = hF && mF >= hF[0]*60 && mF <= hF[1]*60;
+    if(insideF){
+      eF.textContent = "\u00D6ffnungszeit " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
+      eF.className = "h";
+    } else if(hF){
+      eF.textContent = "Ausserhalb der \u00D6ffnungszeit (" + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00) \u2013 Sonderabsprache";
+      eF.className = "h offhint";
+    } else {
+      eF.textContent = "Sonntag \u2013 regul\u00E4r geschlossen, Sonderabsprache";
+      eF.className = "h offhint";
+    }
+
+    /* Hinweis Rueckgabe */
+    var hT = hoursFor($("avjTTo").value);
+    var eT = $("avjTToHint");
+    var mT = minutesOf(toEl.value || "10:00");
+    var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
+    if(insideT){
+      eT.textContent = "R\u00FCckgabe pers\u00F6nlich m\u00F6glich";
+      eT.className = "h";
+    } else {
+      eT.textContent = "Ausserhalb der \u00D6ffnungszeiten \u2013 R\u00FCckgabe \u00FCber Schl\u00FCsseltresor";
+      eT.className = "h tresor";
+    }
+  }
+
+  /* Startwert: heute */
+  (function(){
+    var d = new Date();
+    $("avjTFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+  })();
+  refreshTimes();
+
+
+  /* ═══ Zusatzposten ═══════════════════════════════════════ */
+  var _extras = [{ label:"", amount:"" }];
+
+  function extrasSum(){
+    var s = 0;
+    for(var i=0;i<_extras.length;i++){
+      var v = parseFloat(String(_extras[i].amount).replace(",", "."));
+      if(!isNaN(v)) s += v;
+    }
+    return s;
+  }
+
+  function renderExtras(){
+    var box = $("avjTExtraRows");
+    var html = "";
+    for(var i=0;i<_extras.length;i++){
+      var e = _extras[i];
+      var last = (i === _extras.length - 1);
+      html += '<div class="avjt-xrow">'
+           +  '<input type="text" data-x="'+i+'" data-f="label" placeholder="z.\u202FB. Zusatzfahrer" value="'+
+              String(e.label).replace(/"/g,"&quot;")+'">'
+           +  '<input type="text" class="amt" inputmode="decimal" data-x="'+i+'" data-f="amount" placeholder="0,00 \u20AC" value="'+
+              String(e.amount).replace(/"/g,"&quot;")+'">'
+           +  '<button type="button" class="avjt-xdel" data-del="'+i+'" title="Zeile entfernen"'+
+              (last && !e.label && !e.amount ? " hidden" : "")+'>&times;</button>'
+           +  '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function onExtraInput(e){
+    var el = e.target;
+    var i  = el.getAttribute("data-x");
+    if(i === null) return;
+    i = parseInt(i,10);
+    _extras[i][el.getAttribute("data-f")] = el.value;
+
+    /* Ist die letzte Zeile befuellt? Dann eine neue anhaengen. */
+    var last = _extras[_extras.length-1];
+    if(last.label || last.amount){
+      _extras.push({ label:"", amount:"" });
+      var pos = el.selectionStart;
+      renderExtras();
+      var again = $("avjTExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
+      if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(err){} }
+    } else {
+      var btn = $("avjTExtraRows").querySelector('[data-del="'+i+'"]');
+      if(btn) btn.hidden = (i === _extras.length-1 && !last.label && !last.amount);
+    }
+    render();
+  }
+
+  function onExtraClick(e){
+    var b = e.target.closest("button[data-del]");
+    if(!b) return;
+    var i = parseInt(b.getAttribute("data-del"),10);
+    _extras.splice(i,1);
+    if(!_extras.length) _extras.push({ label:"", amount:"" });
+    renderExtras();
+    render();
+  }
+
+  $("avjTExtraRows").addEventListener("input", onExtraInput);
+  $("avjTExtraRows").addEventListener("click", onExtraClick);
+  renderExtras();
+
+  /* ═══ Einstellungen ══════════════════════════════════════ */
+  var _defaults = JSON.parse(JSON.stringify(CARS));
+  var _storeKey = "avjT_preise_v1";
+
+  function loadCfg(){
+    try{
+      var raw = window.localStorage.getItem(_storeKey);
+      if(!raw) return;
+      var saved = JSON.parse(raw);
+      for(var k in saved){ if(CARS[k]) for(var f in saved[k]) CARS[k][f] = saved[k][f]; }
+    }catch(e){}
+  }
+  function saveCfg(){
+    try{ window.localStorage.setItem(_storeKey, JSON.stringify(CARS)); }catch(e){}
+  }
+
+  function numRow(cls, label, arr, key, sub, step){
+    var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'">';
+    for(var i=0;i<arr.length;i++){
+      var val = (sub === null) ? arr[i] : arr[i][sub];
+      h += '<div class="avjt-scol"><div class="d">'+
+           (sub === null ? (i+1)+"T" :
+            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))+'</div>'
+        +  '<input type="number" step="'+(step||1)+'" data-set="'+key+'" data-i="'+i+'"'+
+           (sub === null ? "" : ' data-sub="'+sub+'"')+' value="'+val+'"></div>';
+    }
+    return h + '</div>';
+  }
+
+  function renderSettings(){
+    var car = CARS[carKey];
+    var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. \u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</div>';
+
+    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
+    h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
+
+    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
+    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
+    h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
+    h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
+
+    var wcls = car.weekend.length === 3 ? "p3" : "p4";
+    h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
+    h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
+
+    h += '<div class="avjt-slabel">Mehrkilometer (\u20AC/km)</div><div class="avjt-sgrid r3">'
+      +  '<div class="avjt-scol"><div class="d">geplant</div>'
+      +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
+      +  '<div class="avjt-scol"><div class="d">ungeplant</div>'
+      +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
+      +  '<div class="avjt-scol"><div class="d">Fr/Sa-Zuschlag</div>'
+      +  '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
+      +  '</div>';
+
+    for(var s=1;s<car.sb.length;s++){
+      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
+      h += '<div class="avjt-slabel">SB '+car.sb[s].label+" \u2013 Wochenende (\u20AC)</div>"
+        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">WE</div>'
+        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
+    }
+
+    h += '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Standard zur\u00FCcksetzen</button>';
+    $("avjTSetBody").innerHTML = h;
+  }
+
+  function onSettingInput(e){
+    var el = e.target, car = CARS[carKey];
+    var v  = parseFloat(el.value);
+    if(isNaN(v)) return;
+
+    var key = el.getAttribute("data-set");
+    if(key){
+      var i = parseInt(el.getAttribute("data-i"),10);
+      var sub = el.getAttribute("data-sub");
+      if(key.indexOf("sb") === 0 && key.length > 2){
+        car.sb[parseInt(key.slice(2),10)].tier[i] = v;
+      } else if(sub === null){
+        car[key][i] = v;
+      } else {
+        car[key][i][parseInt(sub,10)] = v;
+      }
+    }
+    var rate = el.getAttribute("data-rate");
+    if(rate) car[rate] = v;
+
+    var sbwe = el.getAttribute("data-sbwe");
+    if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
+
+    _gridCache = {};      /* Paketraster neu berechnen */
+    saveCfg();
+    renderSb();
+    render();
+  }
+
+  $("avjTSetBody").addEventListener("input", onSettingInput);
+  $("avjTSetBody").addEventListener("click", function(e){
+    if(e.target.id !== "avjTSReset") return;
+    for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
+    _gridCache = {};
+    try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+    renderSettings(); renderSb(); render();
+  });
+
+  loadCfg();
+  renderSettings();
+
+  renderSb();
+  render();
+})();
+
 </script>
 </body>
 </html>
