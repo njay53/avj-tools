@@ -747,6 +747,176 @@
 }
 .avj-dlt.neg,.avjt-dlt.neg{color:#C0392B;}
 .avj-dlt:empty,.avjt-dlt:empty{min-height:12px;}
+
+/* ══ Tankfehlmenge ══ */
+#tool-tank{
+  --ink:#111C2E;--muted:#5A6675;--line:#DCE3EA;
+  --blue:#1B2FC4;--blue-deep:#101C6E;--yellow:#F5EC22;
+}
+#tool-tank .tk-sub{
+  font-size:14px;line-height:1.5;color:var(--muted);margin:-.5rem 0 1.25rem;
+}
+#tool-tank .tk-f{
+  display:block;background:#F7F9FB;border:1.5px solid var(--line);border-radius:14px;
+  padding:11px 14px;margin-bottom:1.1rem;transition:border-color .15s,box-shadow .15s;
+}
+#tool-tank .tk-f:focus-within{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;
+}
+#tool-tank .tk-f .l{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px;
+}
+#tool-tank .tk-f select{
+  width:100%;border:none;outline:none;background:transparent;padding:0;margin:0;
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;padding-right:16px;
+}
+#tool-tank .tk-unit{display:flex;align-items:baseline;gap:6px;}
+#tool-tank .tk-unit input{
+  flex:1 1 auto;min-width:0;width:100%;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
+#tool-tank .tk-unit em{
+  flex:0 0 auto;font-style:normal;font-size:12.5px;font-weight:600;color:var(--muted);
+}
+#tool-tank .two-col{margin-bottom:.5rem;}
+#tool-tank .two-col .tk-f{margin-bottom:0;}
+#tool-tank .tk-hint{
+  font-size:11.5px;line-height:1.45;color:var(--muted);margin:0 0 1.1rem;
+}
+#tool-tank .tk-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#FCFBE8;border:1px solid #E9E5A8;color:var(--blue-deep);
+  font-size:12px;font-weight:650;padding:6px 11px;border-radius:999px;margin:-.55rem 0 1.25rem;
+}
+#tool-tank .divider{border:none;border-top:1px solid #e8e8e2;margin:.25rem 0 1.1rem;}
+
+#tool-tank .tk-out{
+  background:var(--blue-deep);color:#fff;border-radius:18px;padding:20px 22px 18px;
+  box-shadow:0 14px 34px -20px rgba(16,28,110,.75);
+}
+#tool-tank .tk-out-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.7;margin-bottom:5px;
+}
+#tool-tank .tk-liter{
+  font-size:42px;font-weight:700;line-height:1;letter-spacing:-.03em;
+}
+#tool-tank .tk-liter small{font-size:21px;font-weight:600;opacity:.75;margin-left:4px;}
+#tool-tank .tk-lines{
+  list-style:none;margin:16px 0 0;padding:14px 0 0;
+  border-top:1px solid rgba(255,255,255,.16);display:grid;gap:9px;
+}
+#tool-tank .tk-lines li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;font-size:13.5px;
+}
+#tool-tank .tk-lines li .k{opacity:.76;}
+#tool-tank .tk-lines li .v{font-weight:650;text-align:right;}
+#tool-tank .tk-lines li.cost{
+  border-top:1px solid rgba(255,255,255,.16);padding-top:11px;margin-top:2px;font-size:15px;
+}
+#tool-tank .tk-lines li.cost .v{font-size:18px;font-weight:750;color:var(--yellow);}
+#tool-tank .tk-lines li.hint{display:block;font-size:11.5px;opacity:.6;line-height:1.45;}
+#tool-tank .tk-note{
+  font-size:11.5px;line-height:1.55;color:var(--muted);margin:14px 0 0;
+}
+#tool-tank .tk-note b{color:var(--ink);}
+
+#tool-tank .tk-settings{
+  background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px;
+}
+#tool-tank .tk-settings > summary{
+  cursor:pointer;list-style:none;padding:12px 16px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#tool-tank .tk-settings > summary::-webkit-details-marker{display:none;}
+#tool-tank .tk-settings > summary::after{content:"oeffnen";font-size:9.5px;color:var(--blue);letter-spacing:.05em;}
+#tool-tank .tk-settings[open] > summary::after{content:"schliessen";}
+#tool-tank .tk-set-body{padding:4px 16px 16px;border-top:1px solid var(--line);}
+#tool-tank .tk-vrow{
+  display:grid;grid-template-columns:1fr 74px;gap:8px;align-items:center;margin-bottom:7px;
+}
+#tool-tank .tk-vrow .n{font-size:12.5px;color:var(--ink);line-height:1.3;}
+#tool-tank .tk-vrow .n em{font-style:normal;color:var(--muted);font-size:11px;display:block;}
+#tool-tank .tk-vrow input{
+  width:100%;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:12.5px;
+  text-align:right;padding:6px 8px;border:1px solid var(--line);border-radius:8px;outline:none;color:var(--ink);
+}
+#tool-tank .tk-vrow input:focus{border-color:var(--blue);}
+#tool-tank .tk-sreset{
+  margin-top:12px;background:none;border:1px solid var(--line);color:var(--muted);
+  font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
+}
+#tool-tank .tk-sreset:hover{border-color:#C0392B;color:#C0392B;}
+#tool-tank .tk-snote{font-size:10.5px;color:#8A96A3;margin:0 0 10px;line-height:1.45;}
+@media(max-width:480px){
+  #tool-tank .tk-liter{font-size:34px;}
+}
+
+/* ── Tabs verschiebbar ── */
+.nav-btn{
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+  touch-action:pan-x;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s, background .15s;
+}
+.nav.sorting{touch-action:none;}
+.nav.sorting .nav-btn{transition:transform .16s cubic-bezier(.2,.7,.3,1);}
+.nav-btn.dragging{
+  z-index:5;position:relative;
+  background:#fff;border-radius:10px;
+  box-shadow:0 8px 22px -8px rgba(16,28,110,.45);
+  transition:none;
+  opacity:.97;
+}
+@media(prefers-reduced-motion:reduce){
+  .nav-btn{transition:none;}
+}
+
+/* ── PDF-Export ── */
+#tool-tank .tk-export{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:16px;
+}
+#tool-tank .tk-ref{margin-bottom:0;}
+#tool-tank .tk-ref .l em{
+  font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;opacity:.75;
+}
+#tool-tank .tk-ref input{
+  width:100%;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+}
+#tool-tank .tk-pdf{
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  font-family:inherit;font-size:13.5px;font-weight:700;letter-spacing:-.01em;
+  color:#fff;background:var(--blue-deep);border:none;border-radius:999px;
+  padding:13px 20px;cursor:pointer;
+  box-shadow:0 8px 20px -12px rgba(16,28,110,.9);
+  transition:filter .15s,transform .12s,opacity .15s;
+}
+#tool-tank .tk-pdf svg{
+  width:17px;height:17px;flex:0 0 auto;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+#tool-tank .tk-pdf:hover{filter:brightness(1.15);}
+#tool-tank .tk-pdf:active{transform:translateY(1px);}
+#tool-tank .tk-pdf[disabled]{opacity:.35;cursor:default;box-shadow:none;}
+#tool-tank .tk-pdf.done{background:#2E8B4F;}
+@media(max-width:480px){
+  #tool-tank .tk-export{grid-template-columns:1fr;}
+  #tool-tank .tk-pdf{justify-content:center;}
+}
+
+#tool-tank .tk-f input[type=text],
+#tool-tank .tk-f input[type=date],
+#tool-tank .tk-f input[type=time]{
+  width:100%;box-sizing:border-box;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+}
+#tool-tank .two-col .tk-f{margin-bottom:1.1rem;}
 </style>
 </head>
 <body>
@@ -762,6 +932,7 @@
   <button class="nav-btn" onclick="showTool('lb',this)">LB-Preis</button>
   <button class="nav-btn" onclick="showTool('neun',this)">9-Sitzer</button>
   <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
+  <button class="nav-btn" onclick="showTool('tank',this)">Tank</button>
 </div>
 
 <div class="content">
@@ -1053,6 +1224,84 @@
   </details>
 </div>
     </div>
+  </div>
+
+  <div class="tool" id="tool-tank">
+    <div class="card">
+      <div class="tool-title">Tankfehlmenge-Rechner</div>
+      <p class="tk-sub">Kunde nicht getankt &ndash; fehlende Liter aus Restreichweite und Verbrauch sch&auml;tzen.</p>
+
+      <div class="section-label">Fahrzeug</div>
+      <label class="tk-f">
+        <span class="l">DirectCar-Fahrzeug</span>
+        <select id="tkVehicle"></select>
+      </label>
+      <div class="tk-badge" id="tkBadge">Tankvolumen &ndash;</div>
+
+      <div class="section-label">Werte vom Bordcomputer</div>
+      <div class="two-col">
+        <label class="tk-f">
+          <span class="l">Restreichweite</span>
+          <span class="tk-unit"><input type="number" id="tkRange" min="0" step="1" placeholder="180" inputmode="numeric"><em>km</em></span>
+        </label>
+        <label class="tk-f">
+          <span class="l">&Oslash;-Verbrauch</span>
+          <span class="tk-unit"><input type="number" id="tkCons" min="0" step="0.1" placeholder="7,3" inputmode="decimal"><em>l/100</em></span>
+        </label>
+      </div>
+      <p class="tk-hint">Verbrauch aus dem BC-Men&uuml; &bdquo;ab Tanken&ldquo;. Je mehr Kilometer seitdem gefahren wurden, desto verl&auml;sslicher der Wert.</p>
+
+      <div class="section-label">Spritpreis</div>
+      <label class="tk-f tk-price">
+        <span class="l">Preis je Liter</span>
+        <span class="tk-unit"><input type="number" id="tkPrice" min="0" step="0.001" placeholder="1,749" inputmode="decimal"><em>&euro;</em></span>
+      </label>
+      <label class="tk-f">
+        <span class="l">Quelle des Preises</span>
+        <input type="text" id="tkSrc" placeholder="z.&#8239;B. Aral Northeim, Northeimer Str. 12" autocomplete="off">
+      </label>
+      <div class="two-col">
+        <label class="tk-f">
+          <span class="l">Abgefragt am</span>
+          <input type="date" id="tkPDate">
+        </label>
+        <label class="tk-f">
+          <span class="l">um</span>
+          <input type="time" id="tkPTime">
+        </label>
+      </div>
+      <p class="tk-hint">Quelle und Zeitpunkt erscheinen auf dem PDF &ndash; damit ist der Preis f&uuml;r den Kunden nachpr&uuml;fbar.</p>
+
+      <hr class="divider" />
+
+      <div class="tk-out" id="tkOut">
+        <div class="tk-out-label">Fehlende Menge</div>
+        <div class="tk-liter" id="tkLiter">&mdash;</div>
+        <ul class="tk-lines" id="tkLines"></ul>
+      </div>
+
+      <div class="tk-export">
+        <label class="tk-f tk-ref">
+          <span class="l">Vorgang / Kennzeichen <em>optional</em></span>
+          <input type="text" id="tkRef" placeholder="z.\u202FB. NOM-AV 123" autocomplete="off">
+        </label>
+        <button type="button" class="tk-pdf" id="tkPdfBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span>PDF f&uuml;r den Kunden</span>
+        </button>
+      </div>
+
+      <p class="tk-note">
+        N&auml;herung: Resttank &asymp; Restreichweite &times; Verbrauch &divide; 100.
+        Realistisch <b>&plusmn;2&ndash;3 Liter</b> Unsch&auml;rfe &ndash; f&uuml;r einen exakten Wert
+        den Tankstand per OBD auslesen.
+      </p>
+    </div>
+
+    <details class="tk-settings">
+      <summary>Fahrzeuge &amp; Tankvolumen</summary>
+      <div class="tk-set-body" id="tkSetBody"></div>
+    </details>
   </div>
 
 </div><!-- /content -->
@@ -2687,6 +2936,566 @@ function avjtTrack(name, params){
   render();
 })();
 
+
+
+/* ── Minimaler PDF-Erzeuger (Helvetica, WinAnsi) ────────────────
+   Erzeugt eine A4-Seite ohne externe Bibliothek.                */
+var TKPDF = (function(){
+  "use strict";
+
+  /* Zeichenbreiten je 1000 Einheiten */
+  var W_REG = {32:278,33:278,34:355,35:556,36:556,37:889,38:667,39:191,40:333,41:333,42:389,43:584,
+    44:278,45:333,46:278,47:278,58:278,59:278,60:584,61:584,62:584,63:556,64:1015,
+    91:278,92:278,93:278,94:469,95:556,96:333,123:334,124:260,125:334,126:584};
+  var W_BLD = {32:278,33:333,34:474,35:556,36:556,37:889,38:722,39:238,40:333,41:333,42:389,43:584,
+    44:278,45:333,46:278,47:278,58:333,59:333,60:584,61:584,62:584,63:611,64:975,
+    91:333,92:278,93:333,94:584,95:556,96:333,123:389,124:280,125:389,126:584};
+  var UP_REG = "667 667 722 722 667 611 778 722 278 500 667 556 833 722 778 667 778 722 667 611 722 667 944 667 667 611".split(" ");
+  var LO_REG = "556 556 500 556 556 278 556 556 222 222 500 222 833 556 556 556 556 333 500 278 556 500 722 500 500 500".split(" ");
+  var UP_BLD = "722 722 722 722 667 611 778 722 278 556 722 611 833 722 778 667 778 722 667 611 722 667 944 667 667 611".split(" ");
+  var LO_BLD = "556 611 556 611 556 333 611 611 278 278 556 278 889 611 611 611 611 389 556 333 611 556 778 556 556 500".split(" ");
+  for(var i=0;i<26;i++){
+    W_REG[65+i]=+UP_REG[i]; W_REG[97+i]=+LO_REG[i];
+    W_BLD[65+i]=+UP_BLD[i]; W_BLD[97+i]=+LO_BLD[i];
+  }
+  for(var d=48;d<=57;d++){ W_REG[d]=556; W_BLD[d]=556; }
+  /* Umlaute und Sonderzeichen */
+  var EXTRA_R = {228:556,246:556,252:556,196:667,214:778,220:722,223:556,8364:556,8211:556,183:278,215:584,247:584,176:400};
+  var EXTRA_B = {228:556,246:611,252:611,196:722,214:778,220:722,223:611,8364:556,8211:556,183:278,215:584,247:584,176:400};
+  for(var k in EXTRA_R){ W_REG[k]=EXTRA_R[k]; W_BLD[k]=EXTRA_B[k]; }
+
+  /* Unicode -> WinAnsi (cp1252) */
+  var CP = {8364:128,8218:130,8222:132,8230:133,8224:134,8225:135,8240:137,8249:139,
+            8216:145,8217:146,8220:147,8221:148,8226:149,8211:150,8212:151,8250:155};
+
+  function width(s, size, bold){
+    var t = bold ? W_BLD : W_REG, w = 0;
+    for(var i=0;i<s.length;i++){
+      var c = s.charCodeAt(i);
+      w += (t[c] !== undefined ? t[c] : 556);
+    }
+    return w * size / 1000;
+  }
+
+  function esc(s){
+    var out = "";
+    for(var i=0;i<s.length;i++){
+      var c = s.charCodeAt(i);
+      if(CP[c] !== undefined) c = CP[c];
+      if(c > 255) c = 63;                       /* ? für Unbekanntes */
+      var ch = String.fromCharCode(c);
+      if(ch === "(" || ch === ")" || ch === "\\") out += "\\" + ch;
+      else out += ch;
+    }
+    return out;
+  }
+
+  function Doc(){
+    this.ops = [];
+    this.H = 841.89; this.W = 595.28;
+  }
+  Doc.prototype.rgb = function(hex, stroke){
+    var n = parseInt(hex.slice(1), 16);
+    var r = ((n>>16)&255)/255, g = ((n>>8)&255)/255, b = (n&255)/255;
+    this.ops.push(r.toFixed(3)+" "+g.toFixed(3)+" "+b.toFixed(3)+(stroke?" RG":" rg"));
+    return this;
+  };
+  Doc.prototype.text = function(s, x, yTop, size, bold, align, maxW){
+    var w = width(s, size, bold);
+    var xx = x;
+    if(align === "right")  xx = x - w;
+    if(align === "center") xx = x - w/2;
+    this.ops.push("BT /"+(bold?"F2":"F1")+" "+size+" Tf 1 0 0 1 "+
+                  xx.toFixed(2)+" "+(this.H-yTop).toFixed(2)+" Tm ("+esc(s)+") Tj ET");
+    return this;
+  };
+  Doc.prototype.rect = function(x, yTop, w, h){
+    this.ops.push(x.toFixed(2)+" "+(this.H-yTop-h).toFixed(2)+" "+w.toFixed(2)+" "+h.toFixed(2)+" re f");
+    return this;
+  };
+  Doc.prototype.line = function(x1, y1, x2, y2, lw){
+    this.ops.push((lw||0.8).toFixed(2)+" w "+x1.toFixed(2)+" "+(this.H-y1).toFixed(2)+" m "+
+                  x2.toFixed(2)+" "+(this.H-y2).toFixed(2)+" l S");
+    return this;
+  };
+  Doc.prototype.wrap = function(s, x, yTop, size, lineH, maxW){
+    var words = s.split(" "), line = "", y = yTop;
+    for(var i=0;i<words.length;i++){
+      var t = line ? line+" "+words[i] : words[i];
+      if(width(t, size, false) > maxW && line){
+        this.text(line, x, y, size, false); y += lineH; line = words[i];
+      } else line = t;
+    }
+    if(line) this.text(line, x, y, size, false);
+    return y + lineH;
+  };
+
+  Doc.prototype.build = function(title){
+    var content = this.ops.join("\n");
+    var objs = [
+      "<</Type/Catalog/Pages 2 0 R>>",
+      "<</Type/Pages/Kids[3 0 R]/Count 1>>",
+      "<</Type/Page/Parent 2 0 R/MediaBox[0 0 "+this.W+" "+this.H+"]"+
+        "/Resources<</Font<</F1 5 0 R/F2 6 0 R>>>>/Contents 4 0 R>>",
+      "<</Length "+content.length+">>\nstream\n"+content+"\nendstream",
+      "<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>",
+      "<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>",
+      "<</Title("+esc(title)+")/Author(Autovermietung Jansen)"+
+        "/Producer(Autovermietung Jansen)/Creator(Autovermietung Jansen)"+
+        "/CreationDate("+pdfDate()+")>>"
+    ];
+    var out = "%PDF-1.4\n", offs = [];
+    for(var i=0;i<objs.length;i++){
+      offs.push(out.length);
+      out += (i+1)+" 0 obj\n"+objs[i]+"\nendobj\n";
+    }
+    var xref = out.length;
+    out += "xref\n0 "+(objs.length+1)+"\n0000000000 65535 f \n";
+    for(var j=0;j<offs.length;j++){
+      out += ("0000000000"+offs[j]).slice(-10)+" 00000 n \n";
+    }
+    out += "trailer\n<</Size "+(objs.length+1)+"/Root 1 0 R/Info 7 0 R>>\nstartxref\n"+xref+"\n%%EOF";
+
+    var bytes = new Uint8Array(out.length);
+    for(var b=0;b<out.length;b++) bytes[b] = out.charCodeAt(b) & 255;
+    return new Blob([bytes], { type:"application/pdf" });
+  };
+
+  function pdfDate(){
+    var d = new Date(), p = function(n){ return ("0"+n).slice(-2); };
+    return "D:"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+
+           p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+  }
+
+  return { Doc:Doc, width:width };
+})();
+
+function tkBuildPdf(D){
+  var d = new TKPDF.Doc();
+  var M = 56, R = d.W - M, CW = R - M;
+  var BLUE="#101C6E", INK="#111C2E", MUT="#5A6675",
+      LINE="#DCE3EA", YEL="#FDF81F", SOFT="#F4F6FA";
+
+  function nf(n, dec){
+    return n.toLocaleString("de-DE", { minimumFractionDigits:dec, maximumFractionDigits:dec });
+  }
+  function lt(n){ return nf(n, n % 1 === 0 ? 0 : 1); }
+  var now = new Date(), p2 = function(n){ return ("0"+n).slice(-2); };
+  var datum = p2(now.getDate())+"."+p2(now.getMonth()+1)+"."+now.getFullYear();
+
+  /* ── Kopf ── */
+  d.rgb(BLUE).rect(0, 0, d.W, 5);
+  d.rgb(BLUE).text("AUTOVERMIETUNG JANSEN", M, 58, 13, true);
+  d.rgb(MUT);
+  d.text("Berliner Allee 14", R, 46, 8, false, "right");
+  d.text("37154 Northeim", R, 56, 8, false, "right");
+  d.text("Tel. & WhatsApp 05551-54545", R, 66, 8, false, "right");
+  d.rgb(LINE, true).line(M, 78, R, 78, 0.8);
+
+  /* ── Titel ── */
+  d.rgb(INK).text("Tankfehlmenge", M, 116, 20, true);
+  d.rgb(MUT).text("Berechnung vom " + datum, M, 134, 9.5, false);
+  if(D.ref) d.rgb(MUT).text("Vorgang: " + D.ref, R, 134, 9.5, false, "right");
+
+  /* ── Grundlage ── */
+  var y = 168;
+  d.rgb(MUT).text("GRUNDLAGE", M, y, 8, true);
+  y += 8;
+  d.rgb(LINE, true).line(M, y, R, y, 0.8);
+  y += 20;
+
+  function row(label, value, strong){
+    d.rgb(strong ? INK : MUT).text(label, M, y, 10, false);
+    d.rgb(INK).text(value, R, y, 10, !!strong, "right");
+    y += 15;
+    d.rgb("#EEF1F5", true).line(M, y - 5, R, y - 5, 0.5);
+  }
+
+  row("Fahrzeug", D.vehicle);
+  row("Kraftstoff", D.fuel);
+  row("Tankvolumen laut Hersteller", lt(D.tank) + " l");
+  row("Restreichweite laut Bordcomputer", nf(D.range, 0) + " km");
+  row("Durchschnittsverbrauch laut Bordcomputer", nf(D.cons, 1) + " l/100 km");
+  row("Errechneter Resttank", nf(D.rest, 1) + " l", true);
+
+  /* ── Ergebnis ── */
+  y += 16;
+  d.rgb(SOFT).rect(M, y, CW, 56);
+  d.rgb(MUT).text("FEHLENDE MENGE", M + 16, y + 20, 8, true);
+  d.rgb(BLUE).text(nf(D.missing, 1) + " l", M + 16, y + 45, 23, true);
+  if(D.price){
+    d.rgb(MUT).text("Preis je Liter", R - 16, y + 20, 8, true, "right");
+    d.rgb(INK).text(nf(D.price, 3) + " \u20AC", R - 16, y + 43, 15, false, "right");
+  }
+  y += 56;
+
+  if(D.price){
+    d.rgb(YEL).rect(M, y, CW, 36);
+    d.rgb(INK).text("Zu berechnender Betrag", M + 16, y + 23, 11, true);
+    d.text(nf(D.cost, 2) + " \u20AC", R - 16, y + 24, 15, true, "right");
+    y += 36;
+
+    /* Nachweis, woher der Literpreis stammt */
+    var stand = "";
+    if(D.pDate){
+      var t = D.pDate.split("-");
+      stand = t[2] + "." + t[1] + "." + t[0];
+      if(D.pTime) stand += " um " + D.pTime + " Uhr";
+    }
+    var quelle = "";
+    if(D.src && stand)      quelle = "Preisgrundlage: " + D.src + " \u00B7 abgefragt am " + stand;
+    else if(D.src)          quelle = "Preisgrundlage: " + D.src;
+    else if(stand)          quelle = "Preis abgefragt am " + stand;
+    if(quelle){
+      y += 13;
+      d.rgb(MUT).text(quelle, M, y, 8.5, false);
+      y += 4;
+    }
+  }
+
+  /* ── Erläuterung ── */
+  y += 32;
+  d.rgb(MUT).text("SO WIRD GERECHNET", M, y, 8, true);
+  y += 8;
+  d.rgb(LINE, true).line(M, y, R, y, 0.8);
+  y += 20;
+
+  d.rgb(INK);
+  d.text("Resttank  =  Restreichweite  \u00D7  Verbrauch  \u00F7  100", M, y, 10, true); y += 16;
+  d.text("Fehlmenge  =  Tankvolumen  -  Resttank", M, y, 10, true); y += 24;
+
+  d.rgb(MUT);
+  y = d.wrap("Eingesetzt: " + nf(D.range,0) + " km \u00D7 " + nf(D.cons,1) + " l/100 km \u00F7 100 = " +
+             nf(D.rest,1) + " l Resttank. " + lt(D.tank) + " l Tankvolumen - " + nf(D.rest,1) +
+             " l = " + nf(D.missing,1) + " l Fehlmenge.", M, y, 9.5, 14, CW);
+  y += 6;
+  y = d.wrap("Restreichweite und Durchschnittsverbrauch stammen unver\u00E4ndert aus dem Bordcomputer "
+           + "des Fahrzeugs. Das Verfahren ist eine N\u00E4herung mit einer \u00FCblichen Unsch\u00E4rfe von "
+           + "etwa zwei bis drei Litern. Gerundet wird zugunsten des Mieters, indem der errechnete "
+           + "Resttank voll angerechnet wird.", M, y, 9.5, 14, CW);
+
+  /* ── Fuß ── */
+  d.rgb(LINE, true).line(M, 786, R, 786, 0.8);
+  d.rgb(MUT);
+  d.text("Autovermietung Jansen \u00B7 Inh. Niran Jayanthi-Losch \u00B7 Berliner Allee 14 \u00B7 37154 Northeim", M, 800, 7.5, false);
+  d.text("Diese Aufstellung dient der Nachvollziehbarkeit und ersetzt keine Rechnung.", M, 811, 7.5, false);
+
+  return d.build("Tankfehlmenge " + datum);
+}
+
+/* ═══ TANKFEHLMENGE ═══ */
+(function(){
+  "use strict";
+
+  var DEFAULTS = [
+    { name:"VW Golf 8 Energy 1.5 eTSI",         fuel:"Benzin", tank:45   },
+    { name:"VW Golf 8 Variant Energy 1.5 eTSI", fuel:"Benzin", tank:50   },
+    { name:"VW Touran Goal 1.5 TSI",            fuel:"Benzin", tank:58   },
+    { name:"VW Touran Energy 1.5 TSI",          fuel:"Benzin", tank:58   },
+    { name:"Skoda Octavia Combi 2.0 TDI",       fuel:"Diesel", tank:47.8 }
+  ];
+  var CARS = JSON.parse(JSON.stringify(DEFAULTS));
+  var KEY  = "tk_tanks_v1";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var sel = $("tkVehicle"), badge = $("tkBadge");
+  var liter = $("tkLiter"), lines = $("tkLines");
+  var btnPdf = $("tkPdfBtn"), LAST = null;
+
+  function num(v, d){
+    return v.toLocaleString("de-DE", { minimumFractionDigits:d, maximumFractionDigits:d });
+  }
+  function parse(el){
+    var v = parseFloat(String(el.value).replace(",", "."));
+    return isNaN(v) ? null : v;
+  }
+
+  function load(){
+    try{
+      var raw = window.localStorage.getItem(KEY);
+      if(!raw) return;
+      var s = JSON.parse(raw);
+      for(var i=0;i<CARS.length && i<s.length;i++){
+        if(typeof s[i] === "number" && s[i] > 0) CARS[i].tank = s[i];
+      }
+    }catch(e){}
+  }
+  function save(){
+    try{
+      window.localStorage.setItem(KEY, JSON.stringify(CARS.map(function(c){ return c.tank; })));
+    }catch(e){}
+  }
+
+  function fillSelect(){
+    var keep = sel.value;
+    var h = "";
+    for(var i=0;i<CARS.length;i++) h += '<option value="'+i+'">'+CARS[i].name+'</option>';
+    sel.innerHTML = h;
+    if(keep !== "" && CARS[keep]) sel.value = keep;
+  }
+
+  function car(){ return CARS[Number(sel.value) || 0]; }
+
+  function dec(n){ return n % 1 === 0 ? 0 : 1; }
+
+  function render(){
+    var c = car();
+    badge.textContent = "Tankvolumen " + num(c.tank, dec(c.tank)) + " l \u00B7 " + c.fuel;
+
+    var range = parse($("tkRange"));
+    var cons  = parse($("tkCons"));
+    var price = parse($("tkPrice"));
+
+    if(range === null || cons === null || range <= 0 || cons <= 0){
+      liter.innerHTML = "&mdash;";
+      lines.innerHTML = '<li class="hint">Restreichweite und Verbrauch eintragen.</li>';
+      LAST = null; btnPdf.disabled = true;
+      return;
+    }
+
+    var rest    = Math.min((range * cons) / 100, c.tank);
+    var missing = Math.max(c.tank - rest, 0);
+
+    liter.innerHTML = num(missing, 1) + '<small>l</small>';
+
+    var L = "";
+    L += '<li><span class="k">Fahrzeug</span><span class="v">'+c.name+'</span></li>';
+    L += '<li><span class="k">Tankvolumen</span><span class="v">'+num(c.tank, dec(c.tank))+' l</span></li>';
+    L += '<li><span class="k">Gesch\u00E4tzter Resttank</span><span class="v">'+num(rest,1)+' l</span></li>';
+
+    if(price !== null && price > 0){
+      L += '<li class="cost"><span class="k">Kosten bei '+num(price,3)+' \u20AC/l</span>'
+        +  '<span class="v">'+num(missing*price,2)+' \u20AC</span></li>';
+    } else {
+      L += '<li class="hint">Spritpreis eintragen, um die Kosten zu sehen.</li>';
+    }
+    if(rest >= c.tank){
+      L += '<li class="hint">Rechnerischer Resttank \u00FCbersteigt das Tankvolumen \u2013 '
+        +  'auf Tankgr\u00F6\u00DFe begrenzt. Verbrauchswert pr\u00FCfen.</li>';
+    }
+    lines.innerHTML = L;
+
+    LAST = { vehicle:c.name, fuel:c.fuel, tank:c.tank, range:range, cons:cons,
+             rest:rest, missing:missing,
+             price:(price !== null && price > 0) ? price : null,
+             cost:(price !== null && price > 0) ? missing*price : null };
+    btnPdf.disabled = false;
+  }
+
+  function renderSettings(){
+    var h = '<p class="tk-snote">Tankvolumen nach Herstellerangabe. '
+          + '\u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</p>';
+    for(var i=0;i<CARS.length;i++){
+      h += '<div class="tk-vrow">'
+        +    '<div class="n">'+CARS[i].name+'<em>'+CARS[i].fuel+'</em></div>'
+        +    '<input type="number" step="0.1" min="1" data-tk="'+i+'" value="'+CARS[i].tank+'">'
+        +  '</div>';
+    }
+    h += '<button type="button" class="tk-sreset" id="tkReset">Auf Standard zur\u00FCcksetzen</button>';
+    $("tkSetBody").innerHTML = h;
+  }
+
+  $("tkSetBody").addEventListener("input", function(e){
+    var i = e.target.getAttribute("data-tk");
+    if(i === null) return;
+    var v = parseFloat(String(e.target.value).replace(",", "."));
+    if(isNaN(v) || v <= 0) return;
+    CARS[Number(i)].tank = v;
+    save(); render();
+  });
+  $("tkSetBody").addEventListener("click", function(e){
+    if(e.target.id !== "tkReset") return;
+    CARS = JSON.parse(JSON.stringify(DEFAULTS));
+    try{ window.localStorage.removeItem(KEY); }catch(err){}
+    renderSettings(); fillSelect(); render();
+  });
+
+  sel.addEventListener("change", render);
+  ["tkRange","tkCons","tkPrice"].forEach(function(id){
+    $(id).addEventListener("input", render);
+  });
+
+  /* ── PDF erzeugen und herunterladen ── */
+  btnPdf.addEventListener("click", function(){
+    if(!LAST) return;
+    var data = {};
+    for(var k in LAST) data[k] = LAST[k];
+    data.ref  = ($("tkRef").value  || "").trim();
+    data.src  = ($("tkSrc").value  || "").trim();
+    data.pDate = $("tkPDate").value || "";
+    data.pTime = $("tkPTime").value || "";
+
+    var blob;
+    try{
+      blob = tkBuildPdf(data);
+    }catch(err){
+      btnPdf.querySelector("span").textContent = "Fehler beim Erstellen";
+      return;
+    }
+
+    var now = new Date(), p = function(n){ return ("0"+n).slice(-2); };
+    var name = "Tankfehlmenge_" + now.getFullYear() + "-" + p(now.getMonth()+1) + "-" +
+               p(now.getDate()) + (data.ref ? "_" + data.ref.replace(/[^\wÄÖÜäöüß-]+/g, "_") : "") + ".pdf";
+
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name; a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+
+    var lbl = btnPdf.querySelector("span"), old = lbl.textContent;
+    lbl.textContent = "PDF erstellt";
+    btnPdf.classList.add("done");
+    setTimeout(function(){ lbl.textContent = old; btnPdf.classList.remove("done"); }, 1800);
+  });
+
+  /* Preisabfrage-Zeitpunkt mit dem Jetzt vorbelegen */
+  (function(){
+    var n = new Date(), p = function(v){ return ("0"+v).slice(-2); };
+    $("tkPDate").value = n.getFullYear()+"-"+p(n.getMonth()+1)+"-"+p(n.getDate());
+    $("tkPTime").value = p(n.getHours())+":"+p(n.getMinutes());
+  })();
+
+  load();
+  fillSelect();
+  renderSettings();
+  render();
+})();
+
+/* ═══ Tabs sortieren: lange gedrückt halten, dann schieben ═══ */
+(function(){
+  "use strict";
+  var nav = document.querySelector(".nav");
+  if(!nav) return;
+
+  var KEY  = "avj_tabreihenfolge_v1";
+  var HOLD = 420;   /* ms bis der Tab sich löst */
+  var SLOP = 10;    /* px Bewegung, die als Wischen gilt */
+
+  function tabs(){ return Array.prototype.slice.call(nav.querySelectorAll(".nav-btn")); }
+
+  /* Tool-ID je Tab als data-Attribut hinterlegen */
+  tabs().forEach(function(b){
+    if(b.dataset.tool) return;
+    var m = /showTool\('([^']+)'/.exec(b.getAttribute("onclick") || "");
+    if(m) b.dataset.tool = m[1];
+  });
+
+  function saveOrder(){
+    try{
+      window.localStorage.setItem(KEY,
+        JSON.stringify(tabs().map(function(b){ return b.dataset.tool; })));
+    }catch(e){}
+  }
+  function applyOrder(){
+    var saved = null;
+    try{ saved = JSON.parse(window.localStorage.getItem(KEY) || "null"); }catch(e){}
+    if(!saved || !saved.length) return;
+    var byId = {};
+    tabs().forEach(function(b){ byId[b.dataset.tool] = b; });
+    saved.forEach(function(id){
+      if(byId[id]){ nav.appendChild(byId[id]); delete byId[id]; }
+    });
+    /* später hinzugekommene Tabs hängen sich hinten an */
+    Object.keys(byId).forEach(function(id){ nav.appendChild(byId[id]); });
+  }
+  applyOrder();
+
+  var timer = null, dragging = false, btn = null;
+  var startX = 0, startY = 0, lastX = 0, moved = false;
+
+  function paint(){
+    btn.style.transform = "translateX(" + (lastX - startX) + "px) scale(1.05)";
+  }
+
+  function swap(other, before){
+    btn.style.transform = "";                       /* neutral messen */
+    var oldL = btn.getBoundingClientRect().left;
+    if(before) nav.insertBefore(btn, other);
+    else       nav.insertBefore(other, btn);
+    var newL = btn.getBoundingClientRect().left;
+    startX += (newL - oldL);                        /* Finger-Bezug nachziehen */
+    paint();
+  }
+
+  function moveTo(x){
+    lastX = x;
+    paint();
+    var r = btn.getBoundingClientRect();
+    var mid = r.left + r.width/2;
+
+    var prev = btn.previousElementSibling;
+    if(prev && prev.classList.contains("nav-btn")){
+      var pr = prev.getBoundingClientRect();
+      if(mid < pr.left + pr.width/2){ swap(prev, true); return; }
+    }
+    var next = btn.nextElementSibling;
+    if(next && next.classList.contains("nav-btn")){
+      var nr = next.getBoundingClientRect();
+      if(mid > nr.left + nr.width/2){ swap(next, false); return; }
+    }
+  }
+
+  function cleanup(){
+    clearTimeout(timer); timer = null;
+    if(btn){ btn.classList.remove("dragging"); btn.style.transform = ""; }
+    nav.classList.remove("sorting");
+    dragging = false; btn = null;
+  }
+
+  function pickUp(){
+    if(!btn) return;
+    dragging = true;
+    btn.classList.add("dragging");
+    nav.classList.add("sorting");
+    if(navigator.vibrate){ try{ navigator.vibrate(12); }catch(e){} }
+  }
+
+  nav.addEventListener("pointerdown", function(e){
+    var t = e.target.closest ? e.target.closest(".nav-btn") : null;
+    if(!t) return;
+    btn = t; startX = lastX = e.clientX; startY = e.clientY; moved = false;
+    clearTimeout(timer);
+    timer = setTimeout(pickUp, HOLD);
+  });
+
+  nav.addEventListener("pointermove", function(e){
+    if(!btn) return;
+    if(!dragging){
+      if(Math.abs(e.clientX-startX) > SLOP || Math.abs(e.clientY-startY) > SLOP){
+        clearTimeout(timer); timer = null; btn = null;      /* war ein Wischen */
+      }
+      return;
+    }
+    moved = true;
+    moveTo(e.clientX);
+  });
+
+  function finish(){
+    if(dragging) saveOrder();
+    cleanup();
+  }
+  nav.addEventListener("pointerup", function(){
+    if(dragging){ finish(); }
+    else { clearTimeout(timer); timer = null; btn = null; }
+  });
+  nav.addEventListener("pointercancel", finish);
+  window.addEventListener("blur", finish);
+
+  /* Während des Schiebens darf die Leiste nicht mitscrollen */
+  nav.addEventListener("touchmove", function(e){
+    if(dragging) e.preventDefault();
+  }, { passive:false });
+
+  /* Ein Schieben soll keinen Tabwechsel auslösen */
+  nav.addEventListener("click", function(e){
+    if(moved){ e.stopPropagation(); e.preventDefault(); moved = false; }
+  }, true);
+
+  nav.addEventListener("contextmenu", function(e){ if(dragging) e.preventDefault(); });
+})();
 </script>
 </body>
 </html>
