@@ -838,13 +838,13 @@
 #tool-tank .tk-settings[open] > summary::after{content:"schliessen";}
 #tool-tank .tk-set-body{padding:4px 16px 16px;border-top:1px solid var(--line);}
 #tool-tank .tk-vhead{
-  display:grid;grid-template-columns:1fr 92px 66px 28px;gap:6px;
+  display:grid;grid-template-columns:1fr 104px 66px 28px;gap:6px;
   font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:#8A96A3;margin:2px 0 5px;
 }
 #tool-tank .tk-vhead span:nth-child(3){text-align:right;}
 #tool-tank .tk-vrow{
-  display:grid;grid-template-columns:1fr 92px 66px 28px;gap:6px;
+  display:grid;grid-template-columns:1fr 104px 66px 28px;gap:6px;
   align-items:center;margin-bottom:6px;
 }
 #tool-tank .tk-vrow input,#tool-tank .tk-vrow select{
@@ -2181,6 +2181,14 @@ function avjTrack(name, params){
     }
   }
 
+  function fuelSelect(i, cur){
+    var h = '<select class="fu" data-f="fuel" data-i="'+i+'">';
+    for(var k=0;k<FUELS.length;k++){
+      h += '<option value="'+FUELS[k]+'"'+(FUELS[k]===cur?" selected":"")+'>'+FUELS[k]+'</option>';
+    }
+    return h + '</select>';
+  }
+
   function renderSettings(){
     var car = CARS[carKey];
     var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. \u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</div>';
@@ -3249,13 +3257,23 @@ function tkBuildPdf(D){
 (function(){
   "use strict";
 
+  var FUELS = ["Super", "Super E10", "Diesel"];
+
   var DEFAULTS = [
-    { name:"VW Golf 8 Energy 1.5 eTSI",         fuel:"Benzin", tank:45   },
-    { name:"VW Golf 8 Variant Energy 1.5 eTSI", fuel:"Benzin", tank:50   },
-    { name:"VW Touran Goal 1.5 TSI",            fuel:"Benzin", tank:58   },
-    { name:"VW Touran Energy 1.5 TSI",          fuel:"Benzin", tank:58   },
-    { name:"Skoda Octavia Combi 2.0 TDI",       fuel:"Diesel", tank:47.8 }
+    { name:"VW Golf 8 Energy 1.5 eTSI",         fuel:"Super E10", tank:45   },
+    { name:"VW Golf 8 Variant Energy 1.5 eTSI", fuel:"Super E10", tank:50   },
+    { name:"VW Touran Goal 1.5 TSI",            fuel:"Super E10", tank:58   },
+    { name:"VW Touran Energy 1.5 TSI",          fuel:"Super E10", tank:58   },
+    { name:"Skoda Octavia Combi 2.0 TDI",       fuel:"Diesel",    tank:47.8 }
   ];
+
+  /* Kraftstoff auf eine gueltige Angabe bringen; "Benzin" stammt aus der alten Fassung */
+  function normFuel(f){
+    f = String(f || "");
+    if(FUELS.indexOf(f) >= 0) return f;
+    if(f === "Benzin") return "Super E10";
+    return "Super E10";
+  }
   var CARS = JSON.parse(JSON.stringify(DEFAULTS));
   var KEY     = "tk_fahrzeuge_v2";
   var KEY_ALT = "tk_tanks_v1";        /* alte Fassung, nur zum Übernehmen */
@@ -3288,7 +3306,7 @@ function tkBuildPdf(D){
           for(var i=0;i<s.length;i++){
             if(!s[i] || !s[i].name) continue;
             CARS.push({ name:String(s[i].name),
-                        fuel:(s[i].fuel === "Diesel" ? "Diesel" : "Benzin"),
+                        fuel:normFuel(s[i].fuel),
                         tank:(+s[i].tank > 0 ? +s[i].tank : 50) });
           }
           if(!CARS.length) CARS = JSON.parse(JSON.stringify(DEFAULTS));
@@ -3379,10 +3397,7 @@ function tkBuildPdf(D){
       h += '<div class="tk-vrow">'
         +    '<input class="nm" type="text" data-f="name" data-i="'+i+'" '
         +      'value="'+esc(v.name)+'" placeholder="Fahrzeugbezeichnung">'
-        +    '<select class="fu" data-f="fuel" data-i="'+i+'">'
-        +      '<option value="Benzin"'+(v.fuel==="Benzin"?" selected":"")+'>Benzin</option>'
-        +      '<option value="Diesel"'+(v.fuel==="Diesel"?" selected":"")+'>Diesel</option>'
-        +    '</select>'
+        +    fuelSelect(i, v.fuel)
         +    '<input class="tk" type="number" step="0.1" min="1" data-f="tank" data-i="'+i+'" '
         +      'value="'+v.tank+'">'
         +    '<button type="button" class="tk-vdel" data-del="'+i+'" '
@@ -3406,7 +3421,7 @@ function tkBuildPdf(D){
       if(isNaN(v) || v <= 0) return false;
       CARS[i].tank = v;
     } else if(f === "fuel"){
-      CARS[i].fuel = (el.value === "Diesel") ? "Diesel" : "Benzin";
+      CARS[i].fuel = normFuel(el.value);
     } else {
       CARS[i].name = el.value;
     }
@@ -3441,7 +3456,7 @@ function tkBuildPdf(D){
       return;
     }
     if(e.target.id === "tkAdd"){
-      CARS.push({ name:"Neues Fahrzeug", fuel:"Benzin", tank:50 });
+      CARS.push({ name:"Neues Fahrzeug", fuel:"Super E10", tank:50 });
       save(); renderSettings(); fillSelect(CARS.length - 1); render();
       var last = $("tkSetBody").querySelector('[data-i="'+(CARS.length-1)+'"][data-f="name"]');
       if(last){ last.focus(); last.select(); }
