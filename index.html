@@ -837,18 +837,53 @@
 #tool-tank .tk-settings > summary::after{content:"oeffnen";font-size:9.5px;color:var(--blue);letter-spacing:.05em;}
 #tool-tank .tk-settings[open] > summary::after{content:"schliessen";}
 #tool-tank .tk-set-body{padding:4px 16px 16px;border-top:1px solid var(--line);}
+#tool-tank .tk-vhead{
+  display:grid;grid-template-columns:1fr 92px 66px 28px;gap:6px;
+  font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:#8A96A3;margin:2px 0 5px;
+}
+#tool-tank .tk-vhead span:nth-child(3){text-align:right;}
 #tool-tank .tk-vrow{
-  display:grid;grid-template-columns:1fr 74px;gap:8px;align-items:center;margin-bottom:7px;
+  display:grid;grid-template-columns:1fr 92px 66px 28px;gap:6px;
+  align-items:center;margin-bottom:6px;
 }
-#tool-tank .tk-vrow .n{font-size:12.5px;color:var(--ink);line-height:1.3;}
-#tool-tank .tk-vrow .n em{font-style:normal;color:var(--muted);font-size:11px;display:block;}
-#tool-tank .tk-vrow input{
-  width:100%;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:12.5px;
-  text-align:right;padding:6px 8px;border:1px solid var(--line);border-radius:8px;outline:none;color:var(--ink);
+#tool-tank .tk-vrow input,#tool-tank .tk-vrow select{
+  width:100%;box-sizing:border-box;font-family:inherit;font-size:12.5px;
+  padding:7px 8px;border:1px solid var(--line);border-radius:8px;
+  outline:none;color:var(--ink);background:#fff;
 }
-#tool-tank .tk-vrow input:focus{border-color:var(--blue);}
+#tool-tank .tk-vrow .tk{font-family:ui-monospace,monospace;text-align:right;}
+#tool-tank .tk-vrow select{
+  -webkit-appearance:none;appearance:none;cursor:pointer;padding-right:18px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;
+}
+#tool-tank .tk-vrow input:focus,#tool-tank .tk-vrow select:focus{border-color:var(--blue);}
+#tool-tank .tk-vdel{
+  border:none;background:none;cursor:pointer;color:#A9B4BF;font-size:19px;line-height:1;
+  padding:2px;border-radius:6px;font-family:inherit;transition:color .15s;
+}
+#tool-tank .tk-vdel:hover:not([disabled]){color:#C0392B;}
+#tool-tank .tk-vdel[disabled]{opacity:.25;cursor:default;}
+#tool-tank .tk-vactions{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;
+}
+#tool-tank .tk-vadd{
+  font-family:inherit;font-size:12px;font-weight:650;color:var(--blue-deep);
+  background:#EEF1FF;border:1px solid #C9D2F5;border-radius:8px;
+  padding:7px 13px;cursor:pointer;transition:background .15s;
+}
+#tool-tank .tk-vadd:hover{background:#E2E8FF;}
+@media(max-width:480px){
+  #tool-tank .tk-vhead{display:none;}
+  #tool-tank .tk-vrow{
+    grid-template-columns:1fr 66px 28px;
+    padding-bottom:8px;border-bottom:1px solid #EEF2F6;margin-bottom:8px;
+  }
+  #tool-tank .tk-vrow .nm{grid-column:1 / -1;}
+}
 #tool-tank .tk-sreset{
-  margin-top:12px;background:none;border:1px solid var(--line);color:var(--muted);
+  margin-top:0;background:none;border:1px solid var(--line);color:var(--muted);
   font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
 }
 #tool-tank .tk-sreset:hover{border-color:#C0392B;color:#C0392B;}
@@ -3222,7 +3257,8 @@ function tkBuildPdf(D){
     { name:"Skoda Octavia Combi 2.0 TDI",       fuel:"Diesel", tank:47.8 }
   ];
   var CARS = JSON.parse(JSON.stringify(DEFAULTS));
-  var KEY  = "tk_tanks_v1";
+  var KEY     = "tk_fahrzeuge_v2";
+  var KEY_ALT = "tk_tanks_v1";        /* alte Fassung, nur zum Übernehmen */
 
   var $ = function(id){ return document.getElementById(id); };
   var sel = $("tkVehicle"), badge = $("tkBadge");
@@ -3237,31 +3273,53 @@ function tkBuildPdf(D){
     return isNaN(v) ? null : v;
   }
 
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+                    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
   function load(){
     try{
       var raw = window.localStorage.getItem(KEY);
-      if(!raw) return;
-      var s = JSON.parse(raw);
-      for(var i=0;i<CARS.length && i<s.length;i++){
-        if(typeof s[i] === "number" && s[i] > 0) CARS[i].tank = s[i];
+      if(raw){
+        var s = JSON.parse(raw);
+        if(Object.prototype.toString.call(s) === "[object Array]" && s.length){
+          CARS = [];
+          for(var i=0;i<s.length;i++){
+            if(!s[i] || !s[i].name) continue;
+            CARS.push({ name:String(s[i].name),
+                        fuel:(s[i].fuel === "Diesel" ? "Diesel" : "Benzin"),
+                        tank:(+s[i].tank > 0 ? +s[i].tank : 50) });
+          }
+          if(!CARS.length) CARS = JSON.parse(JSON.stringify(DEFAULTS));
+          return;
+        }
+      }
+      /* Werte aus der alten Fassung übernehmen */
+      var old = window.localStorage.getItem(KEY_ALT);
+      if(old){
+        var t = JSON.parse(old);
+        for(var j=0;j<CARS.length && j<t.length;j++){
+          if(typeof t[j] === "number" && t[j] > 0) CARS[j].tank = t[j];
+        }
       }
     }catch(e){}
   }
   function save(){
-    try{
-      window.localStorage.setItem(KEY, JSON.stringify(CARS.map(function(c){ return c.tank; })));
-    }catch(e){}
+    try{ window.localStorage.setItem(KEY, JSON.stringify(CARS)); }catch(e){}
   }
 
-  function fillSelect(){
-    var keep = sel.value;
+  function fillSelect(keepIdx){
+    var idx = (keepIdx === undefined) ? (Number(sel.value) || 0) : keepIdx;
+    if(idx >= CARS.length) idx = CARS.length - 1;
+    if(idx < 0) idx = 0;
     var h = "";
-    for(var i=0;i<CARS.length;i++) h += '<option value="'+i+'">'+CARS[i].name+'</option>';
+    for(var i=0;i<CARS.length;i++) h += '<option value="'+i+'">'+esc(CARS[i].name)+'</option>';
     sel.innerHTML = h;
-    if(keep !== "" && CARS[keep]) sel.value = keep;
+    if(CARS.length) sel.value = idx;
   }
 
-  function car(){ return CARS[Number(sel.value) || 0]; }
+  function car(){ return CARS[Number(sel.value) || 0] || CARS[0]; }
 
   function dec(n){ return n % 1 === 0 ? 0 : 1; }
 
@@ -3286,7 +3344,7 @@ function tkBuildPdf(D){
     liter.innerHTML = num(missing, 1) + '<small>l</small>';
 
     var L = "";
-    L += '<li><span class="k">Fahrzeug</span><span class="v">'+c.name+'</span></li>';
+    L += '<li><span class="k">Fahrzeug</span><span class="v">'+esc(c.name)+'</span></li>';
     L += '<li><span class="k">Tankvolumen</span><span class="v">'+num(c.tank, dec(c.tank))+' l</span></li>';
     L += '<li><span class="k">Gesch\u00E4tzter Resttank</span><span class="v">'+num(rest,1)+' l</span></li>';
 
@@ -3310,31 +3368,90 @@ function tkBuildPdf(D){
   }
 
   function renderSettings(){
+    var single = CARS.length <= 1;
     var h = '<p class="tk-snote">Tankvolumen nach Herstellerangabe. '
-          + '\u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</p>';
+          + 'Fahrzeuge, Kraftstoff und Volumen lassen sich hier \u00E4ndern \u2013 '
+          + 'die Liste bleibt auf diesem Ger\u00E4t gespeichert.</p>'
+          + '<div class="tk-vhead"><span>Fahrzeug</span><span>Kraftstoff</span>'
+          + '<span>Liter</span><span></span></div>';
     for(var i=0;i<CARS.length;i++){
+      var v = CARS[i];
       h += '<div class="tk-vrow">'
-        +    '<div class="n">'+CARS[i].name+'<em>'+CARS[i].fuel+'</em></div>'
-        +    '<input type="number" step="0.1" min="1" data-tk="'+i+'" value="'+CARS[i].tank+'">'
+        +    '<input class="nm" type="text" data-f="name" data-i="'+i+'" '
+        +      'value="'+esc(v.name)+'" placeholder="Fahrzeugbezeichnung">'
+        +    '<select class="fu" data-f="fuel" data-i="'+i+'">'
+        +      '<option value="Benzin"'+(v.fuel==="Benzin"?" selected":"")+'>Benzin</option>'
+        +      '<option value="Diesel"'+(v.fuel==="Diesel"?" selected":"")+'>Diesel</option>'
+        +    '</select>'
+        +    '<input class="tk" type="number" step="0.1" min="1" data-f="tank" data-i="'+i+'" '
+        +      'value="'+v.tank+'">'
+        +    '<button type="button" class="tk-vdel" data-del="'+i+'" '
+        +      'title="Fahrzeug entfernen"'+(single?" disabled":"")+'>&times;</button>'
         +  '</div>';
     }
-    h += '<button type="button" class="tk-sreset" id="tkReset">Auf Standard zur\u00FCcksetzen</button>';
+    h += '<div class="tk-vactions">'
+      +    '<button type="button" class="tk-vadd" id="tkAdd">+ Fahrzeug hinzuf\u00FCgen</button>'
+      +    '<button type="button" class="tk-sreset" id="tkReset">Zur\u00FCcksetzen</button>'
+      +  '</div>';
     $("tkSetBody").innerHTML = h;
   }
 
+  function editField(el){
+    var i = el.getAttribute("data-i"), f = el.getAttribute("data-f");
+    if(i === null || !f) return false;
+    i = Number(i);
+    if(!CARS[i]) return false;
+    if(f === "tank"){
+      var v = parseFloat(String(el.value).replace(",", "."));
+      if(isNaN(v) || v <= 0) return false;
+      CARS[i].tank = v;
+    } else if(f === "fuel"){
+      CARS[i].fuel = (el.value === "Diesel") ? "Diesel" : "Benzin";
+    } else {
+      CARS[i].name = el.value;
+    }
+    save();
+    return true;
+  }
+
   $("tkSetBody").addEventListener("input", function(e){
-    var i = e.target.getAttribute("data-tk");
-    if(i === null) return;
-    var v = parseFloat(String(e.target.value).replace(",", "."));
-    if(isNaN(v) || v <= 0) return;
-    CARS[Number(i)].tank = v;
-    save(); render();
+    if(!editField(e.target)) return;
+    if(e.target.getAttribute("data-f") === "name"){
+      var keep = Number(sel.value) || 0;
+      fillSelect(keep);
+    }
+    render();
   });
+  $("tkSetBody").addEventListener("change", function(e){
+    if(e.target.getAttribute("data-f") !== "fuel") return;
+    editField(e.target);
+    render();
+  });
+
   $("tkSetBody").addEventListener("click", function(e){
-    if(e.target.id !== "tkReset") return;
-    CARS = JSON.parse(JSON.stringify(DEFAULTS));
-    try{ window.localStorage.removeItem(KEY); }catch(err){}
-    renderSettings(); fillSelect(); render();
+    var del = e.target.closest ? e.target.closest("button[data-del]") : null;
+    if(del){
+      if(CARS.length <= 1) return;
+      var idx = Number(del.getAttribute("data-del"));
+      var cur = Number(sel.value) || 0;
+      CARS.splice(idx, 1);
+      if(cur > idx) cur--;
+      else if(cur === idx) cur = Math.min(idx, CARS.length - 1);
+      save(); renderSettings(); fillSelect(cur); render();
+      return;
+    }
+    if(e.target.id === "tkAdd"){
+      CARS.push({ name:"Neues Fahrzeug", fuel:"Benzin", tank:50 });
+      save(); renderSettings(); fillSelect(CARS.length - 1); render();
+      var last = $("tkSetBody").querySelector('[data-i="'+(CARS.length-1)+'"][data-f="name"]');
+      if(last){ last.focus(); last.select(); }
+      return;
+    }
+    if(e.target.id === "tkReset"){
+      CARS = JSON.parse(JSON.stringify(DEFAULTS));
+      try{ window.localStorage.removeItem(KEY); window.localStorage.removeItem(KEY_ALT); }catch(err){}
+      save(); renderSettings(); fillSelect(0); render();
+    }
   });
 
   sel.addEventListener("change", render);
