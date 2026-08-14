@@ -985,6 +985,174 @@
 @media(max-width:400px){
   .header-build{font-size:9.5px;padding-left:8px;}
 }
+
+/* ── Preisverschiebung & Speicherstatus ── */
+.avj-sstate{
+  float:right;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:#2E8B4F;opacity:0;transition:opacity .2s;
+}
+.avj-sstate.on{opacity:1;}
+.avj-scale{
+  background:#F7F9FB;border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px 13px;margin:12px 0 4px;
+}
+.avj-scale-row{display:grid;grid-template-columns:88px 1fr auto;gap:8px;align-items:center;}
+.avj-pct{
+  display:flex;align-items:baseline;gap:4px;background:#fff;
+  border:1px solid var(--line);border-radius:8px;padding:6px 9px;
+}
+.avj-pct input{
+  width:100%;min-width:0;border:none;outline:none;background:transparent;padding:0;
+  font-family:ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--ink);
+}
+.avj-pct em{font-style:normal;font-size:12px;font-weight:600;color:var(--muted);}
+.avj-scale select{
+  width:100%;box-sizing:border-box;font-family:inherit;font-size:12px;
+  padding:7px 20px 7px 9px;border:1px solid var(--line);border-radius:8px;
+  outline:none;color:var(--ink);background:#fff;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 7px center;
+}
+.avj-scale-go{
+  font-family:inherit;font-size:12px;font-weight:700;white-space:nowrap;
+  color:#fff;background:var(--blue-deep);border:none;border-radius:8px;
+  padding:8px 14px;cursor:pointer;transition:filter .15s;
+}
+.avj-scale-go:hover{filter:brightness(1.15);}
+.avj-scale-go:active{transform:translateY(1px);}
+.avj-scale-prev{
+  font-family:ui-monospace,monospace;font-size:10.5px;color:var(--blue);
+  margin-top:8px;line-height:1.5;word-spacing:2px;
+}
+.avj-scale-prev:empty{display:none;}
+.avj-scale-note{font-size:10px;color:#8A96A3;line-height:1.45;margin-top:8px;}
+.avj-sactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.avj-sundo{
+  font-family:inherit;font-size:12px;color:var(--muted);
+  background:none;border:1px solid var(--line);border-radius:8px;
+  padding:6px 12px;cursor:pointer;
+}
+.avj-sundo:hover{border-color:var(--blue);color:var(--blue);}
+@media(max-width:480px){
+  .avj-scale-row{grid-template-columns:76px 1fr;}
+  .avj-scale-go{grid-column:1 / -1;}
+}
+
+/* ── Preisverschiebung & Speicherstatus ── */
+.avjt-sstate{
+  float:right;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:#2E8B4F;opacity:0;transition:opacity .2s;
+}
+.avjt-sstate.on{opacity:1;}
+.avjt-scale{
+  background:#F7F9FB;border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px 13px;margin:12px 0 4px;
+}
+.avjt-scale-row{display:grid;grid-template-columns:88px 1fr auto;gap:8px;align-items:center;}
+.avjt-pct{
+  display:flex;align-items:baseline;gap:4px;background:#fff;
+  border:1px solid var(--line);border-radius:8px;padding:6px 9px;
+}
+.avjt-pct input{
+  width:100%;min-width:0;border:none;outline:none;background:transparent;padding:0;
+  font-family:ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--ink);
+}
+.avjt-pct em{font-style:normal;font-size:12px;font-weight:600;color:var(--muted);}
+.avjt-scale select{
+  width:100%;box-sizing:border-box;font-family:inherit;font-size:12px;
+  padding:7px 20px 7px 9px;border:1px solid var(--line);border-radius:8px;
+  outline:none;color:var(--ink);background:#fff;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 7px center;
+}
+.avjt-scale-go{
+  font-family:inherit;font-size:12px;font-weight:700;white-space:nowrap;
+  color:#fff;background:var(--blue-deep);border:none;border-radius:8px;
+  padding:8px 14px;cursor:pointer;transition:filter .15s;
+}
+.avjt-scale-go:hover{filter:brightness(1.15);}
+.avjt-scale-go:active{transform:translateY(1px);}
+.avjt-scale-prev{
+  font-family:ui-monospace,monospace;font-size:10.5px;color:var(--blue);
+  margin-top:8px;line-height:1.5;word-spacing:2px;
+}
+.avjt-scale-prev:empty{display:none;}
+.avjt-scale-note{font-size:10px;color:#8A96A3;line-height:1.45;margin-top:8px;}
+.avjt-sactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.avjt-sundo{
+  font-family:inherit;font-size:12px;color:var(--muted);
+  background:none;border:1px solid var(--line);border-radius:8px;
+  padding:6px 12px;cursor:pointer;
+}
+.avjt-sundo:hover{border-color:var(--blue);color:var(--blue);}
+@media(max-width:480px){
+  .avjt-scale-row{grid-template-columns:76px 1fr;}
+  .avjt-scale-go{grid-column:1 / -1;}
+}
+
+/* ── Rabattfelder ── */
+.avj-disc{margin:0 0 16px;}
+.avj-disc-head{
+  font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:#5A6675;margin-bottom:7px;
+}
+.avj-disc-row{display:grid;grid-template-columns:1fr 1fr 30px;gap:8px;align-items:center;}
+.avj-dfield{
+  display:block;background:#F7F9FB;border:1.5px solid var(--line);border-radius:12px;
+  padding:8px 12px;transition:border-color .15s,box-shadow .15s;
+}
+.avj-dfield:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;}
+.avj-dfield .dl{
+  display:block;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:3px;
+}
+.avj-dfield .du{display:flex;align-items:baseline;gap:5px;}
+.avj-dfield .du input{
+  flex:1 1 auto;min-width:0;width:100%;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
+.avj-dfield .du em{
+  flex:0 0 auto;font-style:normal;font-size:12px;font-weight:600;color:var(--muted);
+}
+.avj-dclear{
+  border:none;background:none;cursor:pointer;color:#A9B4BF;font-size:19px;line-height:1;
+  padding:4px;border-radius:6px;font-family:inherit;transition:color .15s;
+}
+.avj-dclear:hover{color:#C0392B;}
+.avj-lines li.disc .v{color:var(--yellow);}
+
+/* ── Rabattfelder ── */
+.avjt-disc{margin:0 0 16px;}
+.avjt-disc-head{
+  font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:#5A6675;margin-bottom:7px;
+}
+.avjt-disc-row{display:grid;grid-template-columns:1fr 1fr 30px;gap:8px;align-items:center;}
+.avjt-dfield{
+  display:block;background:#F7F9FB;border:1.5px solid var(--line);border-radius:12px;
+  padding:8px 12px;transition:border-color .15s,box-shadow .15s;
+}
+.avjt-dfield:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);background:#fff;}
+.avjt-dfield .dl{
+  display:block;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:3px;
+}
+.avjt-dfield .du{display:flex;align-items:baseline;gap:5px;}
+.avjt-dfield .du input{
+  flex:1 1 auto;min-width:0;width:100%;border:none;outline:none;background:transparent;padding:0;
+  font-family:inherit;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
+.avjt-dfield .du em{
+  flex:0 0 auto;font-style:normal;font-size:12px;font-weight:600;color:var(--muted);
+}
+.avjt-dclear{
+  border:none;background:none;cursor:pointer;color:#A9B4BF;font-size:19px;line-height:1;
+  padding:4px;border-radius:6px;font-family:inherit;transition:color .15s;
+}
+.avjt-dclear:hover{color:#C0392B;}
+.avjt-lines li.disc .v{color:var(--yellow);}
 </style>
 </head>
 <body>
@@ -1194,6 +1362,21 @@
     <div id="avjExtraRows"></div>
   </div>
 
+  <div class="avj-disc">
+    <div class="avj-disc-head">Rabatt</div>
+    <div class="avj-disc-row">
+      <label class="avj-dfield">
+        <span class="dl">Betrag</span>
+        <span class="du"><input type="text" id="avjDiscEur" inputmode="decimal" placeholder="0,00"><em>&euro;</em></span>
+      </label>
+      <label class="avj-dfield">
+        <span class="dl">Prozent</span>
+        <span class="du"><input type="text" id="avjDiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>
+      </label>
+      <button type="button" class="avj-dclear" id="avjDiscClear" title="Rabatt entfernen">&times;</button>
+    </div>
+  </div>
+
   <div class="avj-out" id="avjOut">
     <div class="avj-out-top">
       <div>
@@ -1274,6 +1457,21 @@
   <div class="avjt-extras">
     <div class="avjt-extras-head">Zusatzposten</div>
     <div id="avjTExtraRows"></div>
+  </div>
+
+  <div class="avjt-disc">
+    <div class="avjt-disc-head">Rabatt</div>
+    <div class="avjt-disc-row">
+      <label class="avjt-dfield">
+        <span class="dl">Betrag</span>
+        <span class="du"><input type="text" id="avjTDiscEur" inputmode="decimal" placeholder="0,00"><em>&euro;</em></span>
+      </label>
+      <label class="avjt-dfield">
+        <span class="dl">Prozent</span>
+        <span class="du"><input type="text" id="avjTDiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>
+      </label>
+      <button type="button" class="avjt-dclear" id="avjTDiscClear" title="Rabatt entfernen">&times;</button>
+    </div>
   </div>
 
   <div class="avjt-out" id="avjTOut">
@@ -1885,6 +2083,7 @@ function avjTrack(name, params){
 
     if(r.empty || r.invalid){
       $("avjPrice").textContent = "\u2014";
+      syncDiscount(0);
       $("avjTarifLabel").textContent = "Richtpreis";
       $("avjBadge").textContent = "";
       $("avjLines").innerHTML =
@@ -1895,7 +2094,9 @@ function avjTrack(name, params){
       return;
     }
 
-    $("avjPrice").textContent = eur(r.total + extrasSum());
+    var _brutto = r.total + extrasSum();
+    syncDiscount(_brutto);
+    $("avjPrice").textContent = eur(_brutto - discountOn(_brutto));
     $("avjTarifLabel").textContent = r.tarifLabel;
     $("avjBadge").textContent = r.badge;
 
@@ -1932,7 +2133,15 @@ function avjTrack(name, params){
       L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
     }
 
-    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(r.total + _xsum)+' \u20AC</span></li>';
+    var _gesamt = r.total + _xsum;
+    var _rab    = discountOn(_gesamt);
+    if(_rab > 0){
+      L += '<li><span class="k">Zwischensumme</span><span class="v">'+eur(_gesamt)+' \u20AC</span></li>';
+      L += '<li class="disc"><span class="k">Rabatt '
+        +  fmtNum(_rab / _gesamt * 100, 1) + ' %</span>'
+        +  '<span class="v">\u2212 '+fmtNum(_rab, 2)+' \u20AC</span></li>';
+    }
+    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(_gesamt - _rab)+' \u20AC</span></li>';
 
     L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
       +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
@@ -2165,6 +2374,68 @@ function avjTrack(name, params){
   refreshTimes();
 
 
+
+  /* ═══ Rabatt: Euro und Prozent halten sich gegenseitig aktuell ═══ */
+  var _discEur = null, _discPct = null, _discLead = null;   /* Lead: welches Feld fuehrt */
+
+  function parseNum(s){
+    s = String(s == null ? "" : s).trim().replace(",", ".");
+    if(s === "") return null;
+    var v = parseFloat(s);
+    return isNaN(v) ? null : v;
+  }
+  function fmtNum(v, dec){
+    return v.toLocaleString("de-DE", { minimumFractionDigits:dec, maximumFractionDigits:dec });
+  }
+
+  /* Rabattbetrag zum aktuellen Zwischenpreis */
+  function discountOn(brutto){
+    if(!brutto || brutto <= 0) return 0;
+    var d = 0;
+    if(_discLead === "pct" && _discPct !== null) d = brutto * _discPct / 100;
+    else if(_discEur !== null)                   d = _discEur;
+    if(d < 0) d = 0;
+    if(d > brutto) d = brutto;
+    return d;
+  }
+
+  /* Das jeweils andere Feld nachziehen, ohne den Cursor zu stoeren */
+  function syncDiscount(brutto){
+    var eEur = $("avjDiscEur"), ePct = $("avjDiscPct");
+    if(!eEur || !ePct) return;
+    if(!brutto || brutto <= 0){
+      if(_discLead !== "eur") eEur.value = "";
+      if(_discLead !== "pct") ePct.value = "";
+      return;
+    }
+    var d = discountOn(brutto);
+    if(_discLead === "pct"){
+      eEur.value = (_discPct === null) ? "" : fmtNum(d, 2);
+    } else if(_discLead === "eur"){
+      ePct.value = (_discEur === null) ? "" : fmtNum(d / brutto * 100, 2);
+    } else {
+      eEur.value = ""; ePct.value = "";
+    }
+  }
+
+  $("avjDiscEur").addEventListener("input", function(){
+    _discEur = parseNum(this.value);
+    _discLead = (_discEur === null) ? null : "eur";
+    if(_discLead === null) _discPct = null;
+    render();
+  });
+  $("avjDiscPct").addEventListener("input", function(){
+    _discPct = parseNum(this.value);
+    _discLead = (_discPct === null) ? null : "pct";
+    if(_discLead === null) _discEur = null;
+    render();
+  });
+  $("avjDiscClear").addEventListener("click", function(){
+    _discEur = _discPct = _discLead = null;
+    $("avjDiscEur").value = ""; $("avjDiscPct").value = "";
+    render();
+  });
+
   /* ═══ Zusatzposten ═══════════════════════════════════════ */
   var _extras = [{ label:"", amount:"" }];
 
@@ -2290,9 +2561,87 @@ function avjTrack(name, params){
     }
   }
 
+  /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
+     Betroffen: Staffel, Tagespakete, Wochenende, Fr/Sa-Zuschlag.
+     Unveraendert: Frei-km, Mehrkilometer-Saetze, Haftungsreduzierung. */
+  function scalePrices(cfg, pct){
+    var f  = 1 + pct/100;
+    var r5 = function(n){ return Math.max(5, Math.round(n*f/5)*5); };
+
+    cfg.tier = cfg.tier.map(r5);
+    for(var i=1;i<cfg.tier.length;i++){
+      if(cfg.tier[i] <= cfg.tier[i-1]) cfg.tier[i] = cfg.tier[i-1] + 5;
+    }
+    ["dayMoDo","dayFrSa","weekend"].forEach(function(k){
+      if(!cfg[k]) return;
+      cfg[k] = cfg[k].map(function(p){ return [p[0], r5(p[1])]; });
+      for(var j=1;j<cfg[k].length;j++){
+        if(cfg[k][j][1] <= cfg[k][j-1][1]) cfg[k][j][1] = cfg[k][j-1][1] + 5;
+      }
+    });
+    if(cfg.frSaPlus) cfg.frSaPlus = Math.max(1, Math.round(cfg.frSaPlus*f));
+  }
+
+  function scalePreview(pct){
+    var el = $("avjScalePrev");
+    if(!el) return;
+    if(!pct){ el.textContent = ""; return; }
+    var probe = JSON.parse(JSON.stringify(CARS[carKey]));
+    scalePrices(probe, pct);
+    var a = CARS[carKey].tier, b = probe.tier;
+    var parts = [];
+    for(var i=0;i<a.length;i++){
+      if(a[i] !== b[i]) parts.push(a[i] + "\u2192" + b[i]);
+    }
+    el.textContent = parts.length
+      ? "Staffelpreis: " + parts.join("   ")
+      : "keine \u00C4nderung bei dieser Prozentzahl";
+  }
+
+  var _snapshot = null;
+  function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
+  function restoreSnapshot(){
+    if(!_snapshot) return false;
+    try{
+      var s = JSON.parse(_snapshot);
+      for(var k in s) CARS[k] = s[k];
+    }catch(e){ return false; }
+    _gridCache = {}; saveCfg();
+    renderSettings(); renderSb(); render();
+    return true;
+  }
+
+  function flashSaved(txt){
+    var el = $("avjSaveState");
+    if(!el) return;
+    el.textContent = txt || "Gespeichert";
+    el.className = "avj-sstate on";
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.className = "avj-sstate"; }, 1600);
+  }
+
   function renderSettings(){
     var car = CARS[carKey];
-    var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. \u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</div>';
+    var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
+           + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
+           + '<span class="avj-sstate" id="avjSaveState"></span></div>';
+
+    h += '<div class="avj-scale">'
+      +    '<div class="avj-slabel" style="margin-top:0">Alle Preise verschieben</div>'
+      +    '<div class="avj-scale-row">'
+      +      '<span class="avj-pct"><input type="number" step="0.5" id="avjScalePct" '
+      +        'placeholder="0" inputmode="decimal"><em>%</em></span>'
+      +      '<select id="avjScaleWhich">'
+      +        '<option value="one">nur '+car.name+'</option>'
+      +        '<option value="all">alle Fahrzeuge</option>'
+      +      '</select>'
+      +      '<button type="button" class="avj-scale-go" id="avjScaleGo">Anwenden</button>'
+      +    '</div>'
+      +    '<div class="avj-scale-prev" id="avjScalePrev"></div>'
+      +    '<div class="avj-scale-note">Verschiebt Staffel, Tagespakete, Wochenende und '
+      +      'den Fr/Sa-Zuschlag; gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze '
+      +      'und Haftungsreduzierung bleiben unver\u00E4ndert. Minuswert senkt die Preise.</div>'
+      +  '</div>';
 
     h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
     h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
@@ -2322,7 +2671,10 @@ function avjTrack(name, params){
         +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
     }
 
-    h += '<button type="button" class="avj-sreset" id="avjSReset">Auf Standard zur\u00FCcksetzen</button>';
+    h += '<div class="avj-sactions">'
+      +    '<button type="button" class="avj-sundo" id="avjSUndo">\u00C4nderungen verwerfen</button>'
+      +    '<button type="button" class="avj-sreset" id="avjSReset">Auf Standard zur\u00FCcksetzen</button>'
+      +  '</div>';
     $("avjSetBody").innerHTML = h;
     updateDeltas();
   }
@@ -2352,6 +2704,7 @@ function avjTrack(name, params){
 
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    flashSaved();
     updateDeltas();
     renderSb();
     render();
@@ -2359,12 +2712,52 @@ function avjTrack(name, params){
 
   $("avjSetBody").addEventListener("input", onSettingInput);
   $("avjSetBody").addEventListener("click", function(e){
-    if(e.target.id !== "avjSReset") return;
-    for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
-    _gridCache = {};
-    try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-    renderSettings(); renderSb(); render();
+    var id = e.target.id;
+
+    if(id === "avjSReset"){
+      takeSnapshot();                      /* auch das laesst sich verwerfen */
+      for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
+      _gridCache = {};
+      try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+      renderSettings(); renderSb(); render();
+      flashSaved("Standard geladen");
+      return;
+    }
+
+    if(id === "avjSUndo"){
+      if(restoreSnapshot()) flashSaved("Zur\u00FCckgesetzt");
+      else flashSaved("Nichts zu verwerfen");
+      return;
+    }
+
+    if(id === "avjScaleGo"){
+      var f = $("avjScalePct");
+      var pct = parseFloat(String(f.value).replace(",", "."));
+      if(isNaN(pct) || pct === 0){ f.focus(); return; }
+      if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
+      takeSnapshot();
+      var which = $("avjScaleWhich").value;
+      if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
+      else scalePrices(CARS[carKey], pct);
+      _gridCache = {}; saveCfg();
+      renderSettings(); renderSb(); render();
+      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00FCbernommen");
+      return;
+    }
   });
+
+  /* Vorschau der Preisverschiebung */
+  $("avjSetBody").addEventListener("input", function(e){
+    if(e.target.id !== "avjScalePct") return;
+    var v = parseFloat(String(e.target.value).replace(",", "."));
+    scalePreview(isNaN(v) ? 0 : v);
+  });
+
+  /* Sicherungspunkt beim Aufklappen der Einstellungen */
+  (function(){
+    var det = $("avjSetBody") ? $("avjSetBody").closest("details") : null;
+    if(det) det.addEventListener("toggle", function(){ if(det.open) takeSnapshot(); });
+  })();
 
   loadCfg();
   renderSettings();
@@ -2667,6 +3060,7 @@ function avjtTrack(name, params){
 
     if(r.empty || r.invalid){
       $("avjTPrice").textContent = "\u2014";
+      syncDiscount(0);
       $("avjTTarifLabel").textContent = "Richtpreis";
       $("avjTBadge").textContent = "";
       $("avjTLines").innerHTML =
@@ -2677,7 +3071,9 @@ function avjtTrack(name, params){
       return;
     }
 
-    $("avjTPrice").textContent = eur(r.total + extrasSum());
+    var _brutto = r.total + extrasSum();
+    syncDiscount(_brutto);
+    $("avjTPrice").textContent = eur(_brutto - discountOn(_brutto));
     $("avjTTarifLabel").textContent = r.tarifLabel;
     $("avjTBadge").textContent = r.badge;
 
@@ -2714,7 +3110,15 @@ function avjtTrack(name, params){
       L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
     }
 
-    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(r.total + _xsum)+' \u20AC</span></li>';
+    var _gesamt = r.total + _xsum;
+    var _rab    = discountOn(_gesamt);
+    if(_rab > 0){
+      L += '<li><span class="k">Zwischensumme</span><span class="v">'+eur(_gesamt)+' \u20AC</span></li>';
+      L += '<li class="disc"><span class="k">Rabatt '
+        +  fmtNum(_rab / _gesamt * 100, 1) + ' %</span>'
+        +  '<span class="v">\u2212 '+fmtNum(_rab, 2)+' \u20AC</span></li>';
+    }
+    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(_gesamt - _rab)+' \u20AC</span></li>';
 
     L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
       +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
@@ -2947,6 +3351,68 @@ function avjtTrack(name, params){
   refreshTimes();
 
 
+
+  /* ═══ Rabatt: Euro und Prozent halten sich gegenseitig aktuell ═══ */
+  var _discEur = null, _discPct = null, _discLead = null;   /* Lead: welches Feld fuehrt */
+
+  function parseNum(s){
+    s = String(s == null ? "" : s).trim().replace(",", ".");
+    if(s === "") return null;
+    var v = parseFloat(s);
+    return isNaN(v) ? null : v;
+  }
+  function fmtNum(v, dec){
+    return v.toLocaleString("de-DE", { minimumFractionDigits:dec, maximumFractionDigits:dec });
+  }
+
+  /* Rabattbetrag zum aktuellen Zwischenpreis */
+  function discountOn(brutto){
+    if(!brutto || brutto <= 0) return 0;
+    var d = 0;
+    if(_discLead === "pct" && _discPct !== null) d = brutto * _discPct / 100;
+    else if(_discEur !== null)                   d = _discEur;
+    if(d < 0) d = 0;
+    if(d > brutto) d = brutto;
+    return d;
+  }
+
+  /* Das jeweils andere Feld nachziehen, ohne den Cursor zu stoeren */
+  function syncDiscount(brutto){
+    var eEur = $("avjTDiscEur"), ePct = $("avjTDiscPct");
+    if(!eEur || !ePct) return;
+    if(!brutto || brutto <= 0){
+      if(_discLead !== "eur") eEur.value = "";
+      if(_discLead !== "pct") ePct.value = "";
+      return;
+    }
+    var d = discountOn(brutto);
+    if(_discLead === "pct"){
+      eEur.value = (_discPct === null) ? "" : fmtNum(d, 2);
+    } else if(_discLead === "eur"){
+      ePct.value = (_discEur === null) ? "" : fmtNum(d / brutto * 100, 2);
+    } else {
+      eEur.value = ""; ePct.value = "";
+    }
+  }
+
+  $("avjTDiscEur").addEventListener("input", function(){
+    _discEur = parseNum(this.value);
+    _discLead = (_discEur === null) ? null : "eur";
+    if(_discLead === null) _discPct = null;
+    render();
+  });
+  $("avjTDiscPct").addEventListener("input", function(){
+    _discPct = parseNum(this.value);
+    _discLead = (_discPct === null) ? null : "pct";
+    if(_discLead === null) _discEur = null;
+    render();
+  });
+  $("avjTDiscClear").addEventListener("click", function(){
+    _discEur = _discPct = _discLead = null;
+    $("avjTDiscEur").value = ""; $("avjTDiscPct").value = "";
+    render();
+  });
+
   /* ═══ Zusatzposten ═══════════════════════════════════════ */
   var _extras = [{ label:"", amount:"" }];
 
@@ -3072,9 +3538,87 @@ function avjtTrack(name, params){
     }
   }
 
+  /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
+     Betroffen: Staffel, Tagespakete, Wochenende, Fr/Sa-Zuschlag.
+     Unveraendert: Frei-km, Mehrkilometer-Saetze, Haftungsreduzierung. */
+  function scalePrices(cfg, pct){
+    var f  = 1 + pct/100;
+    var r5 = function(n){ return Math.max(5, Math.round(n*f/5)*5); };
+
+    cfg.tier = cfg.tier.map(r5);
+    for(var i=1;i<cfg.tier.length;i++){
+      if(cfg.tier[i] <= cfg.tier[i-1]) cfg.tier[i] = cfg.tier[i-1] + 5;
+    }
+    ["dayMoDo","dayFrSa","weekend"].forEach(function(k){
+      if(!cfg[k]) return;
+      cfg[k] = cfg[k].map(function(p){ return [p[0], r5(p[1])]; });
+      for(var j=1;j<cfg[k].length;j++){
+        if(cfg[k][j][1] <= cfg[k][j-1][1]) cfg[k][j][1] = cfg[k][j-1][1] + 5;
+      }
+    });
+    if(cfg.frSaPlus) cfg.frSaPlus = Math.max(1, Math.round(cfg.frSaPlus*f));
+  }
+
+  function scalePreview(pct){
+    var el = $("avjTScalePrev");
+    if(!el) return;
+    if(!pct){ el.textContent = ""; return; }
+    var probe = JSON.parse(JSON.stringify(CARS[carKey]));
+    scalePrices(probe, pct);
+    var a = CARS[carKey].tier, b = probe.tier;
+    var parts = [];
+    for(var i=0;i<a.length;i++){
+      if(a[i] !== b[i]) parts.push(a[i] + "\u2192" + b[i]);
+    }
+    el.textContent = parts.length
+      ? "Staffelpreis: " + parts.join("   ")
+      : "keine \u00C4nderung bei dieser Prozentzahl";
+  }
+
+  var _snapshot = null;
+  function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
+  function restoreSnapshot(){
+    if(!_snapshot) return false;
+    try{
+      var s = JSON.parse(_snapshot);
+      for(var k in s) CARS[k] = s[k];
+    }catch(e){ return false; }
+    _gridCache = {}; saveCfg();
+    renderSettings(); renderSb(); render();
+    return true;
+  }
+
+  function flashSaved(txt){
+    var el = $("avjTSaveState");
+    if(!el) return;
+    el.textContent = txt || "Gespeichert";
+    el.className = "avjt-sstate on";
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.className = "avjt-sstate"; }, 1600);
+  }
+
   function renderSettings(){
     var car = CARS[carKey];
-    var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. \u00C4nderungen bleiben auf diesem Ger\u00E4t gespeichert.</div>';
+    var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
+           + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
+           + '<span class="avjt-sstate" id="avjTSaveState"></span></div>';
+
+    h += '<div class="avjt-scale">'
+      +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
+      +    '<div class="avjt-scale-row">'
+      +      '<span class="avjt-pct"><input type="number" step="0.5" id="avjTScalePct" '
+      +        'placeholder="0" inputmode="decimal"><em>%</em></span>'
+      +      '<select id="avjTScaleWhich">'
+      +        '<option value="one">nur '+car.name+'</option>'
+      +        '<option value="all">alle Fahrzeuge</option>'
+      +      '</select>'
+      +      '<button type="button" class="avjt-scale-go" id="avjTScaleGo">Anwenden</button>'
+      +    '</div>'
+      +    '<div class="avjt-scale-prev" id="avjTScalePrev"></div>'
+      +    '<div class="avjt-scale-note">Verschiebt Staffel, Tagespakete, Wochenende und '
+      +      'den Fr/Sa-Zuschlag; gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze '
+      +      'und Haftungsreduzierung bleiben unver\u00E4ndert. Minuswert senkt die Preise.</div>'
+      +  '</div>';
 
     h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
     h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
@@ -3104,7 +3648,10 @@ function avjtTrack(name, params){
         +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
     }
 
-    h += '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Standard zur\u00FCcksetzen</button>';
+    h += '<div class="avjt-sactions">'
+      +    '<button type="button" class="avjt-sundo" id="avjTSUndo">\u00C4nderungen verwerfen</button>'
+      +    '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Standard zur\u00FCcksetzen</button>'
+      +  '</div>';
     $("avjTSetBody").innerHTML = h;
     updateDeltas();
   }
@@ -3134,6 +3681,7 @@ function avjtTrack(name, params){
 
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    flashSaved();
     updateDeltas();
     renderSb();
     render();
@@ -3141,12 +3689,52 @@ function avjtTrack(name, params){
 
   $("avjTSetBody").addEventListener("input", onSettingInput);
   $("avjTSetBody").addEventListener("click", function(e){
-    if(e.target.id !== "avjTSReset") return;
-    for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
-    _gridCache = {};
-    try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-    renderSettings(); renderSb(); render();
+    var id = e.target.id;
+
+    if(id === "avjTSReset"){
+      takeSnapshot();                      /* auch das laesst sich verwerfen */
+      for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
+      _gridCache = {};
+      try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+      renderSettings(); renderSb(); render();
+      flashSaved("Standard geladen");
+      return;
+    }
+
+    if(id === "avjTSUndo"){
+      if(restoreSnapshot()) flashSaved("Zur\u00FCckgesetzt");
+      else flashSaved("Nichts zu verwerfen");
+      return;
+    }
+
+    if(id === "avjTScaleGo"){
+      var f = $("avjTScalePct");
+      var pct = parseFloat(String(f.value).replace(",", "."));
+      if(isNaN(pct) || pct === 0){ f.focus(); return; }
+      if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
+      takeSnapshot();
+      var which = $("avjTScaleWhich").value;
+      if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
+      else scalePrices(CARS[carKey], pct);
+      _gridCache = {}; saveCfg();
+      renderSettings(); renderSb(); render();
+      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00FCbernommen");
+      return;
+    }
   });
+
+  /* Vorschau der Preisverschiebung */
+  $("avjTSetBody").addEventListener("input", function(e){
+    if(e.target.id !== "avjTScalePct") return;
+    var v = parseFloat(String(e.target.value).replace(",", "."));
+    scalePreview(isNaN(v) ? 0 : v);
+  });
+
+  /* Sicherungspunkt beim Aufklappen der Einstellungen */
+  (function(){
+    var det = $("avjTSetBody") ? $("avjTSetBody").closest("details") : null;
+    if(det) det.addEventListener("toggle", function(){ if(det.open) takeSnapshot(); });
+  })();
 
   loadCfg();
   renderSettings();
@@ -3841,7 +4429,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 21;
+var AVJ_BUILD = 23;
 var AVJ_BUILD_DATE = "06.08.2026";
 (function(){
   var el = document.getElementById("appBuild");
