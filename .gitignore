@@ -1,0 +1,12 @@
+# Betriebssystem-Kram
+.DS_Store
+Thumbs.db
+
+# Testwerkzeuge, gehören nicht ins Repo und nicht auf GitHub Pages
+node_modules
+package-lock.json
+testergebnis.txt
+
+# Reste
+.cowork-schreibtest
+_to_delete/
