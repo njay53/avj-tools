@@ -888,6 +888,20 @@
   .header-build{font-size:9.5px;padding-left:8px;}
 }
 
+/* ── Kurzes gruenes Aufleuchten geaenderter Felder ── */
+.avj-scol input,.avjt-scol input,.avj-scol .d,.avjt-scol .d,.avj-dlt,.avjt-dlt{
+  transition:background-color .18s,border-color .18s,color .18s,box-shadow .18s;
+}
+.avj-scol.avj-blitz input,.avjt-scol.avj-blitz input{
+  border-color:#2E8B4F;background:#EAF7EE;color:#1B6B3C;
+  box-shadow:0 0 0 2px rgba(46,139,79,.20);
+}
+.avj-scol.avj-blitz .d,.avjt-scol.avj-blitz .d{color:#2E8B4F;font-weight:700;}
+.avj-scol.avj-blitz .avj-dlt,.avjt-scol.avj-blitz .avjt-dlt,
+.avj-scol.avj-blitz .avjt-dlt,.avjt-scol.avj-blitz .avj-dlt{
+  color:#2E8B4F;font-weight:700;
+}
+
 /* ── Preisverschiebung & Speicherstatus ── */
 .avj-sstate{
   float:right;font-size:9.5px;font-weight:700;letter-spacing:.05em;
@@ -1574,6 +1588,50 @@ calcMietdauer();
   });
 })();
 
+
+/* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
+   avjWerte(bodyId) vor der Aenderung merken, avjBlitz(bodyId, werte)
+   danach aufrufen. Verglichen wird Feld fuer Feld, damit nur das
+   aufleuchtet, was sich wirklich bewegt hat — bei einer Verschiebung
+   um wenige Prozent bleiben durch die 5-Euro-Rundung einige stehen. */
+function avjFeldName(e){
+  var s = e.getAttribute("data-set");
+  if(s !== null) return "s:" + s + ":" + e.getAttribute("data-i") + ":" + (e.getAttribute("data-sub") || "-");
+  var r = e.getAttribute("data-rate");
+  if(r !== null) return "r:" + r;
+  var w = e.getAttribute("data-sbwe");
+  if(w !== null) return "w:" + w;
+  return null;   /* z. B. das Prozentfeld selbst */
+}
+function avjWerte(bodyId){
+  var m = {}, b = document.getElementById(bodyId);
+  if(!b) return m;
+  var els = b.querySelectorAll("input");
+  for(var i=0;i<els.length;i++){
+    var k = avjFeldName(els[i]);
+    if(k) m[k] = els[i].value;
+  }
+  return m;
+}
+function avjBlitz(bodyId, vorher, dauer){
+  var b = document.getElementById(bodyId);
+  if(!b || !vorher) return 0;
+  var els = b.querySelectorAll("input"), anzahl = 0;
+  for(var i=0;i<els.length;i++){
+    var k = avjFeldName(els[i]);
+    if(!k || vorher[k] === undefined || vorher[k] === els[i].value) continue;
+    var ziel = els[i].parentNode;
+    if(!ziel || !ziel.className || String(ziel.className).indexOf("scol") < 0) ziel = els[i];
+    (function(el){
+      if(el.className.indexOf("avj-blitz") < 0) el.className += " avj-blitz";
+      setTimeout(function(){
+        el.className = el.className.replace(/\s*avj-blitz/g, "");
+      }, dauer || 1700);
+    })(ziel);
+    anzahl++;
+  }
+  return anzahl;
+}
 
 /* ═══ Zentrale Preisliste ═════════════════════════════════════
    Holt preise.json vom Server. Drei Stufen, in dieser Reihenfolge:
@@ -2779,17 +2837,26 @@ function avjlTrack(name, params){
 
     if(id === "avjLSReset"){
       takeSnapshot();                      /* auch das laesst sich verwerfen */
+      var _vorRs = avjWerte("avjLSetBody");
       for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      flashSaved("Kundenstand geladen");
+      var _nRs = avjBlitz("avjLSetBody", _vorRs);
+      flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
+                      : "Kundenstand geladen");
       return;
     }
 
     if(id === "avjLSUndo"){
-      if(restoreSnapshot()) flashSaved("Zur\u00FCckgesetzt");
-      else flashSaved("Nichts zu verwerfen");
+      var _vorUn = avjWerte("avjLSetBody");
+      if(restoreSnapshot()){
+        var _nUn = avjBlitz("avjLSetBody", _vorUn);
+        flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
+                        : "Nichts ge\u00E4ndert");
+      } else {
+        flashSaved("Nichts zu verwerfen");
+      }
       return;
     }
 
@@ -2799,12 +2866,15 @@ function avjlTrack(name, params){
       if(isNaN(pct) || pct === 0){ f.focus(); return; }
       if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
       takeSnapshot();
+      var _vorSk = avjWerte("avjLSetBody");
       var which = $("avjLScaleWhich").value;
       if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
       else scalePrices(CARS[carKey], pct);
       _gridCache = {}; saveCfg();
       renderSettings(); renderSb(); render();
-      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00FCbernommen");
+      var _nSk = avjBlitz("avjLSetBody", _vorSk);
+      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
+                 + (_nSk === 1 ? " Wert" : " Werte"));
       return;
     }
   });
@@ -3887,17 +3957,26 @@ function avjTrack(name, params){
 
     if(id === "avjSReset"){
       takeSnapshot();                      /* auch das laesst sich verwerfen */
+      var _vorRs = avjWerte("avjSetBody");
       for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      flashSaved("Kundenstand geladen");
+      var _nRs = avjBlitz("avjSetBody", _vorRs);
+      flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
+                      : "Kundenstand geladen");
       return;
     }
 
     if(id === "avjSUndo"){
-      if(restoreSnapshot()) flashSaved("Zur\u00FCckgesetzt");
-      else flashSaved("Nichts zu verwerfen");
+      var _vorUn = avjWerte("avjSetBody");
+      if(restoreSnapshot()){
+        var _nUn = avjBlitz("avjSetBody", _vorUn);
+        flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
+                        : "Nichts ge\u00E4ndert");
+      } else {
+        flashSaved("Nichts zu verwerfen");
+      }
       return;
     }
 
@@ -3907,12 +3986,15 @@ function avjTrack(name, params){
       if(isNaN(pct) || pct === 0){ f.focus(); return; }
       if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
       takeSnapshot();
+      var _vorSk = avjWerte("avjSetBody");
       var which = $("avjScaleWhich").value;
       if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
       else scalePrices(CARS[carKey], pct);
       _gridCache = {}; saveCfg();
       renderSettings(); renderSb(); render();
-      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00FCbernommen");
+      var _nSk = avjBlitz("avjSetBody", _vorSk);
+      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
+                 + (_nSk === 1 ? " Wert" : " Werte"));
       return;
     }
   });
@@ -4984,17 +5066,26 @@ function avjtTrack(name, params){
 
     if(id === "avjTSReset"){
       takeSnapshot();                      /* auch das laesst sich verwerfen */
+      var _vorRs = avjWerte("avjTSetBody");
       for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      flashSaved("Kundenstand geladen");
+      var _nRs = avjBlitz("avjTSetBody", _vorRs);
+      flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
+                      : "Kundenstand geladen");
       return;
     }
 
     if(id === "avjTSUndo"){
-      if(restoreSnapshot()) flashSaved("Zur\u00FCckgesetzt");
-      else flashSaved("Nichts zu verwerfen");
+      var _vorUn = avjWerte("avjTSetBody");
+      if(restoreSnapshot()){
+        var _nUn = avjBlitz("avjTSetBody", _vorUn);
+        flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
+                        : "Nichts ge\u00E4ndert");
+      } else {
+        flashSaved("Nichts zu verwerfen");
+      }
       return;
     }
 
@@ -5004,12 +5095,15 @@ function avjtTrack(name, params){
       if(isNaN(pct) || pct === 0){ f.focus(); return; }
       if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
       takeSnapshot();
+      var _vorSk = avjWerte("avjTSetBody");
       var which = $("avjTScaleWhich").value;
       if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
       else scalePrices(CARS[carKey], pct);
       _gridCache = {}; saveCfg();
       renderSettings(); renderSb(); render();
-      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00FCbernommen");
+      var _nSk = avjBlitz("avjTSetBody", _vorSk);
+      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
+                 + (_nSk === 1 ? " Wert" : " Werte"));
       return;
     }
   });
@@ -5720,7 +5814,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 27;
+var AVJ_BUILD = 28;
 var AVJ_BUILD_DATE = "15.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

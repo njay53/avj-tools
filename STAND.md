@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 27 · 15.08.2026**
+**Stand: Build 28 · 15.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -401,3 +401,24 @@ Aktuell ein Eintrag, `yaris` / „Low-Budget". Weitere lassen sich im
 Der LB-Rechner ist so gebaut, dass er später ohne zweiten Umbau als
 Kundenrechner auf die Website kann — eigener Namensraum, `preise.json`
 angebunden. Gemacht wird das erst, wenn das Fahrzeug da ist.
+
+---
+
+## 13. Geänderte Felder leuchten auf (ab Build 28)
+
+Nach einer Preisverschiebung, einem Zurücksetzen oder einem Verwerfen leuchten
+in allen drei Rechnern genau die Felder kurz grün auf, deren Wert sich
+tatsächlich geändert hat — Rahmen, Beschriftung und Differenzanzeige. Nach
+1,7 Sekunden geht es von selbst wieder aus.
+
+Der Sinn: durch die Rundung auf 5 € bewegt sich bei kleinen Prozentwerten
+nicht jede Stufe. Bei +2,5 % auf die LB-Preise bleiben 45 € und 85 € stehen,
+während 120 € bis 210 € um je 5 € steigen. Das Aufleuchten zeigt sofort,
+wo der Sprung angekommen ist.
+
+Die Statusanzeige nennt dazu die Anzahl: `+2,5 % · 6 Werte`.
+
+Technisch: `avjWerte(bodyId)` merkt sich vor der Änderung alle Feldwerte,
+`avjBlitz(bodyId, werte)` vergleicht danach und setzt die Klasse `avj-blitz`
+auf die betroffene Spalte. Beide Funktionen sind global, damit alle drei
+Rechner dieselben benutzen. Grünton `#2E8B4F` wie bei „Gespeichert".
