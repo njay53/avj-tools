@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 26 · 15.08.2026**
+**Stand: Build 27 · 15.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -22,7 +22,7 @@ Dazu ein drittes Projekt in einem eigenen Chat: **Schadenmanager**
 
 1. **Mietdauer** — Tage zwischen zwei Terminen, angefangene Tage aufgerundet
 2. **Rabatt** — Prozentwert für rentsoft, 5 Nachkommastellen, Kopierknopf
-3. **LB-Preis** — Low-Budget-Klasse (Yaris)
+3. **LB-Preis** — Low-Budget-Klasse (Yaris), ab Build 27 im Aufbau wie 9-Sitzer
 4. **9-Sitzer** — Sprinter Tourer / Vito Tourer
 5. **Transporter** — Transporter M / XL
 6. **Tank** — Tankfehlmenge mit PDF-Export
@@ -353,3 +353,51 @@ Die vorherige Fassung bleibt als `.preise-vorher.json` im Ordner liegen.
 - **LB-Preis und Tank-Fahrzeuge** stehen weiter nur im Code. Der LB-Bereich
   speichert seine Einstellungen ohnehin nicht — Änderungen dort sind nach
   einem Neuladen wieder weg. Beides bewusst für später.
+
+---
+
+## 12. LB-Rechner (ab Build 27)
+
+Der LB-Reiter sieht und funktioniert jetzt wie 9-Sitzer und Transporter:
+gleiche Oberfläche, gleiche Einstellungen, Anbindung an `preise.json`,
+Kundenstand-Hinweis und Freigabe-Knopf.
+
+Technisch ist er ein Klon des Transporter-Blocks. Die **CSS-Klassen bleiben
+`avjt-`**, nur die Element-IDs heißen `avjL…`. Dadurch ist das Aussehen ohne
+doppeltes CSS identisch — bei Änderungen am Aussehen des Transporters ändert
+sich der LB-Rechner mit. Das alte `#tool-lb`-CSS ist entfallen.
+
+### Bewusst weggelassen
+
+Der LB-Rechner hat **nur die Preise, die es wirklich gibt**:
+
+| vorhanden | nicht vorhanden |
+|---|---|
+| Tagespreise 1–7 | Wochenendtarif |
+| Frei-km je Mietdauer | Tagespakete Mo–Do / Fr/Sa |
+| Mehrkilometer geplant/ungeplant | Fr/Sa-Zuschlag |
+| Monatsanker (Preis + Frei-km) | Haftungsstufen (SB) |
+
+Eine Fr→Mo-Miete rechnet also ganz normal als 3 Tage, nicht als Wochenende.
+Die Zahlen sind unverändert die des alten LB-Rechners.
+
+### Über sieben Tage
+
+Statt der linearen Fortschreibung mit Faktor 0,92 (wie bei den anderen)
+wird beim LB **zwischen Wochen- und Monatspreis interpoliert** — Monatsmieten
+sind bei einem Yaris ein realistischer Fall. Über 30 Tage hinaus wird mit
+`monthPrice / 30` je Tag weitergerechnet.
+
+Prüfwerte (Stand Build 27): 1 T = 45 € · 7 T = 210 € · 14 T = 335 € ·
+30 T = 620 € · 45 T = 930 €.
+
+### Fahrzeuge
+
+Aktuell ein Eintrag, `yaris` / „Low-Budget". Weitere lassen sich im
+`CARS`-Block ergänzen, die Fahrzeugauswahl im HTML wächst dann mit.
+
+### Noch offen
+
+Der LB-Rechner ist so gebaut, dass er später ohne zweiten Umbau als
+Kundenrechner auf die Website kann — eigener Namensraum, `preise.json`
+angebunden. Gemacht wird das erst, wenn das Fahrzeug da ist.

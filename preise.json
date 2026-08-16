@@ -1,7 +1,7 @@
 {
   "version": 1,
   "stand": "15.08.2026",
-  "erzeugtVon": "AVJ Tools Build 26",
+  "erzeugtVon": "AVJ Tools Build 27",
   "neunsitzer": {
     "sprinter": {
       "name": "Sprinter Tourer",
@@ -474,6 +474,34 @@
           ]
         }
       ]
+    }
+  },
+  "lb": {
+    "yaris": {
+      "name": "Low-Budget",
+      "example": "z. B. Toyota Yaris",
+      "planKm": 0.15,
+      "overKm": 0.15,
+      "tier": [
+        45,
+        85,
+        120,
+        150,
+        175,
+        195,
+        210
+      ],
+      "tierKm": [
+        400,
+        700,
+        1000,
+        1250,
+        1450,
+        1650,
+        1800
+      ],
+      "monthPrice": 620,
+      "monthKm": 3500
     }
   }
 }
