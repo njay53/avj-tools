@@ -10,3 +10,7 @@ testergebnis.txt
 # Reste
 .cowork-schreibtest
 _to_delete/
+
+# Reste der Cowork-Bruecke beim Ueberschreiben offener Dateien
+.fuse_hidden*
+.preise-vorher.json

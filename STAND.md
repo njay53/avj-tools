@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 25 · 15.08.2026**
+**Stand: Build 26 · 15.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -186,6 +186,12 @@ setTimeout(()=>{ console.log(errs.length?errs.join(' | '):'keine Fehler'); proce
 Niran startet dort `hochladen.command` per Doppelklick — das Skript prüft die Datei, liest die
 Build-Nummer und überträgt sie ans Repository `njay53/avj-tools`.
 
+Zwei Skripte, zwei Zwecke:
+
+- `hochladen.command` — lädt den ganzen Stand hoch (App, Doku, alles)
+- `Kundenpreise aktualisieren.command` — nur die `preise.json`, mit Vergleich
+  vorher (siehe Abschnitt 11)
+
 **Ohne Cowork**: Datei als `index.html` über die GitHub-Weboberfläche hochladen
 (Add file → Upload files → Commit). Nach ein bis zwei Minuten live.
 
@@ -241,8 +247,9 @@ nicht verfälscht.
 
 **Gespeicherte Daten im Browser (localStorage):**
 ```
-avj_preise_v1            Preise 9-Sitzer
-avjT_preise_v1           Preise Transporter
+avj_preise_v1            eigene Abweichungen 9-Sitzer (nur Unterschiede)
+avjT_preise_v1           eigene Abweichungen Transporter (nur Unterschiede)
+avj_kundenpreise_v1      Zwischenspeicher der preise.json vom Server
 avj_tabreihenfolge_v1    Reihenfolge der Reiter
 tk_fahrzeuge_v2          Fahrzeugliste Tank
 tk_tanks_v1              alte Fassung, wird beim Laden übernommen
@@ -268,17 +275,16 @@ eingesetzten Zahlen, Hinweis auf die Unschärfe von 2–3 Litern.
 
 ## 9. Offene Punkte
 
-- **Zentrale Preisliste**: `preise.json` im Repository, die auch die Kundenrechner
-  abrufen. Damit würde eine Preisänderung an einer Stelle überall wirken.
-  Bedenken: Netzabhängigkeit, Rückfallwerte nötig, Änderung sofort öffentlich.
+- **Zentrale Preisliste**: seit Build 26 zur Hälfte erledigt — die App liest
+  `preise.json`. Offen: die beiden Kundenrechner umstellen (Build 27), sowie
+  LB-Preis und Tank-Fahrzeuge mit aufnehmen.
 - **PKW-Rechner** — Fahrzeuge wechseln ständig, deshalb erst sinnvoll mit
   zentraler Preisliste.
 - **Onepage-MCP**: Könnte das Kopieren in sechs Felder ersparen. Die Anleitung
   beschreibt nur das Neuerstellen von Seiten, nicht das Bearbeiten von Custom-Code-
   Blöcken. Vor einem Anschluss an die Live-Seite erst an einem Testprojekt prüfen.
-- **Vito-Wochenpreis** (950 €) fällt gegenüber dem Sprinter Tourer (650 €) auf:
-  Der Tagessatz sinkt beim Vito über die Woche nur um 15 %, beim Sprinter um 28 %.
-  Stammt so aus der Preisliste, könnte aber unbeabsichtigt sein.
+- ~~**Vito-Wochenpreis**~~ — am 15.08.2026 entschieden: bleibt bei 950 €. Der
+  Unterschied zum Sprinter (650 €) ist gewollt, kein Übertragungsfehler.
 - **Feiertage und Tarifzuordnung**: Ein Feiertagsmontag verlängert derzeit nicht
   automatisch den Wochenendtarif. Bewusst offen gelassen — das ist eine
   Preisentscheidung, keine technische.
@@ -295,3 +301,55 @@ eingesetzten Zahlen, Hinweis auf die Unschärfe von 2–3 Litern.
   (2 Tage teurer als 3, der siebte Tag für 5 €, das WE-Raster bei 650 km)
 - Build-Nummer bei jeder Auslieferung hochzählen, in App und Kundenrechner gleich
 - Nach jedem Umbau den jsdom-Test laufen lassen
+
+---
+
+## 11. Zentrale Preisliste (ab Build 26)
+
+`preise.json` im Repository ist die Preisquelle für Kunden. Abrufbar unter
+`https://avj-tools.rent-in-nom.de/preise.json`.
+
+### Drei Stufen beim Laden
+
+1. **Server** — `preise.json` wird beim Start geholt und in localStorage
+   zwischengespeichert
+2. **gespeichert** — der zuletzt geholte Stand, falls der Server nicht antwortet
+3. **eingebaut** — die fest im Code stehenden `CARS`-Blöcke
+
+Der Rechner kann dadurch nie kaputtgehen, nur veralten. Welche Stufe gerade
+gilt, steht als kleine Marke oben in den Einstellungen.
+
+Die Datei wird vor der Übernahme geprüft: `tier` und `tierKm` je sieben Werte,
+alle Preise Zahlen ≥ 0, Tagespakete und Haftungsstufen vorhanden. Fällt die
+Prüfung durch, greift stillschweigend die nächste Stufe.
+
+### Mein Stand gegen Kundenstand
+
+`avj_preise_v1` und `avjT_preise_v1` enthalten ab Build 26 **nur noch die
+Abweichungen** vom Kundenstand, nicht mehr den kompletten Satz. Alte Einträge
+werden beim ersten Laden automatisch umgestellt.
+
+Änderungen in der App gelten sofort — aber nur auf Nirans Geräten. Weicht
+etwas ab, steht ein Hinweis in den Einstellungen mit der Liste der betroffenen
+Werte. Nichts geht ungefragt an Kunden.
+
+### Ablauf einer Preisänderung
+
+1. Preis in der App ändern (gilt sofort für mich, Hinweis erscheint)
+2. Knopf **„Für Kunden freigeben"** — zeigt alter Wert gegen neuer Wert
+3. Bestätigen → `preise.json` landet im Download-Ordner
+4. **`Kundenpreise aktualisieren.command`** doppelklicken — holt die Datei aus
+   dem Download-Ordner, prüft sie mit `plutil` und Python, zeigt den Vergleich
+   nochmal, und lädt erst nach Bestätigung hoch
+5. Nach ein bis zwei Minuten rechnen die Kundenrechner damit
+
+Die vorherige Fassung bleibt als `.preise-vorher.json` im Ordner liegen.
+
+### Was noch nicht drin ist
+
+- **Die Kundenrechner selbst** lesen die Datei noch nicht — das ist Build 27.
+  Bis dahin rechnen sie mit ihren eingebauten Werten weiter, es ist also
+  nichts kaputt, nur noch nicht verbunden.
+- **LB-Preis und Tank-Fahrzeuge** stehen weiter nur im Code. Der LB-Bereich
+  speichert seine Einstellungen ohnehin nicht — Änderungen dort sind nach
+  einem Neuladen wieder weg. Beides bewusst für später.

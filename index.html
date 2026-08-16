@@ -489,6 +489,32 @@
   font-size:12px;font-family:inherit;padding:6px 12px;border-radius:8px;cursor:pointer;
 }
 .avj-sreset:hover{border-color:#C0392B;color:#C0392B;}
+
+/* ── Zentrale Preisliste ─────────────────────────────── */
+.avj-quelle{display:inline-block;font-size:10px;padding:2px 7px;border-radius:9px;background:#E9EDF1;color:#5A6672;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+.avj-quelle.q-server{background:#DFF3E4;color:#2E7D46;}
+.avj-quelle.q-gespeichert{background:#FFF3D6;color:#8A6A12;}
+.avj-quelle.q-eingebaut{background:#F5E4E4;color:#9A4B4B;}
+.avj-kstand{border:1px solid #E2C275;background:#FFF9EC;border-radius:8px;padding:9px 11px;margin:10px 0 4px;font-size:11.5px;color:#6B5520;line-height:1.5;}
+.avj-kstand b{color:#4A3A10;}
+.avj-kstand.gleich{border-color:#CFE3D6;background:#F4FBF6;color:#37613F;}
+.avj-kbtn{display:inline-block;margin-top:8px;border:0;border-radius:7px;padding:7px 12px;background:#1F6F43;color:#fff;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+.avj-kbtn.zweit{background:#98A3AE;margin-left:6px;}
+.avj-kliste{margin:6px 0 0;padding-left:16px;}
+.avj-frei-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(20,25,32,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;}
+.avj-frei-box{background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:18px 20px;font-size:13px;color:#26313B;-webkit-overflow-scrolling:touch;}
+.avj-frei-box h3{font-size:15px;margin:0 0 6px;}
+.avj-frei-box p{margin:0 0 8px;font-size:12px;color:#5A6672;line-height:1.5;}
+.avj-frei-box table{width:100%;border-collapse:collapse;font-size:11px;margin:10px 0;}
+.avj-frei-box th,.avj-frei-box td{text-align:left;padding:4px 6px;border-bottom:1px solid #EDF1F4;vertical-align:top;}
+.avj-frei-box th{color:#7B8794;font-weight:600;}
+.avj-frei-box td.alt{color:#9A4B4B;}
+.avj-frei-box td.neu{color:#2E7D46;font-weight:600;}
+.avj-frei-akt{display:flex;gap:8px;margin-top:14px;}
+.avj-frei-akt button{flex:1;border:0;border-radius:8px;padding:11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+.avj-frei-ja{background:#1F6F43;color:#fff;}
+.avj-frei-nein{background:#E9EDF1;color:#40505E;}
+.avj-frei-hint{font-size:11px;color:#7B8794;margin-top:10px;line-height:1.5;}
 .avj-snote{font-size:10.5px;color:#8A96A3;margin-top:10px;line-height:1.45;}
 @media(max-width:560px){
   .avj-sgrid.d7{grid-template-columns:repeat(4,1fr);}
@@ -1659,6 +1685,222 @@ calcMietdauer();
   });
 })();
 
+
+/* ═══ Zentrale Preisliste ═════════════════════════════════════
+   Holt preise.json vom Server. Drei Stufen, in dieser Reihenfolge:
+     1. Server                2. zuletzt gespeicherter Server-Stand
+     3. die eingebauten Werte
+   Damit kann der Rechner nie kaputtgehen, nur veralten.
+   Die Bereiche melden sich mit bereit() an und bekommen die Daten,
+   sobald sie da sind — oder sofort, falls schon geladen.
+   Bewusst XMLHttpRequest statt fetch: laeuft auch in aelteren Safari
+   und wirft bei file:// keine unbehandelte Ablehnung. */
+var AVJ_PREISE = (function(){
+  "use strict";
+  var CACHE_KEY = "avj_kundenpreise_v1";
+  var daten = null, quelle = "eingebaut", stand = null;
+  var fertig = false, warteschlange = [], bereiche = [];
+
+  function pruefe(d){
+    if(!d || typeof d !== "object") return false;
+    if(!d.neunsitzer || !d.transporter) return false;
+    var ok = true;
+    ["neunsitzer","transporter"].forEach(function(g){
+      for(var k in d[g]){
+        var c = d[g][k];
+        if(!c || typeof c !== "object"){ ok = false; continue; }
+        if(!c.tier   || c.tier.length   !== 7) ok = false;
+        if(!c.tierKm || c.tierKm.length !== 7) ok = false;
+        if(!c.dayMoDo || !c.dayFrSa || !c.weekend) ok = false;
+        if(!c.sb || !c.sb.length) ok = false;
+        for(var i=0;i<(c.tier||[]).length;i++){
+          if(typeof c.tier[i] !== "number" || !isFinite(c.tier[i]) || c.tier[i] < 0) ok = false;
+        }
+      }
+    });
+    return ok;
+  }
+
+  function zeigeQuelle(){
+    var els = document.querySelectorAll(".avj-quelle");
+    var t = quelle === "server"      ? "Preise: Server"
+          : quelle === "gespeichert" ? "Preise: gespeichert"
+          :                            "Preise: eingebaut";
+    if(stand) t += " \u00B7 " + stand;
+    for(var i=0;i<els.length;i++){
+      els[i].textContent = t;
+      els[i].className = "avj-quelle q-" + quelle;
+    }
+  }
+
+  function melde(){
+    fertig = true;
+    var f = warteschlange; warteschlange = [];
+    for(var i=0;i<f.length;i++){ try{ f[i](daten, quelle, stand); }catch(e){} }
+    zeigeQuelle();
+  }
+
+  function ausCache(){
+    try{
+      var raw = window.localStorage.getItem(CACHE_KEY);
+      if(!raw) return false;
+      var d = JSON.parse(raw);
+      if(!pruefe(d)) return false;
+      daten = d; quelle = "gespeichert"; stand = d.stand || null;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function start(){
+    /* Zeitstempel je Minute: hebelt den Zwischenspeicher von GitHub Pages
+       aus, ohne ihn ganz abzuschalten. */
+    var url = "preise.json?t=" + Math.floor(new Date().getTime()/60000);
+    var erledigt = false;
+    var frist = setTimeout(function(){
+      if(erledigt) return;
+      erledigt = true; ausCache(); melde();
+    }, 3000);
+
+    try{
+      var x = new XMLHttpRequest();
+      x.open("GET", url, true);
+      x.onreadystatechange = function(){
+        if(x.readyState !== 4 || erledigt) return;
+        erledigt = true; clearTimeout(frist);
+        var d = null;
+        try{ d = JSON.parse(x.responseText); }catch(e){}
+        if(x.status >= 200 && x.status < 400 && pruefe(d)){
+          daten = d; quelle = "server"; stand = d.stand || null;
+          try{ window.localStorage.setItem(CACHE_KEY, JSON.stringify(d)); }catch(e){}
+        } else {
+          ausCache();
+        }
+        melde();
+      };
+      x.onerror = function(){
+        if(erledigt) return;
+        erledigt = true; clearTimeout(frist); ausCache(); melde();
+      };
+      x.send();
+    }catch(e){
+      clearTimeout(frist);
+      if(!erledigt){ erledigt = true; ausCache(); melde(); }
+    }
+  }
+
+  /* ─── Freigabe: aus dem aktuellen Stand eine preise.json bauen ─── */
+  function zahl(v){
+    if(Array.isArray(v)) return v.map(zahl).join(" ");
+    if(v === null || v === undefined) return "\u2014";
+    return String(v);
+  }
+  function alleAbweichungen(){
+    var out = [];
+    for(var i=0;i<bereiche.length;i++){
+      var b = bereiche[i];
+      var l = [];
+      try{ l = b.abweichungen() || []; }catch(e){}
+      for(var j=0;j<l.length;j++){ l[j].bereich = b.titel; out.push(l[j]); }
+    }
+    return out;
+  }
+  function baueDatei(){
+    var d = { version: 1, stand: heute(), erzeugtVon: "AVJ Tools Build " + (window.AVJ_BUILD || "?") };
+    for(var i=0;i<bereiche.length;i++){
+      try{ d[bereiche[i].schluessel] = JSON.parse(JSON.stringify(bereiche[i].daten())); }catch(e){}
+    }
+    return d;
+  }
+  function heute(){
+    var n = new Date(), p = function(x){ return ("0"+x).slice(-2); };
+    return p(n.getDate()) + "." + p(n.getMonth()+1) + "." + n.getFullYear();
+  }
+
+  function schliesse(){
+    var ov = document.getElementById("avjFreiOv");
+    if(ov && ov.parentNode) ov.parentNode.removeChild(ov);
+  }
+
+  function freigabe(){
+    var abw = alleAbweichungen();
+    var d   = baueDatei();
+    if(!pruefe(d)){
+      alert("Die Preisdatei ist unvollst\u00E4ndig und wurde nicht erzeugt.\nBitte die Einstellungen pr\u00FCfen.");
+      return;
+    }
+
+    var h = '<div class="avj-frei-box">'
+          + '<h3>F\u00FCr Kunden freigeben</h3>';
+
+    if(!abw.length){
+      h += '<p>Deine Preise stimmen bereits mit dem Kundenstand \u00FCberein. '
+        +  'Du kannst die Datei trotzdem erzeugen \u2014 sie \u00E4ndert dann nichts.</p>';
+    } else {
+      h += '<p>Diese Werte werden f\u00FCr Kunden \u00FCbernommen. '
+        +  'Bitte einmal gegenlesen \u2014 danach ist es \u00F6ffentlich.</p>'
+        +  '<table><tr><th>Fahrzeug</th><th>Wert</th><th>Kunden bisher</th><th>neu</th></tr>';
+      for(var i=0;i<abw.length;i++){
+        h += '<tr><td>'+abw[i].auto+'</td><td>'+abw[i].feld+'</td>'
+          +  '<td class="alt">'+zahl(abw[i].alt)+'</td>'
+          +  '<td class="neu">'+zahl(abw[i].neu)+'</td></tr>';
+      }
+      h += '</table>';
+    }
+
+    h += '<div class="avj-frei-hint">Nach dem Herunterladen: die Datei '
+      +  '<b>preise.json</b> in den Ordner <b>avj-tools</b> legen und '
+      +  '<b>Kundenpreise aktualisieren.command</b> starten. '
+      +  'In ein bis zwei Minuten ist der neue Preis online.</div>'
+      +  '<div class="avj-frei-akt">'
+      +    '<button type="button" class="avj-frei-nein" id="avjFreiNein">Abbrechen</button>'
+      +    '<button type="button" class="avj-frei-ja" id="avjFreiJa">preise.json herunterladen</button>'
+      +  '</div></div>';
+
+    var ov = document.createElement("div");
+    ov.className = "avj-frei-ov";
+    ov.id = "avjFreiOv";
+    ov.innerHTML = h;
+    document.body.appendChild(ov);
+
+    ov.addEventListener("click", function(e){
+      if(e.target === ov){ schliesse(); return; }
+      if(e.target.id === "avjFreiNein"){ schliesse(); return; }
+      if(e.target.id === "avjFreiJa"){ lade(d); schliesse(); }
+    });
+  }
+
+  function lade(d){
+    var txt = JSON.stringify(d, null, 2);
+    try{
+      var blob = new Blob([txt], { type: "application/json" });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement("a");
+      a.href = url; a.download = "preise.json";
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+      }, 400);
+    }catch(e){
+      /* Rueckfall, falls der Browser kein Blob mag */
+      window.prompt("Bitte den Inhalt kopieren und als preise.json sichern:", txt);
+    }
+  }
+
+  return {
+    bereit: function(fn){
+      if(fertig){ try{ fn(daten, quelle, stand); }catch(e){} }
+      else warteschlange.push(fn);
+    },
+    melde:      function(b){ bereiche.push(b); },
+    quelle:     function(){ return quelle; },
+    stand:      function(){ return stand; },
+    zeigeQuelle: zeigeQuelle,
+    freigabe:   freigabe,
+    abweichungen: alleAbweichungen,
+    start:      start
+  };
+})();
+
 // ── LB Preistool ──
 (function(){
   "use strict";
@@ -2504,20 +2746,136 @@ function avjTrack(name, params){
   renderExtras();
 
   /* ═══ Einstellungen ══════════════════════════════════════ */
-  var _defaults = JSON.parse(JSON.stringify(CARS));
-  var _storeKey = "avj_preise_v1";
+  var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
+  var _kundenstand = JSON.parse(JSON.stringify(CARS));   /* Basis: Server oder eingebaut */
+  var _defaults    = _kundenstand;                       /* "Auf Kundenstand zurueck" */
+  var _storeKey    = "avj_preise_v1";
 
-  function loadCfg(){
+  /* Es wird nur noch gemerkt, was vom Kundenstand abweicht. Fruehere
+     Fassungen haben den kompletten Satz gespeichert — der wird beim
+     Laden gegen die eingebauten Werte verrechnet und dabei umgestellt. */
+  function diffGegen(basis, ist){
+    var out = {};
+    for(var k in ist){
+      if(!basis[k]){ out[k] = JSON.parse(JSON.stringify(ist[k])); continue; }
+      var f = {}, hat = false;
+      for(var feld in ist[k]){
+        if(JSON.stringify(ist[k][feld]) !== JSON.stringify(basis[k][feld])){
+          f[feld] = JSON.parse(JSON.stringify(ist[k][feld])); hat = true;
+        }
+      }
+      if(hat) out[k] = f;
+    }
+    return out;
+  }
+  function legeAuf(basis, diff){
+    var out = JSON.parse(JSON.stringify(basis));
+    for(var k in diff){
+      if(!out[k]) out[k] = {};
+      for(var feld in diff[k]) out[k][feld] = JSON.parse(JSON.stringify(diff[k][feld]));
+    }
+    return out;
+  }
+  function holeDiff(){
     try{
       var raw = window.localStorage.getItem(_storeKey);
-      if(!raw) return;
+      if(!raw) return {};
       var saved = JSON.parse(raw);
-      for(var k in saved){ if(CARS[k]) for(var f in saved[k]) CARS[k][f] = saved[k][f]; }
-    }catch(e){}
+      if(saved && saved.__diff) return saved.aenderungen || {};
+      return diffGegen(_eingebaut, saved);        /* alte Fassung umstellen */
+    }catch(e){ return {}; }
+  }
+  function loadCfg(){
+    var neu = legeAuf(_kundenstand, holeDiff());
+    for(var k in neu) CARS[k] = neu[k];
   }
   function saveCfg(){
-    try{ window.localStorage.setItem(_storeKey, JSON.stringify(CARS)); }catch(e){}
+    try{
+      var diff = diffGegen(_kundenstand, CARS), leer = true;
+      for(var k in diff){ leer = false; break; }
+      if(leer) window.localStorage.removeItem(_storeKey);
+      else window.localStorage.setItem(_storeKey,
+             JSON.stringify({ __diff: 1, aenderungen: diff }));
+    }catch(e){}
   }
+  function abweichungen(){
+    var liste = [], diff = diffGegen(_kundenstand, CARS);
+    for(var k in diff){
+      for(var feld in diff[k]){
+        liste.push({
+          auto: (CARS[k] && CARS[k].name) || k,
+          feld: feld,
+          alt:  _kundenstand[k] ? _kundenstand[k][feld] : null,
+          neu:  diff[k][feld]
+        });
+      }
+    }
+    return liste;
+  }
+
+  AVJ_PREISE.melde({
+    schluessel:   "neunsitzer",
+    titel:        "9-Sitzer",
+    daten:        function(){ return CARS; },
+    abweichungen: abweichungen
+  });
+
+  /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
+     erneut daraufsetzen, neu zeichnen. */
+  AVJ_PREISE.bereit(function(d){
+    if(d && d.neunsitzer){
+      var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
+      _kundenstand = JSON.parse(JSON.stringify(d.neunsitzer));
+      _defaults    = _kundenstand;
+      var neu = legeAuf(_kundenstand, diff);
+      for(var k in neu) CARS[k] = neu[k];
+      _gridCache = {};
+      saveCfg();          /* stellt alte Speicherfassung gleich um */
+    }
+    try{ renderSettings(); renderSb(); render(); }catch(e){}
+  });
+
+  /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
+  function zeichneKundenstand(){
+    var el = document.getElementById("avjKStand");
+    if(!el) return;
+    var abw = abweichungen();
+    if(!abw.length){
+      el.className = "avj-kstand gleich";
+      el.innerHTML = "Deine Preise stimmen mit dem Kundenstand \u00FCberein."
+        + '<br><button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
+      return;
+    }
+    var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
+          + " vom Kundenstand ab.</b> Kunden sehen weiter die alten Preise."
+          + '<ul class="avj-kliste">';
+    for(var i=0;i<abw.length && i<8;i++){
+      h += "<li>" + abw[i].auto + " \u00B7 " + abw[i].feld + "</li>";
+    }
+    if(abw.length > 8) h += "<li>\u2026 und " + (abw.length-8) + " weitere</li>";
+    h += "</ul>"
+      +  '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
+    el.className = "avj-kstand";
+    el.innerHTML = h;
+  }
+
+  (function(){
+    var body = document.getElementById("avjSetBody");
+    if(!body) return;
+    body.addEventListener("click", function(e){
+      var t = e.target;
+      if(!t || !t.getAttribute) return;
+      if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
+      if(t.getAttribute("data-kzurueck")){
+        takeSnapshot();
+        for(var k in _kundenstand) CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
+        _gridCache = {};
+        try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+        renderSettings(); renderSb(); render();
+        flashSaved("Kundenstand geladen");
+      }
+    });
+  })();
 
   function numRow(cls, label, arr, key, sub, step){
     var h = '<div class="avj-slabel">'+label+'</div><div class="avj-sgrid '+cls+'" data-deltas="1">';
@@ -2625,7 +2983,9 @@ function avjTrack(name, params){
     var car = CARS[carKey];
     var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
            + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
-           + '<span class="avj-sstate" id="avjSaveState"></span></div>';
+           + '<span class="avj-sstate" id="avjSaveState"></span>'
+           + '<span class="avj-quelle">Preise: \u2026</span></div>'
+           + '<div class="avj-kstand" id="avjKStand"></div>';
 
     h += '<div class="avj-scale">'
       +    '<div class="avj-slabel" style="margin-top:0">Alle Preise verschieben</div>'
@@ -2674,10 +3034,12 @@ function avjTrack(name, params){
 
     h += '<div class="avj-sactions">'
       +    '<button type="button" class="avj-sundo" id="avjSUndo">\u00C4nderungen verwerfen</button>'
-      +    '<button type="button" class="avj-sreset" id="avjSReset">Auf Standard zur\u00FCcksetzen</button>'
+      +    '<button type="button" class="avj-sreset" id="avjSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("avjSetBody").innerHTML = h;
     updateDeltas();
+    zeichneKundenstand();
+    AVJ_PREISE.zeigeQuelle();
   }
 
   function onSettingInput(e){
@@ -2721,7 +3083,7 @@ function avjTrack(name, params){
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      flashSaved("Standard geladen");
+      flashSaved("Kundenstand geladen");
       return;
     }
 
@@ -3481,20 +3843,136 @@ function avjtTrack(name, params){
   renderExtras();
 
   /* ═══ Einstellungen ══════════════════════════════════════ */
-  var _defaults = JSON.parse(JSON.stringify(CARS));
-  var _storeKey = "avjT_preise_v1";
+  var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
+  var _kundenstand = JSON.parse(JSON.stringify(CARS));   /* Basis: Server oder eingebaut */
+  var _defaults    = _kundenstand;                       /* "Auf Kundenstand zurueck" */
+  var _storeKey    = "avjT_preise_v1";
 
-  function loadCfg(){
+  /* Es wird nur noch gemerkt, was vom Kundenstand abweicht. Fruehere
+     Fassungen haben den kompletten Satz gespeichert — der wird beim
+     Laden gegen die eingebauten Werte verrechnet und dabei umgestellt. */
+  function diffGegen(basis, ist){
+    var out = {};
+    for(var k in ist){
+      if(!basis[k]){ out[k] = JSON.parse(JSON.stringify(ist[k])); continue; }
+      var f = {}, hat = false;
+      for(var feld in ist[k]){
+        if(JSON.stringify(ist[k][feld]) !== JSON.stringify(basis[k][feld])){
+          f[feld] = JSON.parse(JSON.stringify(ist[k][feld])); hat = true;
+        }
+      }
+      if(hat) out[k] = f;
+    }
+    return out;
+  }
+  function legeAuf(basis, diff){
+    var out = JSON.parse(JSON.stringify(basis));
+    for(var k in diff){
+      if(!out[k]) out[k] = {};
+      for(var feld in diff[k]) out[k][feld] = JSON.parse(JSON.stringify(diff[k][feld]));
+    }
+    return out;
+  }
+  function holeDiff(){
     try{
       var raw = window.localStorage.getItem(_storeKey);
-      if(!raw) return;
+      if(!raw) return {};
       var saved = JSON.parse(raw);
-      for(var k in saved){ if(CARS[k]) for(var f in saved[k]) CARS[k][f] = saved[k][f]; }
-    }catch(e){}
+      if(saved && saved.__diff) return saved.aenderungen || {};
+      return diffGegen(_eingebaut, saved);        /* alte Fassung umstellen */
+    }catch(e){ return {}; }
+  }
+  function loadCfg(){
+    var neu = legeAuf(_kundenstand, holeDiff());
+    for(var k in neu) CARS[k] = neu[k];
   }
   function saveCfg(){
-    try{ window.localStorage.setItem(_storeKey, JSON.stringify(CARS)); }catch(e){}
+    try{
+      var diff = diffGegen(_kundenstand, CARS), leer = true;
+      for(var k in diff){ leer = false; break; }
+      if(leer) window.localStorage.removeItem(_storeKey);
+      else window.localStorage.setItem(_storeKey,
+             JSON.stringify({ __diff: 1, aenderungen: diff }));
+    }catch(e){}
   }
+  function abweichungen(){
+    var liste = [], diff = diffGegen(_kundenstand, CARS);
+    for(var k in diff){
+      for(var feld in diff[k]){
+        liste.push({
+          auto: (CARS[k] && CARS[k].name) || k,
+          feld: feld,
+          alt:  _kundenstand[k] ? _kundenstand[k][feld] : null,
+          neu:  diff[k][feld]
+        });
+      }
+    }
+    return liste;
+  }
+
+  AVJ_PREISE.melde({
+    schluessel:   "transporter",
+    titel:        "Transporter",
+    daten:        function(){ return CARS; },
+    abweichungen: abweichungen
+  });
+
+  /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
+     erneut daraufsetzen, neu zeichnen. */
+  AVJ_PREISE.bereit(function(d){
+    if(d && d.transporter){
+      var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
+      _kundenstand = JSON.parse(JSON.stringify(d.transporter));
+      _defaults    = _kundenstand;
+      var neu = legeAuf(_kundenstand, diff);
+      for(var k in neu) CARS[k] = neu[k];
+      _gridCache = {};
+      saveCfg();          /* stellt alte Speicherfassung gleich um */
+    }
+    try{ renderSettings(); renderSb(); render(); }catch(e){}
+  });
+
+  /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
+  function zeichneKundenstand(){
+    var el = document.getElementById("avjTKStand");
+    if(!el) return;
+    var abw = abweichungen();
+    if(!abw.length){
+      el.className = "avj-kstand gleich";
+      el.innerHTML = "Deine Preise stimmen mit dem Kundenstand \u00FCberein."
+        + '<br><button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
+      return;
+    }
+    var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
+          + " vom Kundenstand ab.</b> Kunden sehen weiter die alten Preise."
+          + '<ul class="avj-kliste">';
+    for(var i=0;i<abw.length && i<8;i++){
+      h += "<li>" + abw[i].auto + " \u00B7 " + abw[i].feld + "</li>";
+    }
+    if(abw.length > 8) h += "<li>\u2026 und " + (abw.length-8) + " weitere</li>";
+    h += "</ul>"
+      +  '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
+    el.className = "avj-kstand";
+    el.innerHTML = h;
+  }
+
+  (function(){
+    var body = document.getElementById("avjTSetBody");
+    if(!body) return;
+    body.addEventListener("click", function(e){
+      var t = e.target;
+      if(!t || !t.getAttribute) return;
+      if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
+      if(t.getAttribute("data-kzurueck")){
+        takeSnapshot();
+        for(var k in _kundenstand) CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
+        _gridCache = {};
+        try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+        renderSettings(); renderSb(); render();
+        flashSaved("Kundenstand geladen");
+      }
+    });
+  })();
 
   function numRow(cls, label, arr, key, sub, step){
     var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'" data-deltas="1">';
@@ -3602,7 +4080,9 @@ function avjtTrack(name, params){
     var car = CARS[carKey];
     var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
            + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
-           + '<span class="avjt-sstate" id="avjTSaveState"></span></div>';
+           + '<span class="avjt-sstate" id="avjTSaveState"></span>'
+           + '<span class="avj-quelle">Preise: \u2026</span></div>'
+           + '<div class="avj-kstand" id="avjTKStand"></div>';
 
     h += '<div class="avjt-scale">'
       +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
@@ -3651,10 +4131,12 @@ function avjtTrack(name, params){
 
     h += '<div class="avjt-sactions">'
       +    '<button type="button" class="avjt-sundo" id="avjTSUndo">\u00C4nderungen verwerfen</button>'
-      +    '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Standard zur\u00FCcksetzen</button>'
+      +    '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("avjTSetBody").innerHTML = h;
     updateDeltas();
+    zeichneKundenstand();
+    AVJ_PREISE.zeigeQuelle();
   }
 
   function onSettingInput(e){
@@ -3698,7 +4180,7 @@ function avjtTrack(name, params){
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      flashSaved("Standard geladen");
+      flashSaved("Kundenstand geladen");
       return;
     }
 
@@ -4430,8 +4912,11 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 25;
+var AVJ_BUILD = 26;
 var AVJ_BUILD_DATE = "15.08.2026";
+
+/* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
+try{ AVJ_PREISE.start(); }catch(e){}
 (function(){
   var el = document.getElementById("appBuild");
   if(el){
