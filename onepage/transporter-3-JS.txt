@@ -1,0 +1,708 @@
+/* ═══ Versionskennung ═══ */
+var AVJ_WEB_BUILD = 28;
+var AVJ_WEB_DATE  = "15.08.2026";
+(function(){
+  var el = document.getElementById("avjTVer");
+  if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
+})();
+
+/* ═══ Zentrale Preisliste ═══════════════════════════════════════
+   Holt preise.json von avj-tools.rent-in-nom.de. Drei Stufen:
+     1. Server
+     2. der zuletzt gemerkte Stand aus diesem Browser
+     3. die Werte, die weiter unten fest im Code stehen
+   Damit kann der Rechner nie kaputtgehen, nur veralten.
+
+   Beide Rechner auf dieser Seite teilen sich diese eine Instanz — das
+   "window.AVJ_PREISE ||" davor sorgt dafuer, dass nur einmal geladen wird,
+   egal welches der beiden Felder zuerst ausgefuehrt wird.
+
+   Bewusst XMLHttpRequest statt fetch: laeuft auch in aelteren Safari. */
+window.AVJ_PREISE = window.AVJ_PREISE || (function(){
+  "use strict";
+  var URL_JSON  = "https://avj-tools.rent-in-nom.de/preise.json";
+  var CACHE_KEY = "avjWebPreise_v1";
+  var daten = null, fertig = false, warteschlange = [];
+
+  function pruefe(d){
+    if(!d || typeof d !== "object") return false;
+    if(!d.neunsitzer || !d.transporter) return false;
+    var ok = true;
+    ["neunsitzer","transporter"].forEach(function(g){
+      for(var k in d[g]){
+        var c = d[g][k];
+        if(!c || typeof c !== "object"){ ok = false; continue; }
+        if(!c.tier   || c.tier.length   !== 7) ok = false;
+        if(!c.tierKm || c.tierKm.length !== 7) ok = false;
+        if(!c.dayMoDo || !c.dayFrSa || !c.weekend) ok = false;
+        if(!c.sb || !c.sb.length) ok = false;
+        for(var i=0;i<(c.tier||[]).length;i++){
+          if(typeof c.tier[i] !== "number" || !isFinite(c.tier[i]) || c.tier[i] < 0) ok = false;
+        }
+      }
+    });
+    return ok;
+  }
+
+  function melde(){
+    fertig = true;
+    var f = warteschlange; warteschlange = [];
+    for(var i=0;i<f.length;i++){ try{ f[i](daten); }catch(e){} }
+  }
+
+  function ausCache(){
+    try{
+      var raw = window.localStorage.getItem(CACHE_KEY);
+      if(!raw) return false;
+      var d = JSON.parse(raw);
+      if(!pruefe(d)) return false;
+      daten = d;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function start(){
+    /* Zeitstempel je Minute: hebelt den Zwischenspeicher von GitHub Pages
+       aus, ohne ihn ganz abzuschalten. */
+    var url = URL_JSON + "?t=" + Math.floor(new Date().getTime()/60000);
+    var erledigt = false;
+    var frist = setTimeout(function(){
+      if(erledigt) return;
+      erledigt = true; ausCache(); melde();
+    }, 3000);
+
+    try{
+      var x = new XMLHttpRequest();
+      x.open("GET", url, true);
+      x.onreadystatechange = function(){
+        if(x.readyState !== 4 || erledigt) return;
+        erledigt = true; clearTimeout(frist);
+        var d = null;
+        try{ d = JSON.parse(x.responseText); }catch(e){}
+        if(x.status >= 200 && x.status < 400 && pruefe(d)){
+          daten = d;
+          try{ window.localStorage.setItem(CACHE_KEY, JSON.stringify(d)); }catch(e){}
+        } else {
+          ausCache();
+        }
+        melde();
+      };
+      x.onerror = function(){
+        if(erledigt) return;
+        erledigt = true; clearTimeout(frist); ausCache(); melde();
+      };
+      x.send();
+    }catch(e){
+      clearTimeout(frist);
+      if(!erledigt){ erledigt = true; ausCache(); melde(); }
+    }
+  }
+  start();
+
+  return {
+    bereit: function(fn){
+      if(fertig){ try{ fn(daten); }catch(e){} }
+      else warteschlange.push(fn);
+    },
+    daten:   function(){ return daten; },
+    /* Kaution: kommt aus preise.json, falls dort hinterlegt — sonst 300 */
+    kaution: function(){
+      var k = daten && daten.kaution;
+      return (typeof k === "number" && isFinite(k) && k > 0) ? k : 300;
+    }
+  };
+})();
+
+/* ─── GA4-Events ─────────────────────────────────────────────
+   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
+function avjtTrack(name, params){
+  try{
+    if(typeof window.gtag === "function"){
+      window.gtag("event", name, params || {});
+    }
+  }catch(e){}
+}
+
+/* Popup-Steuerung */
+(function(){
+  "use strict";
+  var ov    = document.getElementById("avjTOverlay");
+  var open  = document.getElementById("avjTOpen");
+  var close = document.getElementById("avjTClose");
+  if(!ov || !open) return;
+  var lastFocus = null;
+
+  if(ov.parentNode !== document.body){ document.body.appendChild(ov); }
+
+  function show(){
+    lastFocus = document.activeElement;
+    ov.hidden = false;
+    avjtTrack("rechner_geoeffnet", { kategorie: "Transporter" });
+    document.body.style.overflow = "hidden";
+    var first = ov.querySelector(".avjt-car");
+    if(first) first.focus();
+  }
+  function hide(){
+    ov.hidden = true;
+    document.body.style.overflow = "";
+    if(lastFocus) lastFocus.focus();
+  }
+  open.addEventListener("click", show);
+  if(close) close.addEventListener("click", hide);
+  ov.addEventListener("click", function(e){ if(e.target.hasAttribute("data-close")) hide(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !ov.hidden) hide(); });
+  ov.addEventListener("keydown", function(e){
+    if(e.key !== "Tab") return;
+    var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    var first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+})();
+
+
+(function(){
+  "use strict";
+
+  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
+  var CARS = {
+    m: {
+      name: "Transporter M",
+      frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Renault Trafic L2H1",
+      planKm: 0.20,   // vorab geplante Mehrkilometer
+      overKm: 0.30,   // ungeplant bei R\u00FCckgabe
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,75],  [400,115], [800,155], [1200,200] ],
+      dayFrSa: [ [100,80],  [400,125], [800,165], [1200,220] ],
+      weekend: [ [200,175], [600,225], [1200,325] ],
+      tier:   [75, 150, 225, 290, 350, 395, 425],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      sb: [
+        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]         },
+        { label:"1.000 \u20AC", we:35, tier:[15,30,42,52,62,70,75]  },
+        { label:"500 \u20AC",   we:60, tier:[25,50,75,98,118,133,145] }
+      ]
+    },
+    xl: {
+      name: "Transporter XL",
+      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Mercedes Sprinter L3",
+      planKm: 0.26,
+      overKm: 0.37,
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,110], [400,155], [800,199], [1200,249] ],
+      dayFrSa: [ [100,120], [400,165], [800,210], [1200,270] ],
+      weekend: [ [200,225], [600,355], [1200,465] ],
+      tier:   [110, 220, 330, 430, 520, 595, 645],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      sb: [
+        { label:"2.000 \u20AC", we:0,   tier:[0,0,0,0,0,0,0]           },
+        { label:"1.000 \u20AC", we:65,  tier:[25,50,72,95,115,133,150] },
+        { label:"500 \u20AC",   we:120, tier:[45,90,132,175,212,255,295] }
+      ]
+    }
+  };
+
+  /* Preise vom Server uebernehmen, sobald sie da sind. Bis dahin — und
+     falls der Abruf scheitert — gelten die Werte oben im Code. */
+  AVJ_PREISE.bereit(function(d){
+    if(d && d.transporter){
+      for(var k in d.transporter){ if(CARS[k]) CARS[k] = d.transporter[k]; }
+      _gridCache = {};
+    }
+    try{ renderSb(); render(); }catch(e){}
+  });
+
+  var _trackTimer = null, _lastSig = null;
+  var carKey = "m";
+  var sbIdx  = 0;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+  var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
+
+  /* ─── Datum / Dauer ──────────────────────────────────────── */
+  function parseDT(dEl, tEl){
+    var d = $(dEl).value, t = $(tEl).value || "09:00";
+    if(!d) return null;
+    return new Date(d + "T" + t + ":00");
+  }
+
+  function duration(){
+    var a = parseDT("avjTFrom","avjTFromT");
+    var b = parseDT("avjTTo","avjTToT");
+    if(!a || !b) return null;
+    var ms = b - a;
+    if(ms <= 0) return { invalid:true };
+    var hours = ms / 3600000;
+    return {
+      from: a, to: b, hours: hours,
+      days: Math.max(1, Math.ceil(hours / 24)),
+      fullDays: Math.floor(hours / 24),
+      restHours: Math.round(hours - Math.floor(hours/24)*24)
+    };
+  }
+
+  // Wochenendtarif: Abholung Fr ab 12:00 oder Sa, Rückgabe bis Mo 10:00
+  function isWeekend(d){
+    if(!d || d.invalid) return false;
+    var wdA = d.from.getDay();           // 5 = Fr, 6 = Sa
+    var wdB = d.to.getDay();             // 0 = So, 1 = Mo
+    var hA  = d.from.getHours() + d.from.getMinutes()/60;
+    var hB  = d.to.getHours()   + d.to.getMinutes()/60;
+    if(d.hours > 96) return false;       // l\u00E4nger als Fr\u2013Di \u2192 normale Staffel
+    var startOk = (wdA === 5 && hA >= 11) || wdA === 6;
+    /* Rueckgabe Montag frueh -> Wochenende.
+       Rueckgabe Sonntag nur, wenn die Miete wirklich ueber das Wochenende laeuft;
+       eine reine 24-Stunden-Miete Sa->So ist eine Tagesmiete. */
+    var endOk   = (wdB === 1 && hB <= 11) || (wdB === 0 && d.hours > 30);
+    return startOk && endOk;
+  }
+
+  /* ─── km-Stufe wählen ────────────────────────────────────── */
+  /* Zwischen je zwei Paketstufen die Mitte einziehen:
+     aus 100/75 und 400/115 wird zusaetzlich 250/95.
+     Entspricht der bisherigen Handrechnung (beide Pakete addieren, halbieren). */
+  function expand(steps){
+    var out = [];
+    for(var i=0;i<steps.length;i++){
+      out.push(steps[i]);
+      if(i+1 < steps.length){
+        out.push([
+          Math.round((steps[i][0] + steps[i+1][0]) / 2),
+          Math.round((steps[i][1] + steps[i+1][1]) / 2)
+        ]);
+      }
+    }
+    return out;
+  }
+
+  var _gridCache = {};
+  function gridFor(car, key){
+    var id = car.name + "|" + key;
+    if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
+    return _gridCache[id];
+  }
+
+  /* Guenstigste Variante fuer den Kunden waehlen: entweder das naechstgroessere
+     Paket, oder ein kleineres Paket plus vorab geplante Mehrkilometer.
+     Ohne km-Angabe wird die kleinste Stufe gezeigt. */
+  function pickStep(steps, km, rate){
+    if(km === null) return { idx:0, km:steps[0][0], price:steps[0][1] };
+    if(!rate){
+      for(var i=0;i<steps.length;i++){
+        if(km <= steps[i][0]) return { idx:i, km:steps[i][0], price:steps[i][1] };
+      }
+      var last = steps[steps.length-1];
+      return { idx:steps.length-1, km:last[0], price:last[1] };
+    }
+    var best = null;
+    for(var j=0;j<steps.length;j++){
+      var over = Math.max(0, km - steps[j][0]);
+      var cost = steps[j][1] + over * rate;
+      if(best === null || cost < best.cost - 0.001){
+        best = { idx:j, km:steps[j][0], price:steps[j][1], cost:cost };
+      }
+    }
+    return best;
+  }
+
+  /* ─── Preisberechnung ────────────────────────────────────── */
+  function quote(){
+    var car = CARS[carKey];
+    var d   = duration();
+    if(!d) return { empty:true };
+    if(d.invalid) return { invalid:true };
+
+    var kmRaw = $("avjTKm").value.trim();
+    var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
+
+    var mode, base, freeKm, sbCost, tarifLabel, badge = "";
+
+    var wd   = d.from.getDay();
+    var frSa = (wd === 5 || wd === 6);
+
+    if(isWeekend(d)){
+      /* Wochenendtarif: eigenes Paketraster */
+      mode = "we";
+      var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
+      base = stW.price; freeKm = stW.km;
+      sbCost = car.sb[sbIdx].we;
+      tarifLabel = "Wochenendtarif";
+      badge = "Fr-Mo";
+
+    } else if(d.days <= 2){
+      /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
+      mode = "pkg";
+      var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
+      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
+      base   = stD.price * d.days;
+      freeKm = stD.km    * d.days;
+      sbCost = car.sb[sbIdx].tier[d.days - 1];
+      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
+      badge = frSa ? "Fr/Sa" : "Mo-Do";
+
+    } else {
+      /* ab 3 Tagen: Staffel Richtung Wochentarif */
+      mode = "tier";
+      var i = Math.min(d.days, 7) - 1;
+      base   = car.tier[i];
+      freeKm = car.tierKm[i];
+      if(d.days > 7){
+        var extra = d.days - 7;
+        base   += extra * (car.tier[6] / 7) * 0.92;
+        freeKm += Math.round(extra * car.tierKm[6] / 7);
+      }
+      var sbTier = car.sb[sbIdx].tier;
+      sbCost = sbTier[Math.min(d.days, 7) - 1];
+      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+      tarifLabel = d.days + " Tage";
+      if(d.days === 7) badge = "Wochentarif";
+    }
+
+    var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
+    var overCost = overKm * car.planKm;
+    var total    = base + sbCost + overCost;
+
+    return {
+      car: car, d: d, mode: mode, km: km,
+      base: base, freeKm: freeKm, sbCost: sbCost,
+      overKm: overKm, overCost: overCost, total: total,
+      tarifLabel: tarifLabel, badge: badge
+    };
+  }
+
+  /* ─── Rendering ──────────────────────────────────────────── */
+  function renderSb(){
+    var car = CARS[carKey];
+    var html = "";
+    for(var i=0;i<car.sb.length;i++){
+      var s = car.sb[i];
+      var p = s.tier[0] === 0 ? "inklusive" : "ab " + s.tier[0] + " \u20AC/Tag";
+      html += '<button type="button" data-sb="'+i+'"'+(i===sbIdx?' class="is-active"':'')+'>'
+            +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
+            + '</button>';
+    }
+    $("avjTSbRow").innerHTML = html;
+  }
+
+  function renderDur(){
+    var d = duration();
+    var el = $("avjTDur");
+    if(!d){ el.textContent = ""; return; }
+    if(d.invalid){
+      el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
+      return;
+    }
+    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+    var p  = function(n){ return ("0"+n).slice(-2); };
+    var f  = function(x){
+      return wd[x.getDay()]+" "+p(x.getDate())+"."+p(x.getMonth()+1)+". "+p(x.getHours())+":"+p(x.getMinutes());
+    };
+    var lbl = d.days + (d.days === 1 ? " Tag" : " Tage");
+    if(d.fullDays > 0 && d.restHours > 0){
+      lbl = d.fullDays + (d.fullDays === 1 ? " Tag" : " Tage") + " und " + d.restHours + " Std.";
+    }
+    el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
+  }
+
+  function render(){
+    renderDur();
+    var q = $("avjTOut");
+    var r = quote();
+
+    if(r.empty || r.invalid){
+      $("avjTPrice").textContent = "\u2014";
+      $("avjTTarifLabel").textContent = "Richtpreis";
+      $("avjTBadge").textContent = "";
+      $("avjTLines").innerHTML =
+        '<li class="hint">'+(r.invalid
+          ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
+          : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
+      $("avjTKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      return;
+    }
+
+    $("avjTPrice").textContent = eur(r.total);
+    $("avjTTarifLabel").textContent = r.tarifLabel;
+    $("avjTBadge").textContent = r.badge;
+
+    var L = "";
+    L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
+    L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
+
+    if(r.km !== null){
+      L += '<li><span class="k">Geplante Fahrleistung</span><span class="v">'+num(r.km)+' km</span></li>';
+      if(r.overKm > 0){
+        L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
+          +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
+        $("avjTKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
+      } else {
+        $("avjTKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
+      }
+    } else {
+      $("avjTKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
+    }
+
+    if(r.sbCost > 0){
+      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+    } else {
+      L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
+    }
+
+    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(r.total)+' \u20AC</span></li>';
+
+    /* Kaution: bewusst ein eigener Hinweis, der NICHT in die Mietsumme
+       eingeht. Betrag kommt aus preise.json, falls dort hinterlegt. */
+    L += '<li class="hint" style="display:block;margin-top:12px;padding:10px 12px;'
+      +  'border:1px solid rgba(255,255,255,.22);border-radius:9px;'
+      +  'background:rgba(255,255,255,.06);font-size:12px;opacity:.92;line-height:1.55;">'
+      +  '<b style="font-weight:700;">Kaution ' + eur(AVJ_PREISE.kaution()) + '\u202F\u20AC</b> '
+      +  '\u2014 wird bei der \u00DCbergabe hinterlegt und nach schadenfreier '
+      +  'R\u00FCckgabe vollst\u00E4ndig erstattet.<br>'
+      +  'Sie ist <b style="font-weight:700;">nicht Teil des Mietpreises</b> und '
+      +  'oben nicht eingerechnet. In Einzelf\u00E4llen kann die Kaution h\u00F6her '
+      +  'oder niedriger ausfallen.'
+      +  '</li>';
+
+    L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
+      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
+
+    if(r.mode === "tier" && r.d.days > 7){
+      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
+    }
+    if(r.mode === "we"){
+      L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
+    }
+
+    $("avjTLines").innerHTML = L;
+
+    /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
+    clearTimeout(_trackTimer);
+    _trackTimer = setTimeout(function(){
+      var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
+      if(sig === _lastSig) return;
+      _lastSig = sig;
+      avjtTrack("preis_berechnet", {
+        kategorie: "Transporter",
+        fahrzeug:  r.car.name,
+        tage:      r.d.days,
+        tarif:     r.mode,
+        kilometer: r.km === null ? 0 : r.km,
+        preis:     Math.round(r.total)
+      });
+    }, 1200);
+  }
+
+  /* ─── Events ─────────────────────────────────────────────── */
+  var cars = document.querySelectorAll(".avjt-car");
+  for(var i=0;i<cars.length;i++){
+    cars[i].addEventListener("click", function(){
+      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
+      this.classList.add("is-active");
+      carKey = this.getAttribute("data-car");
+      sbIdx = 0;
+      avjtTrack("fahrzeug_gewechselt", { kategorie: "Transporter", fahrzeug: CARS[carKey].name });
+      renderSb();
+      render();
+    });
+  }
+
+  $("avjTSbRow").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-sb]");
+    if(!b) return;
+    sbIdx = parseInt(b.getAttribute("data-sb"),10);
+    renderSb();
+    render();
+  });
+
+  ["avjTFrom","avjTTo"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  ["avjTFromT","avjTToT"].forEach(function(id){
+    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
+  });
+  $("avjTKm").addEventListener("input", render);
+
+  /* WhatsApp-Klick melden */
+  $("avjTCta").addEventListener("click", function(){
+    var r = quote();
+    avjtTrack("whatsapp_klick", {
+      kategorie: "Transporter",
+      fahrzeug:  CARS[carKey].name,
+      tage:      (r && r.d) ? r.d.days : 0,
+      preis:     (r && r.total) ? Math.round(r.total) : 0
+    });
+  });
+
+  /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
+  /* Abholung nur zu Geschaeftszeiten, Rueckgabe rund um die Uhr
+     ueber den Schluesseltresor. */
+
+  /* ── Feiertage Niedersachsen ────────────────────────────────
+     Ostersonntag nach Gauss/Meeus, die beweglichen Tage davon abgeleitet. */
+  function osterSonntag(y){
+    var a=y%19, b=Math.floor(y/100), cc=y%100;
+    var dd=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+    var g=Math.floor((b-f+1)/3), h=(19*a+b-dd-g+15)%30;
+    var i=Math.floor(cc/4), k=cc%4, l=(32+2*e+2*i-h-k)%7;
+    var m=Math.floor((a+11*h+22*l)/451);
+    var mon=Math.floor((h+l-7*m+114)/31), day=((h+l-7*m+114)%31)+1;
+    return new Date(y, mon-1, day);
+  }
+  var _feierCache = {};
+  function feiertage(y){
+    if(_feierCache[y]) return _feierCache[y];
+    var p2 = function(n){ return ("0"+n).slice(-2); };
+    var key = function(d){ return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); };
+    var o = osterSonntag(y);
+    var add = function(n){ var x = new Date(o.getTime()); x.setDate(x.getDate()+n); return key(x); };
+    var m = {};
+    m[y+"-01-01"]            = "Neujahr";
+    m[add(-2)]               = "Karfreitag";
+    m[add(1)]                = "Ostermontag";
+    m[y+"-05-01"]            = "Tag der Arbeit";
+    m[add(39)]               = "Christi Himmelfahrt";
+    m[add(50)]               = "Pfingstmontag";
+    m[y+"-10-03"]            = "Tag der Deutschen Einheit";
+    m[y+"-10-31"]            = "Reformationstag";
+    m[y+"-12-25"]            = "1. Weihnachtstag";
+    m[y+"-12-26"]            = "2. Weihnachtstag";
+    _feierCache[y] = m;
+    return m;
+  }
+  function feiertagName(ds){
+    if(!ds || ds.length < 10) return null;
+    var y = parseInt(ds.slice(0,4), 10);
+    if(!y) return null;
+    return feiertage(y)[ds] || null;
+  }
+
+  /* Heiligabend und Silvester: keine Feiertage, aber verkuerzt geoeffnet */
+  function kurztagName(ds){
+    if(!ds || ds.length < 10) return null;
+    var md = ds.slice(5);
+    if(md === "12-24") return "Heiligabend";
+    if(md === "12-31") return "Silvester";
+    return null;
+  }
+
+  var WOCHENTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+
+  var HOURS = {
+    1:[8,18], 2:[8,18], 3:[8,18], 4:[8,18], 5:[8,18],   /* Mo-Fr */
+    6:[8,13],                                            /* Sa    */
+    0:null                                               /* So    */
+  };
+
+  function hoursFor(dateStr){
+    if(!dateStr) return HOURS[1];
+    if(feiertagName(dateStr)) return null;      /* Feiertag: geschlossen */
+    var wd = new Date(dateStr + "T12:00:00").getDay();
+    var base = HOURS[wd];
+    if(!base) return null;                      /* Sonntag bleibt zu */
+    if(kurztagName(dateStr)) return [8, 13];    /* verkuerzt wie samstags */
+    return base;
+  }
+
+  function minutesOf(hhmm){
+    var p = hhmm.split(":");
+    return parseInt(p[0],10)*60 + parseInt(p[1],10);
+  }
+
+  function pad2(n){ return ("0"+n).slice(-2); }
+
+  /* Liste aufbauen. mode "start": nur Oeffnungszeiten.
+     mode "end": voller Tag, ausserhalb der Zeiten als Tresor markiert. */
+  function fillTimes(sel, dateStr, mode){
+    var h = hoursFor(dateStr);
+    var keep = sel.value;
+    var html = "", first = null;
+
+    if(mode === "start"){
+      if(!h){ sel.innerHTML = '<option value="">geschlossen</option>'; return; }
+      for(var m = h[0]*60; m <= h[1]*60; m += 30){
+        var v = pad2(Math.floor(m/60)) + ":" + pad2(m%60);
+        if(first === null) first = v;
+        html += '<option value="'+v+'">'+v+'</option>';
+      }
+    } else {
+      for(var t = 0; t < 24*60; t += 30){
+        var v2 = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
+        var inside = h && t >= h[0]*60 && t <= h[1]*60;
+        if(first === null) first = v2;
+        html += '<option value="'+v2+'"'+(inside?"":' class="tresor"')+'>'
+             +  v2 + (inside ? "" : " \u00B7 Tresor") + '</option>';
+      }
+    }
+    sel.innerHTML = html;
+    /* bisherige Auswahl halten, sonst erste gueltige Zeit */
+    var ok = false;
+    for(var i=0;i<sel.options.length;i++) if(sel.options[i].value === keep) ok = true;
+    sel.value = ok ? keep : (mode === "start" ? (first || "") : (keep || "10:00"));
+    if(!sel.value && sel.options.length) sel.value = sel.options[0].value;
+  }
+
+
+  function setWd(id, dateStr){
+    var el = $(id);
+    if(!el) return;
+    if(!dateStr || dateStr.length < 10){ el.textContent = ""; el.className = "wd"; return; }
+    var d = new Date(dateStr + "T12:00:00");
+    var f = feiertagName(dateStr);
+    el.textContent = WOCHENTAG[d.getDay()];
+    el.className = "wd" + ((f || d.getDay() === 0) ? " zu" : "");
+    el.title = f || "";
+  }
+
+  function refreshTimes(){
+    var fromEl = $("avjTFromT"), toEl = $("avjTToT");
+    fillTimes(fromEl, $("avjTFrom").value, "start");
+    fillTimes(toEl,   $("avjTTo").value,   "end");
+    setWd("avjTFromWd", $("avjTFrom").value);
+    setWd("avjTToWd",   $("avjTTo").value);
+
+    /* Hinweis Abholung */
+    var hF = hoursFor($("avjTFrom").value);
+    var eF = $("avjTFromHint");
+    if(!hF){
+      var fnF = feiertagName($("avjTFrom").value);
+      eF.textContent = fnF
+        ? (fnF + " \u2013 an diesem Tag keine Abholung m\u00F6glich.")
+        : "Sonntags keine Abholung \u2013 bitte Samstag abholen.";
+      eF.className = "h warn";
+    } else {
+      var ktF = kurztagName($("avjTFrom").value);
+      eF.textContent = (ktF ? ktF + " \u00B7 " : "") +
+                       "Abholung " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
+      eF.className = "h";
+    }
+
+    /* Hinweis Rueckgabe */
+    var hT = hoursFor($("avjTTo").value);
+    var eT = $("avjTToHint");
+    var mT = minutesOf(toEl.value || "10:00");
+    var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
+    if(insideT){
+      eT.textContent = "R\u00FCckgabe pers\u00F6nlich m\u00F6glich";
+      eT.className = "h";
+    } else {
+      eT.textContent = "Ausserhalb der \u00D6ffnungszeiten \u2013 R\u00FCckgabe \u00FCber Schl\u00FCsseltresor";
+      eT.className = "h tresor";
+    }
+  }
+
+  /* Startwert: naechster Tag mit Oeffnungszeiten */
+  (function(){
+    var d = new Date();
+    var guard = 0;
+    while(!HOURS[d.getDay()] && guard < 7){ d.setDate(d.getDate()+1); guard++; }
+    $("avjTFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+  })();
+  refreshTimes();
+
+  renderSb();
+  render();
+})();

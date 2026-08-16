@@ -14,3 +14,6 @@ _to_delete/
 # Reste der Cowork-Bruecke beim Ueberschreiben offener Dateien
 .fuse_hidden*
 .preise-vorher.json
+
+# Rest der Umstellung, kann geloescht werden
+onepage/LIESMICH-alt.md

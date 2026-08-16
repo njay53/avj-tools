@@ -1,0 +1,101 @@
+<!-- AVJ Preisrechner Transporter - Trigger + Popup -->
+
+<div class="avjt-trigger">
+  <button type="button" class="avjt-open" id="avjTOpen">
+    <span class="avjt-open-txt">JETZT NEU: Transporter Preis berechnen</span>
+    <span class="avjt-open-sub">Transporter M &amp; XL &middot; in 30 Sekunden</span>
+  </button>
+</div>
+
+<div class="avjt-overlay" id="avjTOverlay" hidden>
+  <div class="avjt-backdrop" data-close></div>
+  <div class="avjt-modal" role="dialog" aria-modal="true">
+    <button type="button" class="avjt-close" id="avjTClose" aria-label="Schlie&szlig;en">&times;</button>
+    <div class="avjt-scroll">
+<div class="avjt-calc">
+
+  <div class="avjt-head">
+    <div class="avjt-eyebrow">Preisrechner</div>
+    <h3>Was kostet dein Transporter?</h3>
+    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
+  </div>
+
+  <!-- Fahrzeugwahl -->
+  <div class="avjt-cars">
+    <button class="avjt-car is-active" data-car="m">
+      <span class="n">Transporter M</span>
+      <span class="d">z.&#8239;B. Renault Trafic L2H1</span>
+    </button>
+    <button class="avjt-car" data-car="xl">
+      <span class="n">Transporter XL</span>
+      <span class="d">z.&#8239;B. Mercedes Sprinter L3</span>
+    </button>
+  </div>
+
+  <!-- Zeitraum -->
+  <div class="avjt-grid">
+    <label class="avjt-f">
+      <span class="l">Abholung<b class="wd" id="avjTFromWd"></b></span>
+      <span class="dt">
+        <input type="date" id="avjTFrom">
+        <select id="avjTFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjTFromHint"></span>
+    </label>
+    <label class="avjt-f">
+      <span class="l">R&uuml;ckgabe<b class="wd" id="avjTToWd"></b></span>
+      <span class="dt">
+        <input type="date" id="avjTTo">
+        <select id="avjTToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
+      </span>
+      <span class="h" id="avjTToHint"></span>
+    </label>
+  </div>
+
+  <div class="avjt-durline" id="avjTDur"></div>
+
+  <!-- Kilometer -->
+  <label class="avjt-f avjt-km">
+    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
+    <input type="number" id="avjTKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
+    <span class="h" id="avjTKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
+  </label>
+
+  <!-- Haftung -->
+  <fieldset class="avjt-sb">
+    <legend>Selbstbeteiligung je Schadenfall</legend>
+    <div class="avjt-sbrow" id="avjTSbRow"></div>
+  </fieldset>
+
+  <!-- Ergebnis -->
+  <div class="avjt-out" id="avjTOut">
+    <div class="avjt-out-top">
+      <div>
+        <div class="avjt-out-label" id="avjTTarifLabel">Richtpreis</div>
+        <div class="avjt-price"><span class="c">&euro;</span><span id="avjTPrice">&mdash;</span></div>
+      </div>
+      <div class="avjt-badge" id="avjTBadge"></div>
+    </div>
+    <ul class="avjt-lines" id="avjTLines"></ul>
+    <a class="avjt-cta" id="avjTCta" href="https://wa.me/49555154545" target="_blank" rel="noopener">
+      <svg class="avjt-wa" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.13h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.7 8.21-8.24 8.21Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.09-.16.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.84-.2-.49-.4-.42-.56-.43h-.47c-.16 0-.43.06-.65.31-.23.25-.86.84-.86 2.05s.88 2.38 1 2.54c.13.17 1.74 2.66 4.21 3.73.59.25 1.05.4 1.4.52.59.18 1.13.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.16-.48-.28Z"/>
+      </svg>
+      <span class="avjt-cta-txt">
+        <span class="t">Fahrzeug anfragen</span>
+        <span class="s">&uuml;ber WhatsApp</span>
+      </span>
+    </a>
+  </div>
+
+  <p class="avjt-legal">
+    Alle Preise inkl. 19&nbsp;% MwSt., zzgl. Kraftstoff. Richtwerte vorbehaltlich Verf&uuml;gbarkeit,
+    Auslastung und Saison &mdash; ma&szlig;geblich ist die Reservierungsbest&auml;tigung bzw. der Mietvertrag.
+    Zusatzfahrer, Anh&auml;ngerkupplung und Auslandsfahrten auf Anfrage.<br>
+    Kurzzeitmiete ab 3 Stunden nur direkt vor Ort &mdash; sprich uns an.
+  </p>
+  <p class="avjt-ver" id="avjTVer"></p>
+</div>
+    </div>
+  </div>
+</div>

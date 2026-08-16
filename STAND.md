@@ -422,3 +422,52 @@ Technisch: `avjWerte(bodyId)` merkt sich vor der Änderung alle Feldwerte,
 `avjBlitz(bodyId, werte)` vergleicht danach und setzt die Klasse `avj-blitz`
 auf die betroffene Spalte. Beide Funktionen sind global, damit alle drei
 Rechner dieselben benutzen. Grünton `#2E8B4F` wie bei „Gespeichert".
+
+---
+
+## 14. Kundenrechner auf Onepage (Stand v28)
+
+Die sechs Custom-Code-Felder liegen jetzt als Sicherung unter
+`avj programme/onepage/`. Vorher existierten sie **nur** bei Onepage.
+
+| Datei | Onepage-Feld | Stand |
+|---|---|---|
+| `9sitzer-1-HTML.txt` | HTML, 9-Sitzer | unverändert |
+| `9sitzer-2-CSS.txt` | CSS, 9-Sitzer | unverändert |
+| `9sitzer-3-JS.txt` | JS, 9-Sitzer | **v28** |
+| `transporter-1-HTML.txt` | HTML, Transporter | unverändert |
+| `transporter-2-CSS.txt` | CSS, Transporter | unverändert |
+| `transporter-3-JS.txt` | JS, Transporter | **v28** |
+
+### Versionskennung wieder synchron
+
+Die Kundenrechner standen auf v21, die App auf 28 — die beiden Zähler waren
+irgendwann auseinandergelaufen (v23 war ein interner Stand, kein Kundenstand).
+Ab jetzt tragen beide dieselbe Nummer. Steht unten im Kunden-Popup dieselbe
+Zahl wie in der App, sind beide auf einem Stand.
+
+### Was in den JS-Feldern dazugekommen ist
+
+- **Anbindung an `preise.json`** — dieselbe dreistufige Logik wie in der App:
+  Server, dann der gemerkte Stand aus dem Browser, dann die fest im Code
+  stehenden Werte. Der Rechner kann dadurch nie kaputtgehen, nur veralten.
+- Beide Rechner teilen sich **eine** Lade-Instanz (`window.AVJ_PREISE ||`),
+  es wird pro Seitenaufruf nur einmal geladen — geprüft.
+- **Kautionshinweis** als abgesetzter Kasten unter der Summe. Der Betrag geht
+  **nicht** in den Richtpreis ein. Er kommt aus `preise.json` (Schlüssel
+  `kaution`), sonst gilt 300 €.
+
+HTML- und CSS-Felder wurden nicht angefasst; der Hinweis arbeitet mit
+Inline-Stilen, damit nur zwei Felder zu ersetzen sind.
+
+### Arbeitsregel
+
+Der Ordner ist die Sicherung — er stimmt nur, wenn der Inhalt auch bei
+Onepage eingefügt wurde. Also: Datei ändern → **einfügen** → erst dann gilt
+der Ordner als aktueller Stand.
+
+### Ablage
+
+Seit dem 16.08.2026 liegt der Ordner als `avj-tools/onepage/` im Repository und
+wandert bei jedem `hochladen.command` mit nach GitHub. Neue Preisgabe entsteht
+dadurch nicht — der Code steht ohnehin im Quelltext der Website.
