@@ -681,3 +681,17 @@ Datei auf dem Server fehlt.
 und einmal −30 %, danach *Auf Kundenstand zurück*. Erwartet wird, dass alle
 markierten Felder in genau einer Kategorie landen und keines farblos bleibt.
 Alle vier Fahrzeuge bestehen das, Vorschau und Felder stimmen überein.
+
+---
+
+## 18. Offene Punkte (Stand 18.08.2026)
+
+- **Fahrzeuge selbst anlegen** — siehe `PLAN-fahrzeuge.md`. Ausgelöst durch die
+  DirectCar-PKW, die alle sechs Monate wechseln. Enthält den Vorschlag für die
+  Richtpreise (Vorlage skalieren statt Formel, fünf Ankerwerte) und die
+  Umbauten, die dafür nötig sind. Wichtigster davon: die drei fast identischen
+  Rechner-Blöcke zu einem zusammenführen, bevor eine vierte Kategorie dazukommt.
+- **Tariftabelle in die Onepage-Popups** einbauen — Entwurf 3 ist abgenommen,
+  die Anleitung zum Einpflegen steht noch aus.
+- **Hash-Links für die Kundenrechner** (`#rechner=vito`), damit man einem Kunden
+  direkt das richtige Fahrzeug schicken kann.
