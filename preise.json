@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "stand": "15.08.2026",
-  "erzeugtVon": "AVJ Tools Build 27",
+  "stand": "16.08.2026",
+  "erzeugtVon": "AVJ Tools Build 29",
   "neunsitzer": {
     "sprinter": {
       "name": "Sprinter Tourer",
@@ -120,7 +120,17 @@
             105
           ]
         }
-      ]
+      ],
+      "ahk": {
+        "kurz": 0,
+        "tag": 0,
+        "we": 0,
+        "woche": 0
+      },
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      }
     },
     "vito": {
       "name": "Vito Tourer",
@@ -239,7 +249,17 @@
             150
           ]
         }
-      ]
+      ],
+      "ahk": {
+        "kurz": 0,
+        "tag": 20,
+        "we": 45,
+        "woche": 85
+      },
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      }
     }
   },
   "transporter": {
@@ -357,7 +377,28 @@
             145
           ]
         }
-      ]
+      ],
+      "kurzzeit": {
+        "km": 100,
+        "moDo": [
+          50,
+          65
+        ],
+        "frSa": [
+          55,
+          70
+        ]
+      },
+      "ahk": {
+        "kurz": 15,
+        "tag": 15,
+        "we": 35,
+        "woche": 95
+      },
+      "kaution": {
+        "stunden": 150,
+        "tag": 300
+      }
     },
     "xl": {
       "name": "Transporter XL",
@@ -473,7 +514,28 @@
             295
           ]
         }
-      ]
+      ],
+      "kurzzeit": {
+        "km": 100,
+        "moDo": [
+          55,
+          75
+        ],
+        "frSa": [
+          60,
+          80
+        ]
+      },
+      "ahk": {
+        "kurz": 20,
+        "tag": 20,
+        "we": 45,
+        "woche": 95
+      },
+      "kaution": {
+        "stunden": 150,
+        "tag": 300
+      }
     }
   },
   "lb": {
@@ -501,7 +563,11 @@
         1800
       ],
       "monthPrice": 620,
-      "monthKm": 3500
+      "monthKm": 3500,
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      }
     }
   }
 }

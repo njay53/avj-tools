@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 28 · 15.08.2026**
+**Stand: Build 32 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -471,3 +471,213 @@ der Ordner als aktueller Stand.
 Seit dem 16.08.2026 liegt der Ordner als `avj-tools/onepage/` im Repository und
 wandert bei jedem `hochladen.command` mit nach GitHub. Neue Preisgabe entsteht
 dadurch nicht — der Code steht ohnehin im Quelltext der Website.
+
+---
+
+## 15. Reiter „Tarife" (ab Build 29, Layout ab Build 30)
+
+Die Preise werden ab jetzt an **einer** Stelle gepflegt: im Reiter `Preise`.
+Die Rechner haben keinen Einstellungsbereich mehr.
+
+### Wie das technisch gelöst ist
+
+Die drei Einstellungsbereiche wurden **nicht neu gebaut, sondern umgehängt**.
+`AVJ_EDITOR.umhaengen()` verschiebt `avjSetBody`, `avjTSetBody` und
+`avjLSetBody` beim Start per `appendChild` in den Reiter. Weil der gesamte
+Einstellungs-Code seine Felder über IDs anspricht, funktioniert er unverändert
+weiter — Prozentverschiebung, Verwerfen, Zurücksetzen, das grüne Aufleuchten,
+der Kundenstand-Hinweis. Kein Code wurde verdoppelt.
+
+Aus den Rechnern sind nur die `<details>`-Aufklapper verschwunden.
+
+### Aufbau
+
+- **Kategorien** in fester Reihenfolge: Transporter, 9-Sitzer, PKW, Low Budget.
+  PKW steht schon da und meldet „noch keine Fahrzeuge" — sobald ein PKW-Rechner
+  dazukommt, füllt sich die Zeile von selbst.
+- **Ein Freigabe-Knopf** statt vorher drei.
+- **Vergleich aller Fahrzeuge** auf Knopfdruck: eine Zeile je Fahrzeug,
+  Staffelpreis Tag 1–7 und Tagessatz darunter, gruppiert nach Kategorie.
+  Zusätzlich eine Kurzzeit-Tabelle, wo es welche gibt.
+  Abstände unter 15 % zwischen zwei Klassen werden **gelb markiert**.
+- Auf breiten Fenstern (ab 900 px) werden die Eingaberaster größer und luftiger.
+
+### Neue Werte je Fahrzeug
+
+Nur für die Preistabelle auf der Website, der Rechner rechnet nicht damit:
+
+| Feld | Bedeutung |
+|---|---|
+| `kurzzeit` | Frei-km, 3 und 6 Std. je Mo–Do und Fr/Sa. Nur Transporter. |
+| `ahk` | Zuschlag für Kurzzeit, Tag, Wochenende, Woche. **0 = keine AHK.** |
+| `kaution` | Kurzzeittarife und Tag/Wochenende. 0 blendet die Zeile aus. |
+
+Verschachtelte Werte werden über `data-pfad` im Eingabefeld adressiert
+(z. B. `kurzzeit.moDo.0`) und in `onSettingInput` generisch aufgelöst.
+
+### Fahrzeugstand
+
+| Fahrzeug | AHK (Kurz/Tag/WE/Woche) | Kurzzeit | Kaution |
+|---|---|---|---|
+| Sprinter Tourer | 0 / 0 / 0 / 0 — **keine AHK** | — | 300 |
+| Vito Tourer | 0 / 20 / 45 / 85 | — | 300 |
+| Transporter M | 15 / 15 / 35 / 95 | 100 km, 50/65, 55/70 | 150 / 300 |
+| Transporter XL | 20 / 20 / 45 / 95 | 100 km, 55/75, 60/80 | 150 / 300 |
+| Low Budget | — | — | 300 |
+
+Beim Sprinter Tourer stand im alten PDF „7 Tage (AHK 85,00 €)" — ein
+Überbleibsel aus der Vito-Kopie. Der Wagen hat keine Kupplung, der Wert ist
+auf 0 gesetzt.
+
+### Beobachtung aus der Vergleichsansicht
+
+Trafic und Sprinter Kasten liegen bei den **Kurzzeittarifen** unter 15 %
+auseinander (50/55 und 65/75), beim Tagestarif dagegen bei 75 zu 110 € klar
+getrennt. Wer drei Stunden mietet, hat kaum einen Grund zum kleineren Wagen.
+Preisentscheidung, steht offen.
+
+### Nachtrag Build 30
+
+**Der Reiter heißt „Tarife".** Nicht „Kalkulation" — der Begriff gehört zum
+Projekt Fuhrpark-Rentabilität und würde später kollidieren. Die interne Kennung
+bleibt `preise`, damit die gespeicherte Reiter-Reihenfolge weiter passt.
+
+**Volle Bildschirmbreite.** `.content` ist auf 520 px gedeckelt — das ist für
+die Rechner am iPhone richtig, für die Tarifpflege am Mac aber viel zu schmal.
+`showTool()` setzt jetzt die Klasse `breit` auf `.content`, sobald der
+Tarife-Reiter aktiv ist:
+
+| Fenster | Breite | Spalten im Editor |
+|---|---|---|
+| unter 1000 px | 520 px | eine, wie bisher |
+| ab 1000 px | 1380 px | so viele wie bei 320 px Mindestbreite passen |
+| ab 1500 px | 1620 px | Mindestbreite 370 px |
+
+Die Klasse wird per JavaScript gesetzt, nicht über `:has()` — das ist in
+älteren Safari-Fassungen nicht verlässlich.
+
+**Blockbündelung.** `AVJ_EDITOR.bloecke(bodyId)` fasst nach jedem
+`renderSettings` eine Beschriftung mit ihren Rastern in `<div class="pr-block">`
+zusammen. Ohne das reißt das mehrspaltige Layout die Überschrift von ihren
+Feldern. Beim Transporter entstehen so 16 Blöcke. Hinweis, Prozentfeld,
+Kundenstand-Kasten und Knopfzeile bleiben über die volle Breite.
+
+**Aufleuchten sichtbar gemacht.** Das alte `#EAF7EE` war praktisch weiß.
+Jetzt kräftiges Markergrün `#8CF0A8` mit dunkler Schrift und grünem Rand,
+2,2 Sekunden statt 1,7 — wie ein Textmarker über der Zahl.
+
+---
+
+## 16. Build 31 — Nacharbeit am Tarife-Reiter
+
+Fünf Punkte aus dem Praxistest von Build 30. Alle Änderungen stecken in einem
+CSS-Block **ganz am Ende des Stylesheets** (`/* Build 31 · Nacharbeit Reiter
+"Tarife" */`). Bewusst dort: was unten steht, gewinnt gegen die Regeln weiter
+oben, ohne dass an den gewachsenen Blöcken herumgeschnitten werden muss.
+
+**Der eigentliche Fehler: Spezifität.** `#tool-preise .avj-set-body{display:grid}`
+aus Build 30 hat auf breiten Schirmen *alle* Einstellungsbereiche aufgeklappt.
+Eine ID im Selektor wiegt schwerer als `.pr-halter > div{display:none}` — die
+Ausblendung lief ins Leere. Deshalb war Low Budget "immer offen" und darunter
+stand auch noch der Sprinter Tourer. Jetzt hängt das Raster an
+`.pr-halter > div.an`, also nur am gewählten Bereich.
+
+**Zweiter Nebeneffekt derselben Umhängerei: die Farbvariablen.** `--blue-deep`,
+`--line`, `--ink` und so weiter sind auf `.avj-calc` / `.avjt-calc` definiert.
+Sobald `AVJ_EDITOR.umhaengen()` die Bereiche in den Tarife-Reiter zieht, hängen
+sie nicht mehr darunter — die Variablen waren leer. Sichtbare Folge: der Knopf
+*Anwenden* war weiß auf hellgrau. Der neue Block definiert die Palette erneut auf
+`#tool-preise .pr-halter`, `.pr-kopf` und `.pr-vgl` und setzt für den Knopf
+zusätzlich eine feste Farbe als Sicherheitsnetz.
+
+> **Falle für später:** Alles, was aus einem Rechner in den Tarife-Reiter
+> umgehängt wird, verliert seine CSS-Variablen. Neue Bereiche also entweder
+> unter `.pr-halter` mitdefinieren oder feste Farben verwenden.
+
+**Zahlenfelder.** Die 15-px-Regel aus dem `min-width:900px`-Block hat die
+13-px-Regel aus dem `min-width:1000px`-Block überstimmt (gleiche Spezifität,
+stand aber später in der Datei) — bei sieben Spalten in einem 320-px-Block
+wurden vierstellige Beträge abgeschnitten. Jetzt:
+
+| Fenster | Spaltenbreite | Schrift im Feld |
+|---|---|---|
+| ab 1000 px | mind. 360 px | 13 px, Abstand 5 px |
+| 1000–1180 px | mind. 360 px | 12 px, Abstand 4 px |
+| ab 1500 px | mind. 400 px | 14 px |
+
+Dazu sind die Pfeilchen von `type=number` im Tarife-Reiter abgeschaltet
+(`-webkit-appearance:none`) — sie fressen in Safari Platz und werden nicht
+gebraucht. Geprüft wird das automatisch: das Testskript misst je Feld die
+Textbreite im Canvas gegen den verfügbaren Platz.
+
+**Alle Preise verschieben.** Die Zeile ist jetzt
+`106px minmax(150px,290px) auto` statt `88px 1fr auto` — das Auswahlfeld zog
+sich vorher über die ganze Breite.
+
+**Vorschau der Verschiebung.** Statt Fließtext (`45→50 85→90 …`) jetzt Chips:
+alter Wert grau durchgestrichen, neuer Wert im selben Markergrün wie das
+Aufleuchten der Felder. So gehören Vorschau und Ergebnis sichtbar zusammen.
+Das Aufleuchten selbst steht 3,2 Sekunden statt 2,2.
+
+**Prüfung.** Ab Build 31 wird zusätzlich zum jsdom-Lauf mit echtem Chromium
+gemessen (`/tmp/sicht.js`): vier Fensterbreiten (1440, 1180, 1024, 430),
+je Durchgang wird geprüft, dass genau *ein* Bereich sichtbar ist, der Knopf
+*Anwenden* eine Hintergrundfarbe hat, keine Zahl breiter ist als ihr Feld,
+die Vorschau Chips erzeugt und nach *Anwenden* Felder aufleuchten.
+Build 30 fällt in diesem Test an drei Stellen durch, Build 31 besteht ihn.
+
+---
+
+## 17. Build 32 — Richtung der Preisänderung sichtbar machen
+
+**Bezugspunkt ist der Kundenstand, nicht der Wert von eben.** Ein Feld leuchtet
+nach jeder Änderung auf, die Farbe sagt aber nicht "ist gestiegen", sondern
+"liegt über bzw. unter dem, was Kunden gerade sehen":
+
+| Farbe | Bedeutung |
+|---|---|
+| Grün `#7CEF9C` | teurer als der zuletzt veröffentlichte Preis |
+| Rot `#FFA6A6` | günstiger als der zuletzt veröffentlichte Preis |
+| Grau `#DCE4EC` | genau auf dem Kundenstand (z. B. nach *Auf Kundenstand zurück*) |
+
+Beispiel: 500 € stehen, Kundenstand ist 400 €, ich gehe auf 480 € runter — das
+Feld bleibt **grün**, weil 480 immer noch über dem veröffentlichten Preis liegt.
+Rot kommt erst unterhalb von 400.
+
+**Technisch.** Neu ist die globale Ablage `AVJ_BASIS`. Jeder Rechner trägt sich
+dort mit einer Funktion ein, die das gerade offene Fahrzeug aus `_kundenstand`
+liefert — gelesen wird erst beim Aufruf, damit ein nachträglich eintreffender
+Serverstand mitzählt. `avjBasisWert(auto, el)` liest zu einem Eingabefeld den
+passenden Wert aus diesem Stand.
+
+> **Falle:** `avjBasisWert` ist das Spiegelbild von `onSettingInput`. Wer dort
+> eine neue Feldart ergänzt (`data-set`, `data-rate`, `data-sbwe`, `data-pfad`),
+> muss sie auch hier ergänzen — sonst bleibt die Markierung farblos statt
+> falsch, das ist gewollt: keine Farbe ist besser als eine erfundene.
+
+Die CSS-Klassen heißen bewusst `avj-hoch` / `avj-runter` / `avj-gleich` und
+nicht `avj-blitz-rot` — die Aufräumroutine entfernt `avj-blitz` per
+Zeichenkette, ein gemeinsamer Namensanfang hätte Reste stehen lassen.
+
+**Vorschau der Verschiebung** nutzt dieselben drei Farben, ebenfalls gegen den
+Kundenstand gerechnet. So sieht man vor dem Klick auf *Anwenden*, ob man unter
+den veröffentlichten Preis rutscht.
+
+**Aufleuchten jetzt auch für verschachtelte Felder.** `avjFeldName` kannte
+`data-pfad` nicht — Kurzzeit, AHK und Kaution haben deshalb nie aufgeleuchtet.
+Nachgetragen.
+
+**Pfeile am Prozentfeld.** Build 31 hatte die Spinner pauschal für alle
+Zahlenfelder im Reiter abgeschaltet. In den engen Rasterfeldern ist das richtig
+(Platzgewinn), beim Prozentfeld nicht — dort sind sie wieder an.
+
+**Knopf "Preisdatei erzeugen".** Steht im Kundenstand-Kasten, wenn nichts
+abweicht, und war unerklärt. Jetzt mit Kurzbeschreibung darunter: lädt
+`preise.json` mit dem aktuellen Stand herunter, dieselbe Datei, die der
+Kundenrechner auf der Website liest — hier nur als Sicherung oder wenn die
+Datei auf dem Server fehlt.
+
+**Prüfung** (`/tmp/sicht32.js`, `/tmp/sicht32b.js`): je Fahrzeug einmal +8 %
+und einmal −30 %, danach *Auf Kundenstand zurück*. Erwartet wird, dass alle
+markierten Felder in genau einer Kategorie landen und keines farblos bleibt.
+Alle vier Fahrzeuge bestehen das, Vorschau und Felder stimmen überein.

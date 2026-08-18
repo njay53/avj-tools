@@ -888,13 +888,108 @@
   .header-build{font-size:9.5px;padding-left:8px;}
 }
 
+/* ── Reiter "Tarife": darf auf großen Schirmen aus der 520-px-Spalte
+      ausbrechen. Die Klasse setzt showTool(), nicht CSS — damit es auch
+      in älteren Safari-Fassungen sicher greift. ── */
+@media(min-width:1000px){
+  .content.breit{max-width:1380px;}
+  #tool-preise .avj-set-body,#tool-preise .avjt-set-body{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:2px 26px;align-items:start;padding:16px 22px 22px;
+  }
+  #tool-preise .pr-block{min-width:0;}
+  #tool-preise .avj-snote,#tool-preise .avjt-snote,
+  #tool-preise .avj-scale,#tool-preise .avjt-scale,
+  #tool-preise .avj-kstand,
+  #tool-preise .avj-sactions,#tool-preise .avjt-sactions{grid-column:1 / -1;}
+  #tool-preise .avj-sgrid input,#tool-preise .avjt-sgrid input{font-size:13px;padding:7px 3px;}
+  #tool-preise .avj-scol .d,#tool-preise .avjt-scol .d{font-size:10px;}
+  #tool-preise .avj-slabel,#tool-preise .avjt-slabel{margin-top:15px;}
+}
+@media(min-width:1500px){
+  .content.breit{max-width:1620px;}
+  #tool-preise .avj-set-body,#tool-preise .avjt-set-body{
+    grid-template-columns:repeat(auto-fit,minmax(370px,1fr));
+  }
+}
+
+/* ── Reiter "Tarife" ─────────────────────────────────────── */
+#tool-preise .pr-kopf{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:14px 16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px;
+}
+#tool-preise .pr-kopf h3{font-size:15px;margin-bottom:3px;}
+#tool-preise .pr-kopf p{font-size:12px;color:#5A6675;line-height:1.5;}
+#tool-preise .pr-quelle{margin-left:0;}
+
+.pr-gruppe{margin-bottom:11px;}
+.pr-gruppe .t{
+  font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:#8A96A3;margin-bottom:5px;
+}
+.pr-fz{display:flex;gap:6px;flex-wrap:wrap;}
+.pr-fz button{
+  border:1px solid #DCE3EA;background:#fff;border-radius:9px;padding:8px 13px;
+  font-size:13px;font-weight:600;font-family:inherit;color:#40505E;cursor:pointer;
+}
+.pr-fz button.an{background:#1B2FC4;border-color:#1B2FC4;color:#fff;}
+.pr-fz button.leer{opacity:.42;cursor:default;font-style:italic;font-weight:500;}
+
+.pr-halter{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:14px;
+}
+.pr-halter > div{display:none;}
+.pr-halter > div.an{display:block;}
+
+.pr-akt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pr-akt button{
+  border:0;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:700;
+  font-family:inherit;cursor:pointer;background:#1F6F43;color:#fff;
+}
+.pr-akt button.zweit{background:#fff;color:#40505E;border:1px solid #DCE3EA;}
+
+/* Vergleich */
+.pr-vgl{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:14px 16px 16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);overflow-x:auto;
+}
+.pr-vgl h3{font-size:14px;margin-bottom:3px;}
+.pr-vgl .note{font-size:11.5px;color:#8A96A3;margin-bottom:11px;line-height:1.5;}
+.pr-vgl table{border-collapse:collapse;width:100%;min-width:520px;font-size:12px;margin-bottom:15px;}
+.pr-vgl caption{
+  text-align:left;font-size:10px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:#8A96A3;padding:6px 0 5px;
+}
+.pr-vgl th,.pr-vgl td{padding:5px 7px;border-bottom:1px solid #EDF1F4;text-align:right;
+                      font-variant-numeric:tabular-nums;}
+.pr-vgl th{color:#8A96A3;font-weight:600;font-size:10.5px;}
+.pr-vgl th:first-child,.pr-vgl td:first-child{text-align:left;font-weight:650;color:#26313B;}
+.pr-vgl tr.d td{color:#8A96A3;font-size:11px;border-bottom:2px solid #E4E9EE;}
+.pr-vgl tr.d td:first-child{font-weight:500;font-style:italic;}
+.pr-vgl .eng{color:#B8860B;font-weight:700;}
+
+/* Breite Fenster: Einstellungsraster duerfen atmen */
+@media(min-width:900px){
+  #tool-preise .avj-set-body,#tool-preise .avjt-set-body{padding:14px 20px 20px;}
+  #tool-preise .avj-sgrid.d7,#tool-preise .avjt-sgrid.d7{gap:8px;}
+  #tool-preise .avj-sgrid.p4,#tool-preise .avjt-sgrid.p4,
+  #tool-preise .avj-sgrid.p3,#tool-preise .avjt-sgrid.p3{gap:8px;}
+  #tool-preise .avj-scol input,#tool-preise .avjt-scol input{font-size:15px;padding:9px 6px;}
+  #tool-preise .avj-scol .d,#tool-preise .avjt-scol .d{font-size:10.5px;}
+  #tool-preise .avj-slabel,#tool-preise .avjt-slabel{font-size:12px;margin-top:16px;}
+}
+@media(min-width:1180px){
+  .pr-breit{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+}
+
 /* ── Kurzes gruenes Aufleuchten geaenderter Felder ── */
 .avj-scol input,.avjt-scol input,.avj-scol .d,.avjt-scol .d,.avj-dlt,.avjt-dlt{
   transition:background-color .18s,border-color .18s,color .18s,box-shadow .18s;
 }
 .avj-scol.avj-blitz input,.avjt-scol.avj-blitz input{
-  border-color:#2E8B4F;background:#EAF7EE;color:#1B6B3C;
-  box-shadow:0 0 0 2px rgba(46,139,79,.20);
+  background:#8CF0A8;border-color:#1F6F43;color:#0E3A22;font-weight:700;
+  box-shadow:0 0 0 3px rgba(140,240,168,.55);
 }
 .avj-scol.avj-blitz .d,.avjt-scol.avj-blitz .d{color:#2E8B4F;font-weight:700;}
 .avj-scol.avj-blitz .avj-dlt,.avjt-scol.avj-blitz .avjt-dlt,
@@ -1069,6 +1164,156 @@
 }
 .avjt-dclear:hover{color:#C0392B;}
 .avjt-lines li.disc .v{color:var(--yellow);}
+/* ══════════════════════════════════════════════════════════════
+   Build 31 · Nacharbeit Reiter "Tarife"
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1. Farbvariablen. Die Einstellungsbereiche haengen im Reiter nicht
+      mehr in .avj-calc / .avjt-calc — genau dort waren die Variablen
+      definiert. Ohne sie war der Knopf "Anwenden" weiss auf hellgrau
+      und die Rahmen bekamen die Textfarbe. */
+#tool-preise .pr-halter,#tool-preise .pr-kopf,#tool-preise .pr-vgl{
+  --ink:#111C2E;--ink-soft:#5A6675;--muted:#5A6675;--line:#DCE3EA;
+  --blue:#1B2FC4;--blue-deep:#101C6E;--yellow:#F5EC22;--field:#F7F9FB;
+}
+/* Sicherheitsnetz, falls die Variable doch mal fehlt */
+#tool-preise .avj-scale-go,#tool-preise .avjt-scale-go{
+  background:#101C6E;color:#fff;border:none;
+}
+#tool-preise .avj-scale,#tool-preise .avjt-scale{border-color:#DCE3EA;}
+#tool-preise .avj-pct,#tool-preise .avjt-pct{border-color:#DCE3EA;}
+#tool-preise .avj-sundo,#tool-preise .avjt-sundo{border-color:#DCE3EA;color:#5A6675;}
+
+/* 2. Nur der gewaehlte Bereich ist offen. Die Regel weiter oben
+      (#tool-preise .avj-set-body{display:grid}) hat auf breiten
+      Schirmen alle Bereiche aufgeklappt — eine ID wiegt schwerer als
+      .pr-halter > div, damit lief die Ausblendung ins Leere. */
+#tool-preise .pr-halter > div{display:none;}
+#tool-preise .pr-halter > div.an{display:block;}
+
+/* 3. Mehrspaltig, aber nur der offene Bereich. 360 px je Spalte ist
+      die Breite, in der sieben Zahlenfelder nebeneinander noch
+      vierstellige Betraege vollstaendig zeigen. */
+@media(min-width:1000px){
+  #tool-preise .pr-halter > div.an{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+    gap:2px 26px;align-items:start;padding:16px 22px 22px;
+  }
+  #tool-preise .avj-scol input,#tool-preise .avjt-scol input{
+    font-size:13px;padding:7px 2px;
+  }
+  #tool-preise .avj-sgrid.d7,#tool-preise .avjt-sgrid.d7{gap:5px;}
+  #tool-preise .avj-sgrid.p4,#tool-preise .avjt-sgrid.p4,
+  #tool-preise .avj-sgrid.p3,#tool-preise .avjt-sgrid.p3,
+  #tool-preise .avj-sgrid.r3,#tool-preise .avjt-sgrid.r3{gap:7px;}
+}
+@media(min-width:1500px){
+  #tool-preise .pr-halter > div.an{
+    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+  }
+  #tool-preise .avj-scol input,#tool-preise .avjt-scol input{
+    font-size:14px;padding:8px 4px;
+  }
+}
+
+/* 4. Kein Feld darf die Zahl abschneiden. Die Pfeilchen von
+      type=number fressen in Safari Platz und werden hier nicht
+      gebraucht — die Werte tippt man ohnehin ein. */
+#tool-preise .avj-sgrid input::-webkit-outer-spin-button,
+#tool-preise .avj-sgrid input::-webkit-inner-spin-button,
+#tool-preise .avjt-sgrid input::-webkit-outer-spin-button,
+#tool-preise .avjt-sgrid input::-webkit-inner-spin-button{
+  -webkit-appearance:none;appearance:none;margin:0;
+}
+#tool-preise .avj-sgrid input,#tool-preise .avjt-sgrid input{
+  -moz-appearance:textfield;appearance:textfield;min-width:0;
+  text-overflow:ellipsis;
+}
+#tool-preise .avj-scol,#tool-preise .avjt-scol,
+#tool-preise .avj-sgrid,#tool-preise .avjt-sgrid,
+#tool-preise .pr-block{min-width:0;}
+/* Wird die Spalte doch einmal sehr schmal, lieber kleiner setzen als
+   abschneiden. Greift z. B. am iPad im Hochformat. */
+@media(min-width:1000px) and (max-width:1180px){
+  #tool-preise .avj-scol input,#tool-preise .avjt-scol input{font-size:12px;padding:6px 1px;}
+  #tool-preise .avj-sgrid.d7,#tool-preise .avjt-sgrid.d7{gap:4px;}
+}
+
+/* 5. "Alle Preise verschieben": das Auswahlfeld hat sich ueber die
+      ganze Breite gezogen. Jetzt eine kompakte Zeile, links buendig. */
+#tool-preise .avj-scale-row,#tool-preise .avjt-scale-row{
+  grid-template-columns:106px minmax(150px,290px) auto;
+  justify-content:start;
+}
+
+/* 6. Vorschau der Verschiebung: alter Wert durchgestrichen, neuer
+      Wert im Textmarker — dieselbe Farbe wie das Aufleuchten der
+      Felder, damit man beides sofort zusammenbringt. */
+.avj-scale-prev,.avjt-scale-prev{font-size:11px;line-height:1.9;word-spacing:normal;}
+.avj-scale-prev b,.avjt-scale-prev b{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:#8A96A3;margin-right:6px;
+}
+.avj-scale-prev .pv,.avjt-scale-prev .pv{
+  display:inline-block;background:#fff;border:1px solid #CBD6E0;border-radius:6px;
+  padding:2px 6px;margin:0 5px 4px 0;color:#40505E;white-space:nowrap;
+}
+.avj-scale-prev .pv i,.avjt-scale-prev .pv i{
+  font-style:normal;color:#98A4B0;text-decoration:line-through;
+}
+.avj-scale-prev .pv u,.avjt-scale-prev .pv u{
+  text-decoration:none;font-weight:800;color:#0E3A22;
+  background:#8CF0A8;border-radius:3px;padding:0 4px;margin-left:3px;
+}
+
+/* 7. Das Aufleuchten selbst: kraeftiger Textmarker, deutlicher Rahmen. */
+#tool-preise .avj-scol.avj-blitz input,#tool-preise .avjt-scol.avj-blitz input{
+  background:#7CEF9C;border-color:#12693C;color:#0B3120;font-weight:800;
+  box-shadow:0 0 0 3px rgba(18,105,60,.32);
+}
+#tool-preise .avj-scol.avj-blitz .d,#tool-preise .avjt-scol.avj-blitz .d{
+  color:#12693C;font-weight:800;
+}
+/* ══════════════════════════════════════════════════════════════
+   Build 32 · Richtung der Preisaenderung sichtbar machen
+   Bezugspunkt ist immer der Kundenstand, nie der Wert von eben.
+   ══════════════════════════════════════════════════════════════ */
+
+/* guenstiger als veroeffentlicht */
+.avj-scol.avj-runter input,.avjt-scol.avj-runter input,
+#tool-preise .avj-scol.avj-runter input,#tool-preise .avjt-scol.avj-runter input{
+  background:#FFA6A6;border-color:#8E1C1C;color:#4A0D0D;font-weight:800;
+  box-shadow:0 0 0 3px rgba(142,28,28,.28);
+}
+.avj-scol.avj-runter .d,.avjt-scol.avj-runter .d,
+#tool-preise .avj-scol.avj-runter .d,#tool-preise .avjt-scol.avj-runter .d{
+  color:#8E1C1C;font-weight:800;
+}
+
+/* wieder genau auf dem Kundenstand */
+.avj-scol.avj-gleich input,.avjt-scol.avj-gleich input,
+#tool-preise .avj-scol.avj-gleich input,#tool-preise .avjt-scol.avj-gleich input{
+  background:#DCE4EC;border-color:#7A8794;color:#26313B;font-weight:700;
+  box-shadow:0 0 0 3px rgba(122,135,148,.25);
+}
+.avj-scol.avj-gleich .d,.avjt-scol.avj-gleich .d,
+#tool-preise .avj-scol.avj-gleich .d,#tool-preise .avjt-scol.avj-gleich .d{
+  color:#5A6675;font-weight:800;
+}
+
+/* Vorschau: dieselben drei Farben wie bei den Feldern */
+.avj-scale-prev .pv.ab u,.avjt-scale-prev .pv.ab u{background:#FFA6A6;color:#4A0D0D;}
+.avj-scale-prev .pv.ab,.avjt-scale-prev .pv.ab{border-color:#E7A9A9;}
+.avj-scale-prev .pv.gleich u,.avjt-scale-prev .pv.gleich u{background:#DCE4EC;color:#26313B;}
+.avj-scale-prev .pv.gleich,.avjt-scale-prev .pv.gleich{border-color:#C6D0DA;}
+
+/* Erklaerung im Kundenstand-Kasten */
+.avj-khinweis{
+  margin:8px 0 10px;font-size:11px;line-height:1.55;color:#5F6E7D;
+  border-left:3px solid #CFE0D6;padding-left:9px;
+}
+.avj-khinweis b{color:#40505E;font-weight:700;}
 </style>
 </head>
 <body>
@@ -1086,6 +1331,7 @@
   <button class="nav-btn" onclick="showTool('neun',this)">9-Sitzer</button>
   <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
   <button class="nav-btn" onclick="showTool('tank',this)">Tank</button>
+  <button class="nav-btn" onclick="showTool('preise',this)">Tarife</button>
 </div>
 
 <div class="content">
@@ -1219,10 +1465,7 @@
     <ul class="avjt-lines" id="avjLLines"></ul>
 </div>
 
-  <details class="avjt-settings">
-    <summary>Preise anpassen</summary>
-    <div class="avjt-set-body" id="avjLSetBody"></div>
-  </details>
+  <div class="avjt-set-body" id="avjLSetBody" hidden></div>
 </div>
     </div>
   </div>
@@ -1318,10 +1561,7 @@
     <ul class="avj-lines" id="avjLines"></ul>
 </div>
 
-  <details class="avj-settings">
-    <summary>Preise anpassen</summary>
-    <div class="avj-set-body" id="avjSetBody"></div>
-  </details>
+  <div class="avj-set-body" id="avjSetBody" hidden></div>
 </div>
     </div>
   </div>
@@ -1415,10 +1655,7 @@
     <ul class="avjt-lines" id="avjTLines"></ul>
 </div>
 
-  <details class="avjt-settings">
-    <summary>Preise anpassen</summary>
-    <div class="avjt-set-body" id="avjTSetBody"></div>
-  </details>
+  <div class="avjt-set-body" id="avjTSetBody" hidden></div>
 </div>
     </div>
   </div>
@@ -1501,6 +1738,26 @@
     </details>
   </div>
 
+  <!-- ═══ PREISE ═══ -->
+  <div class="tool" id="tool-preise">
+    <div class="pr-kopf">
+      <h3>Tarife pflegen <span class="avj-quelle">Preise: …</span></h3>
+      <p>Alle Werte an einer Stelle. Auf dem iPhone gestapelt, auf Mac und iPad
+         nebeneinander. Änderungen gelten sofort auf deinen Geräten — für Kunden
+         erst nach dem Freigeben.</p>
+    </div>
+
+    <div id="prWahl"></div>
+    <div class="pr-halter" id="prHalter"></div>
+
+    <div class="pr-akt">
+      <button type="button" id="prFrei">Für Kunden freigeben</button>
+      <button type="button" class="zweit" id="prVglAn">Vergleich aller Fahrzeuge</button>
+    </div>
+
+    <div class="pr-vgl" id="prVgl" hidden></div>
+  </div>
+
 </div><!-- /content -->
 
 <script>
@@ -1510,6 +1767,9 @@ function showTool(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tool-' + id).classList.add('active');
   btn.classList.add('active');
+  /* Der Tarife-Reiter darf die volle Bildschirmbreite nutzen */
+  var c = document.querySelector('.content');
+  if(c) c.className = 'content' + (id === 'preise' ? ' breit' : '');
 }
 
 // ── Mietdauer ──
@@ -1589,6 +1849,223 @@ calcMietdauer();
 })();
 
 
+/* ═══ Preise-Reiter ═══════════════════════
+   Haengt die vorhandenen Einstellungsbereiche der drei Rechner in den Reiter
+   um. Sie sprechen ihre Felder ueber IDs an, funktionieren also unveraendert
+   weiter, egal wo sie im Dokument haengen. Die Reihenfolge der Kategorien ist
+   fest, damit PKW spaeter einfach dazwischenpasst. */
+var AVJ_EDITOR = (function(){
+  "use strict";
+  var KATEGORIEN = ["Transporter", "9-Sitzer", "PKW", "Low Budget"];
+  var bereiche = [], aktiv = null, umgehaengt = false;
+
+  function melde(b){ bereiche.push(b); }
+
+  function fuerKategorie(k){
+    var out = [];
+    for(var i=0;i<bereiche.length;i++) if(bereiche[i].kategorie === k) out.push(bereiche[i]);
+    return out;
+  }
+
+  function umhaengen(){
+    if(umgehaengt) return;
+    var halter = document.getElementById("prHalter");
+    if(!halter) return;
+    for(var i=0;i<bereiche.length;i++){
+      var el = document.getElementById(bereiche[i].bodyId);
+      if(el){ el.removeAttribute("hidden"); halter.appendChild(el); }
+    }
+    umgehaengt = true;
+  }
+
+  function zeichneWahl(){
+    var w = document.getElementById("prWahl");
+    if(!w) return;
+    var h = "";
+    for(var k=0;k<KATEGORIEN.length;k++){
+      var kat = KATEGORIEN[k], bs = fuerKategorie(kat);
+      h += '<div class="pr-gruppe"><div class="t">' + kat + '</div><div class="pr-fz">';
+      if(!bs.length){
+        h += '<button type="button" class="leer" disabled>noch keine Fahrzeuge</button>';
+      } else {
+        for(var i=0;i<bs.length;i++){
+          var fz = bs[i].fahrzeuge();
+          for(var f=0;f<fz.length;f++){
+            h += '<button type="button" data-b="' + bs[i].schluessel + '" data-f="' + fz[f].key + '">'
+              +  fz[f].name + '</button>';
+          }
+        }
+      }
+      h += '</div></div>';
+    }
+    w.innerHTML = h;
+  }
+
+  function waehle(schluessel, fzKey){
+    var b = null;
+    for(var i=0;i<bereiche.length;i++) if(bereiche[i].schluessel === schluessel) b = bereiche[i];
+    if(!b) return;
+    aktiv = b;
+    try{ b.waehle(fzKey); }catch(e){}
+
+    var halter = document.getElementById("prHalter");
+    if(halter){
+      var kinder = halter.children;
+      for(var c=0;c<kinder.length;c++) kinder[c].className = kinder[c].className.replace(/\s*an\b/g,"");
+      var el = document.getElementById(b.bodyId);
+      if(el) el.className += " an";
+    }
+    var btns = document.querySelectorAll("#prWahl button");
+    for(var q=0;q<btns.length;q++){
+      var an = (btns[q].getAttribute("data-b") === schluessel && btns[q].getAttribute("data-f") === fzKey);
+      btns[q].className = btns[q].className.replace(/\s*an\b/g,"") + (an ? " an" : "");
+    }
+    try{ AVJ_PREISE.zeigeQuelle(); }catch(e){}
+  }
+
+  /* ─── Vergleich: eine Zeile je Fahrzeug, Spalten Tag 1-7 ─── */
+  function eur(n){ return Math.round(n).toLocaleString("de-DE"); }
+  function vergleich(){
+    var h = '<h3>Alle Fahrzeuge nebeneinander</h3>'
+          + '<div class="note">Staffelpreis je Mietdauer und der Tagessatz darunter. '
+          + 'Liegen zwei Klassen zu dicht beieinander, greift der Kunde zur gr\u00F6\u00DFeren \u2014 '
+          + 'Abst\u00E4nde unter 15\u202F% sind gelb markiert.</div>';
+
+    for(var k=0;k<KATEGORIEN.length;k++){
+      var kat = KATEGORIEN[k], bs = fuerKategorie(kat);
+      if(!bs.length) continue;
+      h += '<table><caption>' + kat + '</caption><tr><th>Fahrzeug</th>';
+      for(var t=1;t<=7;t++) h += '<th>' + t + ' T</th>';
+      h += '<th>Frei-km 7 T</th></tr>';
+
+      var vorher = null;
+      for(var i=0;i<bs.length;i++){
+        var daten = bs[i].daten();
+        for(var key in daten){
+          var c = daten[key];
+          if(!c || !c.tier) continue;
+          h += '<tr><td>' + (c.name || key) + '</td>';
+          for(var d=0;d<7;d++){
+            var eng = "";
+            if(vorher && vorher[d] > 0 && c.tier[d] > 0){
+              var abst = Math.abs(c.tier[d] - vorher[d]) / Math.max(c.tier[d], vorher[d]);
+              if(abst < 0.15) eng = ' class="eng"';
+            }
+            h += '<td' + eng + '>' + eur(c.tier[d]) + ' \u20AC</td>';
+          }
+          h += '<td>' + (c.tierKm ? c.tierKm[6].toLocaleString("de-DE") : "\u2014") + '</td></tr>';
+          h += '<tr class="d"><td>je Tag</td>';
+          for(var e=0;e<7;e++){
+            h += '<td>' + (c.tier[e] ? (c.tier[e]/(e+1)).toFixed(0) + ' \u20AC' : "\u2014") + '</td>';
+          }
+          h += '<td></td></tr>';
+          vorher = c.tier;
+        }
+      }
+      h += '</table>';
+
+      /* Kurzzeittarife, sofern die Kategorie welche hat */
+      var hatKZ = false;
+      for(var q=0;q<bs.length;q++){
+        var dd = bs[q].daten();
+        for(var kk in dd) if(dd[kk] && dd[kk].kurzzeit) hatKZ = true;
+      }
+      if(hatKZ){
+        h += '<table><caption>' + kat + ' \u00B7 Kurzzeittarife</caption>'
+          +  '<tr><th>Fahrzeug</th><th>Frei-km</th><th>3 Std. Mo\u2013Do</th><th>6 Std. Mo\u2013Do</th>'
+          +  '<th>3 Std. Fr/Sa</th><th>6 Std. Fr/Sa</th><th>1 Tag Mo\u2013Do</th></tr>';
+        var vorKZ = null;
+        for(var r=0;r<bs.length;r++){
+          var dz = bs[r].daten();
+          for(var ky in dz){
+            var cz = dz[ky];
+            if(!cz || !cz.kurzzeit) continue;
+            var reihe = [cz.kurzzeit.moDo[0], cz.kurzzeit.moDo[1], cz.kurzzeit.frSa[0], cz.kurzzeit.frSa[1]];
+            h += '<tr><td>' + (cz.name||ky) + '</td><td>' + cz.kurzzeit.km + ' km</td>';
+            for(var x=0;x<4;x++){
+              var e2 = '';
+              if(vorKZ && vorKZ[x] > 0 && reihe[x] > 0){
+                var ab = Math.abs(reihe[x] - vorKZ[x]) / Math.max(reihe[x], vorKZ[x]);
+                if(ab < 0.15) e2 = ' class="eng"';
+              }
+              h += '<td' + e2 + '>' + eur(reihe[x]) + ' \u20AC</td>';
+            }
+            h += '<td>' + (cz.dayMoDo ? eur(cz.dayMoDo[0][1]) + ' \u20AC' : '\u2014') + '</td></tr>';
+            vorKZ = reihe;
+          }
+        }
+        h += '</table>';
+      }
+    }
+    return h;
+  }
+
+  function start(){
+    if(!document.getElementById("prHalter")) return;
+    umhaengen();
+    zeichneWahl();
+    /* erstes Fahrzeug der ersten belegten Kategorie */
+    for(var k=0;k<KATEGORIEN.length;k++){
+      var bs = fuerKategorie(KATEGORIEN[k]);
+      if(bs.length){
+        var fz = bs[0].fahrzeuge();
+        if(fz.length){ waehle(bs[0].schluessel, fz[0].key); break; }
+      }
+    }
+
+    document.getElementById("prWahl").addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button") : null;
+      if(!b || b.disabled) return;
+      waehle(b.getAttribute("data-b"), b.getAttribute("data-f"));
+    });
+
+    var frei = document.getElementById("prFrei");
+    if(frei) frei.addEventListener("click", function(){ AVJ_PREISE.freigabe(); });
+
+    var vgl = document.getElementById("prVgl"), an = document.getElementById("prVglAn");
+    if(an) an.addEventListener("click", function(){
+      if(vgl.hasAttribute("hidden")){
+        vgl.innerHTML = vergleich();
+        vgl.removeAttribute("hidden");
+        an.textContent = "Vergleich ausblenden";
+        vgl.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      } else {
+        vgl.setAttribute("hidden","");
+        an.textContent = "Vergleich aller Fahrzeuge";
+      }
+    });
+  }
+
+  /* Beschriftung + zugehoerige Raster zu einem Block buendeln. Ohne das
+     reisst das mehrspaltige Layout eine Ueberschrift von ihren Feldern.
+     Laeuft nach jedem renderSettings, ist billig und ohne Nebenwirkung:
+     querySelectorAll findet die Felder danach genauso. */
+  function bloecke(bodyId){
+    var b = document.getElementById(bodyId);
+    if(!b) return;
+    var kinder = Array.prototype.slice.call(b.children), block = null;
+    for(var i=0;i<kinder.length;i++){
+      var k = kinder[i], kl = String(k.className || "");
+      if(kl.indexOf("pr-block") >= 0) continue;
+      if(kl.indexOf("-slabel") >= 0){
+        block = document.createElement("div");
+        block.className = "pr-block";
+        b.insertBefore(block, k);
+        block.appendChild(k);
+      } else if(block && kl.indexOf("-sgrid") >= 0){
+        block.appendChild(k);
+      } else {
+        block = null;            /* Hinweis, Prozentfeld, Knoepfe: volle Breite */
+      }
+    }
+  }
+
+  return { melde: melde, start: start, bloecke: bloecke, neuZeichnen: function(){
+    var vgl = document.getElementById("prVgl");
+    if(vgl && !vgl.hasAttribute("hidden")) vgl.innerHTML = vergleich();
+  }};
+})();
+
 /* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
    avjWerte(bodyId) vor der Aenderung merken, avjBlitz(bodyId, werte)
    danach aufrufen. Verglichen wird Feld fuer Feld, damit nur das
@@ -1601,8 +2078,55 @@ function avjFeldName(e){
   if(r !== null) return "r:" + r;
   var w = e.getAttribute("data-sbwe");
   if(w !== null) return "w:" + w;
+  var p = e.getAttribute("data-pfad");
+  if(p !== null) return "p:" + p;
   return null;   /* z. B. das Prozentfeld selbst */
 }
+/* Zuletzt veroeffentlichter Stand des gerade offenen Fahrzeugs.
+   Die Rechner tragen sich hier ein; gelesen wird erst beim Aufruf,
+   damit auch ein spaeter eintreffender Serverstand zaehlt. */
+var AVJ_BASIS = {};
+
+/* Liest zu einem Eingabefeld den passenden Wert aus dem Kundenstand.
+   Spiegelbild von onSettingInput — wer dort ein Feld ergaenzt, muss
+   es auch hier ergaenzen, sonst bleibt die Markierung farblos. */
+function avjBasisWert(auto, el){
+  if(!auto) return null;
+  var v = null;
+  var key = el.getAttribute("data-set");
+  if(key){
+    var i = parseInt(el.getAttribute("data-i"), 10);
+    var sub = el.getAttribute("data-sub");
+    if(key.indexOf("sb") === 0 && key.length > 2){
+      var sbi = parseInt(key.slice(2), 10);
+      v = (auto.sb && auto.sb[sbi] && auto.sb[sbi].tier) ? auto.sb[sbi].tier[i] : null;
+    } else if(sub === null){
+      v = auto[key] ? auto[key][i] : null;
+    } else {
+      v = (auto[key] && auto[key][i]) ? auto[key][i][parseInt(sub,10)] : null;
+    }
+  }
+  var rate = el.getAttribute("data-rate");
+  if(rate) v = auto[rate];
+
+  var sbwe = el.getAttribute("data-sbwe");
+  if(sbwe){
+    var si = parseInt(sbwe, 10);
+    v = (auto.sb && auto.sb[si]) ? auto.sb[si].we : null;
+  }
+
+  var pfad = el.getAttribute("data-pfad");
+  if(pfad){
+    var teile = pfad.split("."), ziel = auto;
+    for(var pi=0; pi<teile.length; pi++){
+      if(ziel === null || ziel === undefined) break;
+      ziel = ziel[teile[pi]];
+    }
+    v = ziel;
+  }
+  return (typeof v === "number" && isFinite(v)) ? v : null;
+}
+
 function avjWerte(bodyId){
   var m = {}, b = document.getElementById(bodyId);
   if(!b) return m;
@@ -1616,18 +2140,36 @@ function avjWerte(bodyId){
 function avjBlitz(bodyId, vorher, dauer){
   var b = document.getElementById(bodyId);
   if(!b || !vorher) return 0;
+  /* Bezugspunkt ist nicht der vorherige Wert, sondern der Preis, den
+     Kunden gerade sehen. Wer von 500 auf 480 geht, der Kundenstand
+     steht aber bei 400, ist immer noch teurer als veroeffentlicht —
+     also gruen. Rot erst unterhalb des Kundenstands. */
+  var basis = null;
+  try{ if(AVJ_BASIS[bodyId]) basis = AVJ_BASIS[bodyId](); }catch(e){}
+
   var els = b.querySelectorAll("input"), anzahl = 0;
   for(var i=0;i<els.length;i++){
     var k = avjFeldName(els[i]);
     if(!k || vorher[k] === undefined || vorher[k] === els[i].value) continue;
+
+    var jetzt = parseFloat(String(els[i].value).replace(",", "."));
+    var bw    = avjBasisWert(basis, els[i]);
+    var art   = "avj-blitz";
+    if(bw !== null && isFinite(jetzt)){
+      if(jetzt > bw)      art = "avj-blitz avj-hoch";
+      else if(jetzt < bw) art = "avj-blitz avj-runter";
+      else                art = "avj-blitz avj-gleich";
+    }
+
     var ziel = els[i].parentNode;
     if(!ziel || !ziel.className || String(ziel.className).indexOf("scol") < 0) ziel = els[i];
-    (function(el){
-      if(el.className.indexOf("avj-blitz") < 0) el.className += " avj-blitz";
-      setTimeout(function(){
-        el.className = el.className.replace(/\s*avj-blitz/g, "");
-      }, dauer || 1700);
-    })(ziel);
+    (function(el, klasse){
+      el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich)\b/g, "") + " " + klasse;
+      clearTimeout(el._blitzT);
+      el._blitzT = setTimeout(function(){
+        el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich)\b/g, "");
+      }, dauer || 3200);
+    })(ziel, art);
     anzahl++;
   }
   return anzahl;
@@ -1738,6 +2280,11 @@ var AVJ_PREISE = (function(){
   /* ─── Freigabe: aus dem aktuellen Stand eine preise.json bauen ─── */
   function zahl(v){
     if(Array.isArray(v)) return v.map(zahl).join(" ");
+    if(v && typeof v === "object"){
+      var t = [];
+      for(var k in v) t.push(k + " " + zahl(v[k]));
+      return t.join(" \u00B7 ");
+    }
     if(v === null || v === undefined) return "\u2014";
     return String(v);
   }
@@ -1916,7 +2463,8 @@ function avjlTrack(name, params){
       tierKm: [400, 700, 1000, 1250, 1450, 1650, 1800],
       /* Monatsanker: zwischen Woche und Monat wird interpoliert */
       monthPrice: 620,
-      monthKm: 3500
+      monthKm: 3500,
+      kaution: { stunden:0, tag:300 }
     }
   };
 
@@ -2586,6 +3134,23 @@ function avjlTrack(name, params){
     return liste;
   }
 
+  AVJ_EDITOR.melde({
+    schluessel: "lb",
+    kategorie:  "Low Budget",
+    bodyId:     "avjLSetBody",
+    daten:      function(){ return CARS; },
+    fahrzeuge:  function(){
+      var l = [];
+      for(var k in CARS) l.push({ key:k, name:CARS[k].name || k });
+      return l;
+    },
+    waehle:     function(k){
+      if(!CARS[k]) return;
+      carKey = k; _gridCache = {};
+      renderSettings(); renderSb(); render();
+    }
+  });
+
   AVJ_PREISE.melde({
     schluessel:   "lb",
     titel:        "Low-Budget",
@@ -2615,8 +3180,15 @@ function avjlTrack(name, params){
     var abw = abweichungen();
     if(!abw.length){
       el.className = "avj-kstand gleich";
-      el.innerHTML = "Deine Preise stimmen mit dem Kundenstand \u00FCberein."
-        + '<br><button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
+      el.innerHTML = "<b>Deine Preise stimmen mit dem Kundenstand \u00FCberein.</b> "
+        + "Es gibt nichts freizugeben."
+        + '<div class="avj-khinweis">\u201EPreisdatei erzeugen\u201C l\u00E4dt die '
+        + '<b>preise.json</b> mit dem aktuellen Stand herunter \u2014 genau die Datei, '
+        + 'aus der der Kundenrechner auf der Website seine Preise liest. Hier brauchst '
+        + 'du sie nur als Sicherung oder wenn die Datei auf dem Server fehlt. Zum '
+        + 'Ver\u00F6ffentlichen kommt sie in den Ordner <b>avj-tools</b>, danach '
+        + '<b>Kundenpreise aktualisieren.command</b> starten.</div>'
+        + '<button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
       return;
     }
     var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
@@ -2716,13 +3288,21 @@ function avjlTrack(name, params){
     var probe = JSON.parse(JSON.stringify(CARS[carKey]));
     scalePrices(probe, pct);
     var a = CARS[carKey].tier, b = probe.tier;
+    var bas = (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey].tier : null;
     var parts = [];
     for(var i=0;i<a.length;i++){
-      if(a[i] !== b[i]) parts.push(a[i] + "\u2192" + b[i]);
+      if(a[i] === b[i]) continue;
+      /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
+         nicht gegen den Wert von eben. */
+      var kl = "pv";
+      if(bas && typeof bas[i] === "number"){
+        kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
+      }
+      parts.push('<span class="' + kl + '"><i>' + a[i] + '</i>\u2192<u>' + b[i] + '</u></span>');
     }
-    el.textContent = parts.length
-      ? "Staffelpreis: " + parts.join("   ")
-      : "keine \u00C4nderung bei dieser Prozentzahl";
+    el.innerHTML = parts.length
+      ? "<b>Staffelpreis</b>" + parts.join("")
+      : '<b>ohne Wirkung</b> keine \u00C4nderung bei dieser Prozentzahl';
   }
 
   var _snapshot = null;
@@ -2790,12 +3370,53 @@ function avjlTrack(name, params){
       +  '<input type="number" step="50" data-rate="monthKm" value="'+(car.monthKm||0)+'"></div>'
       +  '</div>';
 
+
+    /* Werte, die nur die Preistabelle auf der Website braucht */
+    if(car.kurzzeit){
+      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
+        +  '<div class="avjt-sgrid p4">'
+        +  '<div class="avjt-scol"><div class="d">Frei-km</div>'
+        +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">6 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
+        +  '</div>'
+        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
+        +  '</div>';
+    }
+    if(car.ahk){
+      h += '<div class="avjt-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
+        +  '<div class="avjt-sgrid p4">'
+        +  '<div class="avjt-scol"><div class="d">Kurzzeit</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Tag</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Wochenende</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Woche</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
+        +  '</div>';
+    }
+    if(car.kaution){
+      h += '<div class="avjt-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">Kurzzeittarife</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Tag / Wochenende</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
+        +  '</div>';
+    }
     h += '<div class="avjt-sactions">'
       +    '<button type="button" class="avjt-sundo" id="avjLSUndo">\u00C4nderungen verwerfen</button>'
       +    '<button type="button" class="avjt-sreset" id="avjLSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("avjLSetBody").innerHTML = h;
     updateDeltas();
+    try{ AVJ_EDITOR.bloecke("avjLSetBody"); }catch(e){}
     zeichneKundenstand();
     AVJ_PREISE.zeigeQuelle();
   }
@@ -2823,8 +3444,20 @@ function avjlTrack(name, params){
     var sbwe = el.getAttribute("data-sbwe");
     if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
 
+    /* verschachtelte Werte wie kurzzeit.moDo.0 */
+    var pfad = el.getAttribute("data-pfad");
+    if(pfad){
+      var teile = pfad.split("."), ziel = car;
+      for(var pi=0; pi<teile.length-1; pi++){
+        if(ziel[teile[pi]] === undefined || ziel[teile[pi]] === null) ziel[teile[pi]] = {};
+        ziel = ziel[teile[pi]];
+      }
+      ziel[teile[teile.length-1]] = v;
+    }
+
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
     flashSaved();
     updateDeltas();
     renderSb();
@@ -2832,6 +3465,12 @@ function avjlTrack(name, params){
   }
 
   $("avjLSetBody").addEventListener("input", onSettingInput);
+  /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
+     Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
+     nachtraeglich eintreffender Serverstand mitzaehlt. */
+  AVJ_BASIS["avjLSetBody"] = function(){
+    return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
+  };
   $("avjLSetBody").addEventListener("click", function(e){
     var id = e.target.id;
 
@@ -2979,6 +3618,9 @@ function avjTrack(name, params){
       // Staffel Tag 1-7 + Frei-km
       tier:   [130, 255, 375, 475, 555, 615, 650],
       tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+      /* nur fuer die Preistabelle, der Rechner rechnet damit nicht */
+      ahk:     { kurz:0, tag:0, we:0, woche:0 },   /* Sprinter Tourer: keine AHK */
+      kaution: { stunden:0, tag:300 },
       sb: [
         { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]        },
         { label:"1.000 \u20AC", we:25, tier:[15,30,43,54,63,70,75] },
@@ -2996,6 +3638,8 @@ function avjTrack(name, params){
       weekend: [ [200,275], [600,345], [900,395], [1200,460] ],
       tier:   [160, 315, 465, 600, 730, 845, 950],
       tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+      ahk:     { kurz:0, tag:20, we:45, woche:85 },
+      kaution: { stunden:0, tag:300 },
       sb: [
         { label:"2.000 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]           },
         { label:"1.000 \u20AC", we:35, tier:[18,36,52,68,82,92,100]   },
@@ -3691,6 +4335,23 @@ function avjTrack(name, params){
     return liste;
   }
 
+  AVJ_EDITOR.melde({
+    schluessel: "neunsitzer",
+    kategorie:  "9-Sitzer",
+    bodyId:     "avjSetBody",
+    daten:      function(){ return CARS; },
+    fahrzeuge:  function(){
+      var l = [];
+      for(var k in CARS) l.push({ key:k, name:CARS[k].name || k });
+      return l;
+    },
+    waehle:     function(k){
+      if(!CARS[k]) return;
+      carKey = k; _gridCache = {};
+      renderSettings(); renderSb(); render();
+    }
+  });
+
   AVJ_PREISE.melde({
     schluessel:   "neunsitzer",
     titel:        "9-Sitzer",
@@ -3720,8 +4381,15 @@ function avjTrack(name, params){
     var abw = abweichungen();
     if(!abw.length){
       el.className = "avj-kstand gleich";
-      el.innerHTML = "Deine Preise stimmen mit dem Kundenstand \u00FCberein."
-        + '<br><button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
+      el.innerHTML = "<b>Deine Preise stimmen mit dem Kundenstand \u00FCberein.</b> "
+        + "Es gibt nichts freizugeben."
+        + '<div class="avj-khinweis">\u201EPreisdatei erzeugen\u201C l\u00E4dt die '
+        + '<b>preise.json</b> mit dem aktuellen Stand herunter \u2014 genau die Datei, '
+        + 'aus der der Kundenrechner auf der Website seine Preise liest. Hier brauchst '
+        + 'du sie nur als Sicherung oder wenn die Datei auf dem Server fehlt. Zum '
+        + 'Ver\u00F6ffentlichen kommt sie in den Ordner <b>avj-tools</b>, danach '
+        + '<b>Kundenpreise aktualisieren.command</b> starten.</div>'
+        + '<button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
       return;
     }
     var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
@@ -3826,13 +4494,21 @@ function avjTrack(name, params){
     var probe = JSON.parse(JSON.stringify(CARS[carKey]));
     scalePrices(probe, pct);
     var a = CARS[carKey].tier, b = probe.tier;
+    var bas = (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey].tier : null;
     var parts = [];
     for(var i=0;i<a.length;i++){
-      if(a[i] !== b[i]) parts.push(a[i] + "\u2192" + b[i]);
+      if(a[i] === b[i]) continue;
+      /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
+         nicht gegen den Wert von eben. */
+      var kl = "pv";
+      if(bas && typeof bas[i] === "number"){
+        kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
+      }
+      parts.push('<span class="' + kl + '"><i>' + a[i] + '</i>\u2192<u>' + b[i] + '</u></span>');
     }
-    el.textContent = parts.length
-      ? "Staffelpreis: " + parts.join("   ")
-      : "keine \u00C4nderung bei dieser Prozentzahl";
+    el.innerHTML = parts.length
+      ? "<b>Staffelpreis</b>" + parts.join("")
+      : '<b>ohne Wirkung</b> keine \u00C4nderung bei dieser Prozentzahl';
   }
 
   var _snapshot = null;
@@ -3910,12 +4586,53 @@ function avjTrack(name, params){
         +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
     }
 
+
+    /* Werte, die nur die Preistabelle auf der Website braucht */
+    if(car.kurzzeit){
+      h += '<div class="avj-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
+        +  '<div class="avj-sgrid p4">'
+        +  '<div class="avj-scol"><div class="d">Frei-km</div>'
+        +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
+        +  '<div class="avj-scol"><div class="d">3 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
+        +  '<div class="avj-scol"><div class="d">6 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
+        +  '<div class="avj-scol"><div class="d">3 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
+        +  '</div>'
+        +  '<div class="avj-sgrid r3"><div class="avj-scol"><div class="d">6 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
+        +  '</div>';
+    }
+    if(car.ahk){
+      h += '<div class="avj-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
+        +  '<div class="avj-sgrid p4">'
+        +  '<div class="avj-scol"><div class="d">Kurzzeit</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
+        +  '<div class="avj-scol"><div class="d">Tag</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
+        +  '<div class="avj-scol"><div class="d">Wochenende</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
+        +  '<div class="avj-scol"><div class="d">Woche</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
+        +  '</div>';
+    }
+    if(car.kaution){
+      h += '<div class="avj-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
+        +  '<div class="avj-sgrid r3">'
+        +  '<div class="avj-scol"><div class="d">Kurzzeittarife</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
+        +  '<div class="avj-scol"><div class="d">Tag / Wochenende</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
+        +  '</div>';
+    }
     h += '<div class="avj-sactions">'
       +    '<button type="button" class="avj-sundo" id="avjSUndo">\u00C4nderungen verwerfen</button>'
       +    '<button type="button" class="avj-sreset" id="avjSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("avjSetBody").innerHTML = h;
     updateDeltas();
+    try{ AVJ_EDITOR.bloecke("avjSetBody"); }catch(e){}
     zeichneKundenstand();
     AVJ_PREISE.zeigeQuelle();
   }
@@ -3943,8 +4660,20 @@ function avjTrack(name, params){
     var sbwe = el.getAttribute("data-sbwe");
     if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
 
+    /* verschachtelte Werte wie kurzzeit.moDo.0 */
+    var pfad = el.getAttribute("data-pfad");
+    if(pfad){
+      var teile = pfad.split("."), ziel = car;
+      for(var pi=0; pi<teile.length-1; pi++){
+        if(ziel[teile[pi]] === undefined || ziel[teile[pi]] === null) ziel[teile[pi]] = {};
+        ziel = ziel[teile[pi]];
+      }
+      ziel[teile[teile.length-1]] = v;
+    }
+
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
     flashSaved();
     updateDeltas();
     renderSb();
@@ -3952,6 +4681,12 @@ function avjTrack(name, params){
   }
 
   $("avjSetBody").addEventListener("input", onSettingInput);
+  /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
+     Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
+     nachtraeglich eintreffender Serverstand mitzaehlt. */
+  AVJ_BASIS["avjSetBody"] = function(){
+    return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
+  };
   $("avjSetBody").addEventListener("click", function(e){
     var id = e.target.id;
 
@@ -4087,6 +4822,9 @@ function avjtTrack(name, params){
       weekend: [ [200,175], [600,225], [1200,325] ],
       tier:   [75, 150, 225, 290, 350, 395, 425],
       tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kurzzeit: { km:100, moDo:[50,65], frSa:[55,70] },
+      ahk:      { kurz:15, tag:15, we:35, woche:95 },
+      kaution:  { stunden:150, tag:300 },
       sb: [
         { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]         },
         { label:"1.000 \u20AC", we:35, tier:[15,30,42,52,62,70,75]  },
@@ -4105,6 +4843,9 @@ function avjtTrack(name, params){
       weekend: [ [200,225], [600,355], [1200,465] ],
       tier:   [110, 220, 330, 430, 520, 595, 645],
       tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kurzzeit: { km:100, moDo:[55,75], frSa:[60,80] },
+      ahk:      { kurz:20, tag:20, we:45, woche:95 },
+      kaution:  { stunden:150, tag:300 },
       sb: [
         { label:"2.000 \u20AC", we:0,   tier:[0,0,0,0,0,0,0]           },
         { label:"1.000 \u20AC", we:65,  tier:[25,50,72,95,115,133,150] },
@@ -4800,6 +5541,23 @@ function avjtTrack(name, params){
     return liste;
   }
 
+  AVJ_EDITOR.melde({
+    schluessel: "transporter",
+    kategorie:  "Transporter",
+    bodyId:     "avjTSetBody",
+    daten:      function(){ return CARS; },
+    fahrzeuge:  function(){
+      var l = [];
+      for(var k in CARS) l.push({ key:k, name:CARS[k].name || k });
+      return l;
+    },
+    waehle:     function(k){
+      if(!CARS[k]) return;
+      carKey = k; _gridCache = {};
+      renderSettings(); renderSb(); render();
+    }
+  });
+
   AVJ_PREISE.melde({
     schluessel:   "transporter",
     titel:        "Transporter",
@@ -4829,8 +5587,15 @@ function avjtTrack(name, params){
     var abw = abweichungen();
     if(!abw.length){
       el.className = "avj-kstand gleich";
-      el.innerHTML = "Deine Preise stimmen mit dem Kundenstand \u00FCberein."
-        + '<br><button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
+      el.innerHTML = "<b>Deine Preise stimmen mit dem Kundenstand \u00FCberein.</b> "
+        + "Es gibt nichts freizugeben."
+        + '<div class="avj-khinweis">\u201EPreisdatei erzeugen\u201C l\u00E4dt die '
+        + '<b>preise.json</b> mit dem aktuellen Stand herunter \u2014 genau die Datei, '
+        + 'aus der der Kundenrechner auf der Website seine Preise liest. Hier brauchst '
+        + 'du sie nur als Sicherung oder wenn die Datei auf dem Server fehlt. Zum '
+        + 'Ver\u00F6ffentlichen kommt sie in den Ordner <b>avj-tools</b>, danach '
+        + '<b>Kundenpreise aktualisieren.command</b> starten.</div>'
+        + '<button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
       return;
     }
     var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
@@ -4935,13 +5700,21 @@ function avjtTrack(name, params){
     var probe = JSON.parse(JSON.stringify(CARS[carKey]));
     scalePrices(probe, pct);
     var a = CARS[carKey].tier, b = probe.tier;
+    var bas = (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey].tier : null;
     var parts = [];
     for(var i=0;i<a.length;i++){
-      if(a[i] !== b[i]) parts.push(a[i] + "\u2192" + b[i]);
+      if(a[i] === b[i]) continue;
+      /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
+         nicht gegen den Wert von eben. */
+      var kl = "pv";
+      if(bas && typeof bas[i] === "number"){
+        kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
+      }
+      parts.push('<span class="' + kl + '"><i>' + a[i] + '</i>\u2192<u>' + b[i] + '</u></span>');
     }
-    el.textContent = parts.length
-      ? "Staffelpreis: " + parts.join("   ")
-      : "keine \u00C4nderung bei dieser Prozentzahl";
+    el.innerHTML = parts.length
+      ? "<b>Staffelpreis</b>" + parts.join("")
+      : '<b>ohne Wirkung</b> keine \u00C4nderung bei dieser Prozentzahl';
   }
 
   var _snapshot = null;
@@ -5019,12 +5792,53 @@ function avjtTrack(name, params){
         +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
     }
 
+
+    /* Werte, die nur die Preistabelle auf der Website braucht */
+    if(car.kurzzeit){
+      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
+        +  '<div class="avjt-sgrid p4">'
+        +  '<div class="avjt-scol"><div class="d">Frei-km</div>'
+        +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">6 Std. Mo\u2013Do</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
+        +  '</div>'
+        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
+        +  '</div>';
+    }
+    if(car.ahk){
+      h += '<div class="avjt-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
+        +  '<div class="avjt-sgrid p4">'
+        +  '<div class="avjt-scol"><div class="d">Kurzzeit</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Tag</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Wochenende</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Woche</div>'
+        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
+        +  '</div>';
+    }
+    if(car.kaution){
+      h += '<div class="avjt-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">Kurzzeittarife</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Tag / Wochenende</div>'
+        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
+        +  '</div>';
+    }
     h += '<div class="avjt-sactions">'
       +    '<button type="button" class="avjt-sundo" id="avjTSUndo">\u00C4nderungen verwerfen</button>'
       +    '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("avjTSetBody").innerHTML = h;
     updateDeltas();
+    try{ AVJ_EDITOR.bloecke("avjTSetBody"); }catch(e){}
     zeichneKundenstand();
     AVJ_PREISE.zeigeQuelle();
   }
@@ -5052,8 +5866,20 @@ function avjtTrack(name, params){
     var sbwe = el.getAttribute("data-sbwe");
     if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
 
+    /* verschachtelte Werte wie kurzzeit.moDo.0 */
+    var pfad = el.getAttribute("data-pfad");
+    if(pfad){
+      var teile = pfad.split("."), ziel = car;
+      for(var pi=0; pi<teile.length-1; pi++){
+        if(ziel[teile[pi]] === undefined || ziel[teile[pi]] === null) ziel[teile[pi]] = {};
+        ziel = ziel[teile[pi]];
+      }
+      ziel[teile[teile.length-1]] = v;
+    }
+
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
     flashSaved();
     updateDeltas();
     renderSb();
@@ -5061,6 +5887,12 @@ function avjtTrack(name, params){
   }
 
   $("avjTSetBody").addEventListener("input", onSettingInput);
+  /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
+     Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
+     nachtraeglich eintreffender Serverstand mitzaehlt. */
+  AVJ_BASIS["avjTSetBody"] = function(){
+    return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
+  };
   $("avjTSetBody").addEventListener("click", function(e){
     var id = e.target.id;
 
@@ -5814,10 +6646,11 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 28;
-var AVJ_BUILD_DATE = "15.08.2026";
+var AVJ_BUILD = 32;
+var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
+try{ AVJ_EDITOR.start(); }catch(e){}
 try{ AVJ_PREISE.start(); }catch(e){}
 (function(){
   var el = document.getElementById("appBuild");
