@@ -350,6 +350,7 @@
 .avj-sgrid{display:grid;gap:5px;margin-bottom:2px;}
 .avj-sgrid.d7{grid-template-columns:repeat(7,1fr);}
 .avj-sgrid.p4{grid-template-columns:repeat(4,1fr);}
+.avj-sgrid.p2{grid-template-columns:repeat(2,1fr);}
 .avj-sgrid.p3{grid-template-columns:repeat(3,1fr);}
 .avj-sgrid.r3{grid-template-columns:repeat(3,1fr);}
 .avj-scol{display:flex;flex-direction:column;gap:3px;}
@@ -619,6 +620,7 @@
 .avjt-sgrid{display:grid;gap:5px;margin-bottom:2px;}
 .avjt-sgrid.d7{grid-template-columns:repeat(7,1fr);}
 .avjt-sgrid.p4{grid-template-columns:repeat(4,1fr);}
+.avjt-sgrid.p2{grid-template-columns:repeat(2,1fr);}
 .avjt-sgrid.p3{grid-template-columns:repeat(3,1fr);}
 .avjt-sgrid.r3{grid-template-columns:repeat(3,1fr);}
 .avjt-scol{display:flex;flex-direction:column;gap:3px;}
@@ -1205,6 +1207,7 @@
   #tool-preise .avj-sgrid.d7,#tool-preise .avjt-sgrid.d7{gap:5px;}
   #tool-preise .avj-sgrid.p4,#tool-preise .avjt-sgrid.p4,
   #tool-preise .avj-sgrid.p3,#tool-preise .avjt-sgrid.p3,
+  #tool-preise .avj-sgrid.p2,#tool-preise .avjt-sgrid.p2,
   #tool-preise .avj-sgrid.r3,#tool-preise .avjt-sgrid.r3{gap:7px;}
 }
 @media(min-width:1500px){
@@ -1414,6 +1417,51 @@
 }
 .avj-scale-prev .pv.neu u,.avjt-scale-prev .pv.neu u{background:#CFE0FF;color:#0E1E5E;}
 .avj-scale-prev .pv.neu,.avjt-scale-prev .pv.neu{border-color:#A8C2F0;}
+/* ══════════════════════════════════════════════════════════════
+   Build 35 · Fahrzeug bearbeiten, Archiv, Merkmale
+   ══════════════════════════════════════════════════════════════ */
+.pr-fzakt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;}
+.pr-fzakt:empty{display:none;}
+.pr-fzname{
+  font-size:12px;font-weight:700;color:#40505E;margin-right:2px;
+}
+.pr-fzakt button{
+  border:1px solid #DCE3EA;background:#fff;border-radius:8px;padding:6px 12px;
+  font-size:12px;font-weight:600;font-family:inherit;color:#40505E;cursor:pointer;
+}
+.pr-fzakt button:hover{border-color:#1B2FC4;color:#1B2FC4;}
+
+.pr-archiv{
+  background:#fff;border:1px solid #e0dfd8;border-radius:14px;
+  padding:14px 16px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:14px;
+}
+.pr-archiv[hidden]{display:none;}
+.pr-archiv h3{font-size:14px;margin-bottom:3px;}
+.pr-archiv .note{font-size:11.5px;color:#8A96A3;margin-bottom:11px;line-height:1.5;}
+.pr-archiv ul{list-style:none;margin:0;padding:0;}
+.pr-archiv li{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 0;border-top:1px solid #EDF1F4;
+}
+.pr-archiv li .n{font-size:13px;font-weight:650;color:#26313B;}
+.pr-archiv li .k{
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:#8A96A3;background:#F1F4F7;border-radius:6px;padding:2px 7px;
+}
+.pr-archiv li .b{font-size:11.5px;color:#8A96A3;flex:1 1 auto;}
+.pr-archiv li button{
+  border:1px solid #DCE3EA;background:#fff;border-radius:8px;padding:6px 12px;
+  font-size:12px;font-weight:600;font-family:inherit;color:#1F6F43;cursor:pointer;
+}
+.pr-archiv li button:hover{border-color:#1F6F43;}
+
+.nf-merk{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px;}
+.nf-bez{
+  font-size:12px;line-height:1.5;color:#26313B;background:#F7F9FB;
+  border:1px solid #DCE3EA;border-radius:9px;padding:9px 11px;margin-bottom:4px;
+}
+.nf-bez .l{color:#8A96A3;font-size:11px;}
+@media(max-width:560px){ .nf-merk{grid-template-columns:1fr 1fr;} }
 </style>
 </head>
 <body>
@@ -1593,6 +1641,7 @@
     </div>
 
     <div id="prWahl"></div>
+    <div class="pr-fzakt" id="prFzAkt"></div>
     <div class="pr-halter" id="prHalter"></div>
 
     <div class="pr-akt">
@@ -1602,6 +1651,7 @@
     </div>
 
     <div class="pr-vgl" id="prVgl" hidden></div>
+    <div class="pr-archiv" id="prArchiv"></div>
   </div>
 
 </div><!-- /content -->
@@ -1749,11 +1799,54 @@ var AVJ_EDITOR = (function(){
     w.innerHTML = h;
   }
 
+  /* ─── Knopfzeile fuer das gewaehlte Fahrzeug ─── */
+  var aktivFz = null;
+  function zeichneFzAkt(){
+    var el = document.getElementById("prFzAkt");
+    if(!el) return;
+    if(!aktiv || !aktivFz){ el.innerHTML = ""; return; }
+    var autos = {};
+    try{ autos = aktiv.vorlagen() || {}; }catch(e){}
+    var a = autos[aktivFz];
+    if(!a){ el.innerHTML = ""; return; }
+    el.innerHTML = '<span class="pr-fzname">' + (a.name || aktivFz) + '</span>'
+      + '<button type="button" data-fzakt="bearbeiten">Bearbeiten</button>'
+      + '<button type="button" data-fzakt="archiv">Ins Archiv</button>';
+  }
+
+  /* ─── Archiv ───
+     Ein Fahrzeug wird nie geloescht. Es verschwindet aus Auswahl,
+     Rechner und Preisdatei, bleibt aber vollstaendig erhalten — kommt
+     dasselbe Modell in einem Jahr wieder, ist es ein Klick. */
+  function zeichneArchiv(){
+    var el = document.getElementById("prArchiv");
+    if(!el) return;
+    var zeilen = "";
+    for(var i=0;i<bereiche.length;i++){
+      var arch = {};
+      try{ arch = bereiche[i].archiv() || {}; }catch(e){}
+      for(var k in arch){
+        zeilen += '<li><span class="n">' + (arch[k].name || k) + '</span>'
+          +  '<span class="k">' + bereiche[i].kategorie + '</span>'
+          +  '<span class="b">' + (arch[k].example || "") + '</span>'
+          +  '<button type="button" data-zurueck="' + k + '" data-b="'
+          +  bereiche[i].schluessel + '">Zurückholen</button></li>';
+      }
+    }
+    if(!zeilen){ el.innerHTML = ""; el.setAttribute("hidden",""); return; }
+    el.removeAttribute("hidden");
+    el.innerHTML = '<h3>Archiv</h3>'
+      + '<p class="note">Diese Fahrzeuge sind aus Auswahl, Rechner und Preisdatei '
+      + 'genommen. Ihre Tarife bleiben vollständig erhalten — kommt dasselbe '
+      + 'Modell wieder, holst du es mit einem Klick zurück.</p>'
+      + '<ul>' + zeilen + '</ul>';
+  }
+
   function waehle(schluessel, fzKey){
     var b = null;
     for(var i=0;i<bereiche.length;i++) if(bereiche[i].schluessel === schluessel) b = bereiche[i];
     if(!b) return;
-    aktiv = b;
+    aktiv = b; aktivFz = fzKey;
     try{ b.waehle(fzKey); }catch(e){}
 
     var halter = document.getElementById("prHalter");
@@ -1769,6 +1862,8 @@ var AVJ_EDITOR = (function(){
       btns[q].className = btns[q].className.replace(/\s*an\b/g,"") + (an ? " an" : "");
     }
     try{ AVJ_PREISE.zeigeQuelle(); }catch(e){}
+    zeichneFzAkt();
+    zeichneArchiv();
   }
 
   /* ─── Vergleich: eine Zeile je Fahrzeug, Spalten Tag 1-7 ─── */
@@ -1848,6 +1943,11 @@ var AVJ_EDITOR = (function(){
     return h;
   }
 
+  function neuZeichnenIntern(){
+    var vgl = document.getElementById("prVgl");
+    if(vgl && !vgl.hasAttribute("hidden")) vgl.innerHTML = vergleich();
+  }
+
   function start(){
     if(!document.getElementById("prHalter")) return;
     umhaengen();
@@ -1870,8 +1970,59 @@ var AVJ_EDITOR = (function(){
     var neu = document.getElementById("prNeu");
     if(neu) neu.addEventListener("click", function(){ AVJ_NEUFZ.zeige(); });
 
+    var fzAkt = document.getElementById("prFzAkt");
+    if(fzAkt) fzAkt.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-fzakt]") : null;
+      if(!b || !aktiv || !aktivFz) return;
+      if(b.getAttribute("data-fzakt") === "bearbeiten"){
+        AVJ_NEUFZ.bearbeite(aktiv, aktivFz);
+        return;
+      }
+      var autos = {}; try{ autos = aktiv.vorlagen() || {}; }catch(err){}
+      var name = (autos[aktivFz] && autos[aktivFz].name) || aktivFz;
+      if(!window.confirm("„" + name + "“ ins Archiv legen?\n\n"
+        + "Das Fahrzeug verschwindet aus der Auswahl, aus seinem Rechner und "
+        + "aus der Preisdatei. Die Tarife bleiben erhalten und lassen sich "
+        + "jederzeit zurückholen.")) return;
+      aktiv.insArchiv(aktivFz);
+      aktivFz = null;
+      zeichneWahl();
+      /* erstes verbliebenes Fahrzeug waehlen, sonst nur neu zeichnen */
+      var offen = false;
+      for(var k=0;k<KATEGORIEN.length;k++){
+        var bs = fuerKategorie(KATEGORIEN[k]);
+        for(var i=0;i<bs.length && !offen;i++){
+          var fz = bs[i].fahrzeuge();
+          if(fz.length){ waehle(bs[i].schluessel, fz[0].key); offen = true; }
+        }
+        if(offen) break;
+      }
+      if(!offen){ zeichneFzAkt(); zeichneArchiv(); }
+      neuZeichnenIntern();
+    });
+
+    var arch = document.getElementById("prArchiv");
+    if(arch) arch.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-zurueck]") : null;
+      if(!b) return;
+      var schluessel = b.getAttribute("data-b"), fz = b.getAttribute("data-zurueck");
+      for(var i=0;i<bereiche.length;i++){
+        if(bereiche[i].schluessel === schluessel){
+          if(bereiche[i].ausArchiv(fz)){
+            zeichneWahl();
+            waehle(schluessel, fz);
+            neuZeichnenIntern();
+          }
+          return;
+        }
+      }
+    });
+
     var frei = document.getElementById("prFrei");
     if(frei) frei.addEventListener("click", function(){ AVJ_PREISE.freigabe(); });
+
+    zeichneArchiv();
+    try{ AVJ_MERKMALE.einsammeln(); }catch(e){}
 
     var vgl = document.getElementById("prVgl"), an = document.getElementById("prVglAn");
     if(an) an.addEventListener("click", function(){
@@ -1923,6 +2074,126 @@ var AVJ_EDITOR = (function(){
   }};
 })();
 
+
+
+/* ═══ Merkmale ═════════════════════════════════════════════════
+   Vier feste Felder, damit jedes Fahrzeug gleich beschrieben ist.
+   Die Auswahllisten stehen nicht im Code, sondern im Browser: was
+   einmal eingetragen wurde, steht beim naechsten Fahrzeug zur Wahl.
+   Neue Eintraege kommen ueber den letzten Listeneintrag dazu. */
+var AVJ_MERKMALE = (function(){
+  "use strict";
+  var SCHLUESSEL = "avj_merkmale_v1";
+  var FELDER = [
+    { key:"klasse",     name:"Klasse" },
+    { key:"karosserie", name:"Karosserie" },
+    { key:"kraftstoff", name:"Kraftstoff" },
+    { key:"getriebe",   name:"Getriebe" }
+  ];
+  var START = {
+    klasse: ["Kleinstwagen","Kleinwagen","Kompaktklasse","Mittelklasse",
+             "Obere Mittelklasse","9-Sitzer","Transporter bis 3,5 t"],
+    karosserie: ["Limousine","Kombi","SUV","Van","Bus","Kastenwagen",
+                 "Hochdachkombi","Pritsche","Koffer"],
+    kraftstoff: ["Benzin","Diesel","Hybrid","Elektro","Autogas"],
+    getriebe:   ["Handschaltung","Automatik"]
+  };
+
+  function laden(){
+    var d = {};
+    try{
+      var raw = window.localStorage.getItem(SCHLUESSEL);
+      if(raw) d = JSON.parse(raw) || {};
+    }catch(e){ d = {}; }
+    /* Startwerte ergaenzen, aber nichts entfernen, was der Nutzer angelegt hat */
+    for(var k in START){
+      if(!d[k] || !d[k].length) d[k] = START[k].slice();
+      else {
+        for(var i=0;i<START[k].length;i++){
+          if(d[k].indexOf(START[k][i]) < 0) d[k].push(START[k][i]);
+        }
+      }
+    }
+    return d;
+  }
+  function speichern(d){
+    try{ window.localStorage.setItem(SCHLUESSEL, JSON.stringify(d)); }catch(e){}
+  }
+  /* Was in den Fahrzeugen steht, aber noch nicht in der Liste — beim
+     ersten Aufruf einsammeln, damit nichts verlorengeht. */
+  function einsammeln(){
+    var d = laden(), geaendert = false;
+    var bs = AVJ_EDITOR.bereiche();
+    for(var i=0;i<bs.length;i++){
+      var autos = {};
+      try{ autos = bs[i].daten() || {}; }catch(e){}
+      for(var k in autos){
+        var m = autos[k].merkmale;
+        if(!m) continue;
+        for(var f=0;f<FELDER.length;f++){
+          var wert = m[FELDER[f].key];
+          if(!wert) continue;
+          if(d[FELDER[f].key].indexOf(wert) < 0){ d[FELDER[f].key].push(wert); geaendert = true; }
+        }
+      }
+    }
+    if(geaendert) speichern(d);
+    return d;
+  }
+
+  function ergaenze(feld, wert){
+    wert = String(wert || "").trim();
+    if(!wert) return null;
+    var d = laden();
+    if(d[feld].indexOf(wert) < 0){ d[feld].push(wert); speichern(d); }
+    return wert;
+  }
+
+  /* Auswahlfeld mit "neu anlegen" als letztem Eintrag */
+  function select(id, feld, wert){
+    var d = laden(), liste = d[feld] || [];
+    var h = '<select id="' + id + '" data-merkmal="' + feld + '">';
+    h += '<option value=""' + (wert ? "" : " selected") + '>– bitte wählen –</option>';
+    for(var i=0;i<liste.length;i++){
+      h += '<option value="' + liste[i] + '"' + (liste[i] === wert ? " selected" : "") + '>'
+        +  liste[i] + '</option>';
+    }
+    if(wert && liste.indexOf(wert) < 0){
+      h += '<option value="' + wert + '" selected>' + wert + '</option>';
+    }
+    h += '<option value="__neu">+ neuer Eintrag …</option></select>';
+    return h;
+  }
+
+  /* Klick auf "+ neuer Eintrag" abfangen; gibt true zurueck, wenn etwas
+     angelegt wurde und das Feld neu gezeichnet werden muss. */
+  function behandleWahl(el){
+    if(!el || el.value !== "__neu") return false;
+    var feld = el.getAttribute("data-merkmal");
+    var eingabe = window.prompt("Neuer Eintrag für " + name(feld) + ":", "");
+    var wert = ergaenze(feld, eingabe);
+    if(!wert){ el.value = ""; return false; }
+    el.innerHTML = select("x", feld, wert).replace(/^<select[^>]*>/, "").replace(/<\/select>$/, "");
+    el.value = wert;
+    return true;
+  }
+  function name(feld){
+    for(var i=0;i<FELDER.length;i++) if(FELDER[i].key === feld) return FELDER[i].name;
+    return feld;
+  }
+
+  /* Beschriftung aus den Merkmalen: immer dieselbe Reihenfolge */
+  function beschriftung(m){
+    if(!m) return "";
+    var t = [];
+    for(var i=0;i<FELDER.length;i++){ if(m[FELDER[i].key]) t.push(m[FELDER[i].key]); }
+    if(m.zusatz) t.push(m.zusatz);
+    return t.join(" · ");
+  }
+
+  return { felder:FELDER, laden:laden, select:select, behandleWahl:behandleWahl,
+           beschriftung:beschriftung, einsammeln:einsammeln, name:name };
+})();
 
 /* ═══ Neues Fahrzeug ═══════════════════════════════════════════
    Fuenf Anker, der Rest kommt aus einer Vorlage.
@@ -2009,8 +2280,9 @@ var AVJ_NEUFZ = (function(){
     var form    = v.formVonVorlage && vorlage ? formVon(vorlage.tier) : FORM_MITTEL.slice();
 
     var satz = vorlage ? tief(vorlage) : {};
-    satz.name    = v.name;
-    satz.example = v.beschriftung || "";
+    satz.name     = v.name;
+    satz.merkmale = v.merkmale;
+    satz.example  = AVJ_MERKMALE.beschriftung(v.merkmale);
 
     satz.tier = staffel(v.tag, v.woche, form);
 
@@ -2106,10 +2378,12 @@ var AVJ_NEUFZ = (function(){
 
       + '<div class="nf-reihe">'
       +   '<label class="nf-f"><span>Name</span>'
-      +     '<input type="text" id="nfName" placeholder="z. B. Golf Kombi"></label>'
-      +   '<label class="nf-f"><span>Kurzbeschreibung <em>steht unter dem Namen</em></span>'
-      +     '<input type="text" id="nfBez" placeholder="z. B. Kompaktklasse · Diesel"></label>'
+      +     '<input type="text" id="nfName" placeholder="z. B. Golf Variant"></label>'
+      +   '<label class="nf-f"><span>Zusatz <em>optional, steht am Ende</em></span>'
+      +     '<input type="text" id="nfZusatz" placeholder="z. B. 214 kurz"></label>'
       + '</div>'
+      + '<div class="nf-merk">' + merkmalFelder(null) + '</div>'
+      + '<div class="nf-bez" id="nfBez"></div>'
 
       + '<div class="nf-anker">'
       +   feld("nfTag",   "Tagespreis Mo–Do", "€", 5)
@@ -2139,10 +2413,49 @@ var AVJ_NEUFZ = (function(){
       fuelleVorlagen(); rechne();
     });
     document.getElementById("nfVorlage").addEventListener("change", rechne);
-    ov.addEventListener("input", function(e){ if(e.target.tagName === "INPUT") rechne(); });
+    ov.addEventListener("input", function(e){ if(e.target.tagName === "INPUT") zeigeBez(), rechne(); });
+    ov.addEventListener("change", function(e){
+      if(e.target.getAttribute && e.target.getAttribute("data-merkmal")){
+        AVJ_MERKMALE.behandleWahl(e.target);
+        zeigeBez();
+      }
+    });
 
     fuelleVorlagen();
+    zeigeBez();
     rechne();
+  }
+
+  /* Vorschau der Beschriftung, die unter dem Fahrzeugnamen erscheint */
+  function zeigeBez(){
+    var el = document.getElementById("nfBez");
+    if(!el) return;
+    var b = AVJ_MERKMALE.beschriftung(merkmaleLesen());
+    el.innerHTML = b
+      ? '<span class="l">So steht es unter dem Namen:</span> <b>' + b + '</b>'
+      : '<span class="l">Merkmale wählen — daraus entsteht die Beschriftung.</span>';
+  }
+
+  /* Die vier Merkmalfelder. Werte kommen aus dem Fahrzeug, die Listen
+     aus dem Browser — was einmal eingetragen wurde, steht wieder zur Wahl. */
+  function merkmalFelder(m){
+    var f = AVJ_MERKMALE.felder, h = "";
+    for(var i=0;i<f.length;i++){
+      h += '<label class="nf-f"><span>' + f[i].name + '</span>'
+        +  AVJ_MERKMALE.select("nfM_" + f[i].key, f[i].key, m ? m[f[i].key] : "")
+        +  '</label>';
+    }
+    return h;
+  }
+  function merkmaleLesen(){
+    var f = AVJ_MERKMALE.felder, m = {};
+    for(var i=0;i<f.length;i++){
+      var e = document.getElementById("nfM_" + f[i].key);
+      if(e && e.value && e.value !== "__neu") m[f[i].key] = e.value;
+    }
+    var z = document.getElementById("nfZusatz");
+    if(z && z.value.trim()) m.zusatz = z.value.trim();
+    return m;
   }
 
   function feld(id, beschriftung, einheit, schritt){
@@ -2189,7 +2502,7 @@ var AVJ_NEUFZ = (function(){
       kat: kat,
       ziel: bs.length ? bs[0] : null,
       name: (document.getElementById("nfName").value || "").trim(),
-      beschriftung: (document.getElementById("nfBez").value || "").trim(),
+      merkmale: merkmaleLesen(),
       tag: zahl("nfTag"), woche: zahl("nfWoche"), wochenende: zahl("nfWe"),
       freiKm: zahl("nfKm"), mehrKm: zahl("nfMehr"),
       vorlageEintrag: v,
@@ -2314,7 +2627,61 @@ var AVJ_NEUFZ = (function(){
     }catch(e){}
   }
 
-  return { zeige: zeichne };
+
+  /* ── Bearbeiten ───────────────────────────────────────────────
+     Bewusst nur Name und Merkmale. Die Preise werden weiterhin in den
+     Feldern gepflegt — sie hier ein zweites Mal anzubieten wuerde nur
+     die Frage aufwerfen, welcher Stand denn nun gilt. */
+  function bearbeite(bereich, schluessel){
+    var auto = (bereich.vorlagen() || {})[schluessel];
+    if(!auto) return;
+    var h = '<div class="nf-box">'
+      + '<h3>Fahrzeug bearbeiten</h3>'
+      + '<p class="nf-sub">Name und Merkmale. Preise änderst du wie gewohnt '
+      + 'in den Feldern darunter — dort siehst du auch gleich, ob du über '
+      + 'oder unter dem Kundenstand liegst.</p>'
+      + '<div class="nf-reihe">'
+      +   '<label class="nf-f"><span>Name</span>'
+      +     '<input type="text" id="nfName" value="' + (auto.name || "").replace(/"/g, "&quot;") + '"></label>'
+      +   '<label class="nf-f"><span>Zusatz <em>optional, steht am Ende</em></span>'
+      +     '<input type="text" id="nfZusatz" value="'
+      +       ((auto.merkmale && auto.merkmale.zusatz) || "").replace(/"/g, "&quot;") + '"></label>'
+      + '</div>'
+      + '<div class="nf-merk">' + merkmalFelder(auto.merkmale || {}) + '</div>'
+      + '<div class="nf-bez" id="nfBez"></div>'
+      + '<div class="nf-akt">'
+      +   '<button type="button" class="nf-nein" id="nfNein">Abbrechen</button>'
+      +   '<button type="button" class="nf-ja" id="nfJa">Änderungen übernehmen</button>'
+      + '</div></div>';
+
+    var ov = document.createElement("div");
+    ov.className = "nf-ov"; ov.id = "nfOv"; ov.innerHTML = h;
+    document.body.appendChild(ov);
+    ov.addEventListener("click", function(e){ if(e.target === ov) schliesse(); });
+    ov.addEventListener("input", zeigeBez);
+    ov.addEventListener("change", function(e){
+      if(e.target.getAttribute && e.target.getAttribute("data-merkmal")){
+        AVJ_MERKMALE.behandleWahl(e.target);
+        zeigeBez();
+      }
+    });
+    document.getElementById("nfNein").addEventListener("click", schliesse);
+    document.getElementById("nfJa").addEventListener("click", function(){
+      var name = (document.getElementById("nfName").value || "").trim();
+      if(!name){ alert("Bitte einen Namen eintragen."); return; }
+      var m = merkmaleLesen();
+      bereich.aendern(schluessel, {
+        name: name, merkmale: m,
+        example: AVJ_MERKMALE.beschriftung(m)
+      });
+      schliesse();
+      try{ AVJ_EDITOR.zeichneWahl(); AVJ_EDITOR.waehle(bereich.schluessel, schluessel);
+           AVJ_EDITOR.neuZeichnen(); }catch(e){}
+    });
+    zeigeBez();
+  }
+
+  return { zeige: zeichne, bearbeite: bearbeite };
 })();
 
 /* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
@@ -2694,7 +3061,8 @@ AVJ_RECHNER({
   autos: {
     yaris: {
       name: "Low-Budget",
-      example: "z.\u202FB. Toyota Yaris",
+      merkmale: { klasse:"Kleinwagen", karosserie:"Limousine", kraftstoff:"Benzin", getriebe:"Handschaltung", zusatz:"z. B. Toyota Yaris" },
+      example: "Kleinwagen \u00B7 Limousine \u00B7 Benzin \u00B7 Handschaltung \u00B7 z. B. Toyota Yaris",
       planKm: 0.15,   // Mehrkilometer
       overKm: 0.15,   // dito bei Rueckgabe
       tier:   [45, 85, 120, 150, 175, 195, 210],
@@ -2709,9 +3077,9 @@ AVJ_RECHNER({
 
 
 /* ═══ PKW ═══
-   Noch ohne Fahrzeuge. Die Kategorie ist damit eine reine Konfiguration —
-   der Beleg dafuer, dass eine neue Klasse kein HTML und keinen Code mehr
-   braucht. Fahrzeuge kommen ueber "Neues Fahrzeug" im Reiter Tarife. */
+   Die Kategorie ist eine reine Konfiguration — kein HTML, kein Code.
+   Tarifstruktur der PKW: EIN Tagespaketraster (nicht getrennt nach
+   Mo-Do und Fr/Sa) und ein Wochenende mit zwei Stufen. */
 AVJ_RECHNER({
   p:          "avjP",
   k:          "avjt",
@@ -2720,9 +3088,61 @@ AVJ_RECHNER({
   kategorie:  "PKW",
   schluessel: "pkw",
   titel:      "PKW",
-  start:      "",
+  start:      "golf",
   speicher:   "avjP_preise_v1",
-  autos: {}
+  autos: {
+    /* ── Volkswagen Golf 8, Automatik ────────────────────────────────
+       Aus der Tarifliste Stand 06.2026 uebernommen:
+         Tagestarife 100/300/600/900 km = 90/120/140/160 EUR
+         7 Tage 1500 km = 440 EUR
+         Wochenende Fr 12:00 bis Mo 10:00, 600 km = 195, 900 km = 230
+         je extra km 0,30 EUR
+         SB 1.500 inklusive, SB 1.000 = 10/Tag, 25/WE, 50/Woche
+         SB 500 = 15/Tag, 40/WE, 95/Woche
+         Kaution 300 EUR
+       Abgeleitet, weil in der Liste nicht veroeffentlicht:
+         Staffel Tag 2 bis 6 (aus Tages- und Wochenpreis ueber die
+         Formkurve des Bestands), Frei-km Tag 2 bis 6 (Raster der
+         Transporter, die von 100 auf 1500 dieselbe Spanne haben),
+         SB-Zwischenwerte (Form der vorhandenen SB-Staffeln).
+       Ein einziger km-Satz in der Liste, deshalb geplant = ungeplant. */
+    golf: {
+      name: "Golf",
+      merkmale: { klasse:"Kompaktklasse", karosserie:"Limousine", kraftstoff:"Benzin", getriebe:"Automatik" },
+      example: "Kompaktklasse \u00B7 Limousine \u00B7 Benzin \u00B7 Automatik",
+      planKm: 0.30,
+      overKm: 0.30,
+      dayMoDo: [ [100,90], [300,120], [600,140], [900,160] ],
+      weekend: [ [600,195], [900,230] ],
+      tier:   [90, 165, 240, 305, 360, 405, 440],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kaution: { stunden:0, tag:300 },
+      sb: [
+        { label:"1.500 €", we:0,  tier:[0,0,0,0,0,0,0]      },
+        { label:"1.000 €", we:25, tier:[10,20,28,35,41,47,50] },
+        { label:"500 €",   we:40, tier:[15,35,51,64,78,88,95] }
+      ]
+    },
+    /* ── Volkswagen Golf 8 Variant, Automatik ────────────────────────
+       Gleiche Herkunft, Tarifliste Stand 06.2026. */
+    golfvariant: {
+      name: "Golf Variant",
+      merkmale: { klasse:"Kompaktklasse", karosserie:"Kombi", kraftstoff:"Benzin", getriebe:"Automatik" },
+      example: "Kompaktklasse \u00B7 Kombi \u00B7 Benzin \u00B7 Automatik",
+      planKm: 0.32,
+      overKm: 0.32,
+      dayMoDo: [ [100,100], [300,130], [600,150], [900,170] ],
+      weekend: [ [600,215], [900,240] ],
+      tier:   [100, 180, 255, 320, 375, 420, 455],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kaution: { stunden:0, tag:300 },
+      sb: [
+        { label:"1.500 €", we:0,  tier:[0,0,0,0,0,0,0]      },
+        { label:"1.000 €", we:25, tier:[12,22,29,35,42,47,50] },
+        { label:"500 €",   we:40, tier:[17,36,52,65,78,88,95] }
+      ]
+    }
+  }
 });
 
 /* ═══ 9-SITZER ═══
@@ -2740,7 +3160,8 @@ AVJ_RECHNER({
   autos: {
     sprinter: {
       name: "Sprinter Tourer",
-      example: "214 \u00B7 kurz \u00B7 Handschaltung",
+      merkmale: { klasse:"9-Sitzer", karosserie:"Bus", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"214 kurz" },
+      example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Handschaltung \u00B7 214 kurz",
       frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.18,   // vorab geplante Mehrkilometer
       overKm: 0.33,   // ungeplant bei R\u00FCckgabe
@@ -2763,7 +3184,8 @@ AVJ_RECHNER({
     },
     vito: {
       name: "Vito Tourer",
-      example: "119 \u00B7 extralang \u00B7 Automatik",
+      merkmale: { klasse:"9-Sitzer", karosserie:"Bus", kraftstoff:"Diesel", getriebe:"Automatik", zusatz:"119 extralang" },
+      example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Automatik \u00B7 119 extralang",
       frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.22,   // vorab geplante Mehrkilometer
       overKm: 0.37,   // ungeplant bei R\u00FCckgabe
@@ -3025,6 +3447,14 @@ function AVJ_RECHNER(CFG){
   }
 
   var _gridCache = {};
+  /* Welches Paketraster gilt? Wer kein eigenes Fr/Sa-Raster hat, nutzt
+     dasselbe wie unter der Woche — bei den PKW ist das der Normalfall. */
+  function paketRaster(car, frSa){
+    if(frSa && car.dayFrSa && car.dayFrSa.length) return "dayFrSa";
+    return "dayMoDo";
+  }
+  function hatFrSaRaster(car){ return !!(car.dayFrSa && car.dayFrSa.length); }
+
   function gridFor(car, key){
     var id = car.name + "|" + key;
     if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
@@ -3090,12 +3520,13 @@ function AVJ_RECHNER(CFG){
       /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
       mode = "pkg";
       var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
-      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
+      var stD = pickStep(gridFor(car, paketRaster(car, frSa)), perDayKm, car.planKm);
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
       sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
       tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
-      badge = frSa ? "Fr/Sa" : "Mo-Do";
+      /* Ohne eigenes Fr/Sa-Raster gibt es auch nichts zu unterscheiden */
+      badge = hatFrSaRaster(car) ? (frSa ? "Fr/Sa" : "Mo-Do") : "";
 
     } else {
       /* Staffel Richtung Wochentarif */
@@ -3684,17 +4115,33 @@ function AVJ_RECHNER(CFG){
       return diffGegen(_eingebaut, saved);        /* alte Fassung umstellen */
     }catch(e){ return {}; }
   }
+  var _archiv = {};
   function loadCfg(){
     var neu = legeAuf(_kundenstand, holeDiff());
     for(var k in neu) CARS[k] = neu[k];
+    /* Archivierte Fahrzeuge wieder aussortieren — auch eingebaute, die
+       ja weiter im Kundenstand stehen. */
+    try{
+      var raw = window.localStorage.getItem(_storeKey);
+      var saved = raw ? JSON.parse(raw) : null;
+      if(saved && saved.archiv){
+        for(var a in saved.archiv){
+          _archiv[a] = saved.archiv[a];
+          delete CARS[a];
+        }
+      }
+    }catch(e){}
+    if(!hatAuto()){ carKey = null; for(var e2 in CARS){ carKey = e2; break; } }
   }
   function saveCfg(){
     try{
       var diff = diffGegen(_kundenstand, CARS), leer = true;
       for(var k in diff){ leer = false; break; }
-      if(leer) window.localStorage.removeItem(_storeKey);
+      var archivLeer = true;
+      for(var a in _archiv){ archivLeer = false; break; }
+      if(leer && archivLeer) window.localStorage.removeItem(_storeKey);
       else window.localStorage.setItem(_storeKey,
-             JSON.stringify({ __diff: 1, aenderungen: diff }));
+             JSON.stringify({ __diff: 1, aenderungen: diff, archiv: _archiv }));
     }catch(e){}
   }
   function abweichungen(){
@@ -3740,6 +4187,47 @@ function AVJ_RECHNER(CFG){
       return true;
     },
     vorlagen:   function(){ return CARS; },
+    archiv:     function(){ return _archiv; },
+    /* Name und Merkmale nachtraeglich aendern. Preise werden weiter in
+       den Feldern gepflegt — die faendet man hier nur doppelt an. */
+    aendern:    function(schluessel, felder){
+      var c = CARS[schluessel];
+      if(!c) return false;
+      if(felder.name)     c.name     = felder.name;
+      if(felder.merkmale) c.merkmale = felder.merkmale;
+      if(felder.example !== undefined) c.example = felder.example;
+      saveCfg();
+      renderCars(); renderSettings(); render();
+      try{ zeichneKundenstand(); }catch(e){}
+      return true;
+    },
+    /* Ins Archiv: raus aus Auswahl, Rechner und Preisdatei — die Daten
+       bleiben vollstaendig erhalten. */
+    insArchiv:  function(schluessel){
+      if(!CARS[schluessel]) return false;
+      _archiv[schluessel] = JSON.parse(JSON.stringify(CARS[schluessel]));
+      delete CARS[schluessel];
+      if(carKey === schluessel){
+        carKey = null;
+        for(var k in CARS){ carKey = k; break; }
+      }
+      _gridCache = {};
+      saveCfg();
+      renderCars(); renderSettings(); renderSb(); render();
+      try{ zeichneKundenstand(); }catch(e){}
+      return true;
+    },
+    ausArchiv:  function(schluessel){
+      if(!_archiv[schluessel] || CARS[schluessel]) return false;
+      CARS[schluessel] = _archiv[schluessel];
+      delete _archiv[schluessel];
+      carKey = schluessel;
+      _gridCache = {};
+      saveCfg();
+      renderCars(); renderSettings(); renderSb(); render();
+      try{ zeichneKundenstand(); }catch(e){}
+      return true;
+    },
     /* Eigenschaften der Kategorie — der Dialog braucht sie, um aus einer
        fremden Vorlage die Felder zu entfernen, die hier niemand nutzt. */
     langzeit:   CFG.langzeit || "faktor",
@@ -3755,17 +4243,37 @@ function AVJ_RECHNER(CFG){
 
   /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
      erneut daraufsetzen, neu zeichnen. */
+  /* Beschreibende Angaben gehoeren zum Fahrzeug, nicht zum Tarif.
+     Stehen sie im Code neuer als in preise.json, sollen sie nicht
+     stillschweigend zurueckfallen — die Datei ist dann einfach noch
+     nicht neu erzeugt worden. Sie tauchen dann als Abweichung auf und
+     gehen beim naechsten Freigeben mit raus. Eigene Aenderungen aus dem
+     Bearbeiten-Dialog stehen im Diff und haben Vorrang. */
+  var BESCHREIBEND = ["name", "example", "merkmale"];
+
   AVJ_PREISE.bereit(function(d){
     if(d && d[CFG.schluessel]){
       var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
       _kundenstand = JSON.parse(JSON.stringify(d[CFG.schluessel]));
       _defaults    = _kundenstand;
       var neu = legeAuf(_kundenstand, diff);
-      for(var k in neu) CARS[k] = neu[k];
+      for(var k in neu){
+        var e = _eingebaut[k];
+        if(e){
+          for(var bi=0;bi<BESCHREIBEND.length;bi++){
+            var feld = BESCHREIBEND[bi];
+            var vomNutzer = diff[k] && diff[k][feld] !== undefined;
+            if(!vomNutzer && e[feld] !== undefined){
+              neu[k][feld] = JSON.parse(JSON.stringify(e[feld]));
+            }
+          }
+        }
+        CARS[k] = neu[k];
+      }
       _gridCache = {};
       saveCfg();          /* stellt alte Speicherfassung gleich um */
     }
-    try{ renderSettings(); renderSb(); render(); }catch(e){}
+    try{ renderCars(); renderSettings(); renderSb(); render(); }catch(e){}
   });
 
   /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
@@ -3968,16 +4476,21 @@ function AVJ_RECHNER(CFG){
     h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
     h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
 
+    function raster(n){ return n <= 2 ? "p2" : (n === 3 ? "p3" : "p4"); }
     if(car.dayMoDo){
-      h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
-      h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
+      /* Ohne eigenes Fr/Sa-Raster heisst es schlicht "Tagespaket" */
+      var tName = hatFrSaRaster(car) ? "Tagespaket Mo\u2013Do" : "Tagespaket";
+      var tCls  = raster(car.dayMoDo.length);
+      h += numRow(tCls, tName + " \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
+      h += numRow(tCls, tName + " \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
     }
-    if(car.dayFrSa){
-      h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
-      h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
+    if(hatFrSaRaster(car)){
+      var fCls = raster(car.dayFrSa.length);
+      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 km",    car.dayFrSa, "dayFrSa", 0, 50);
+      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 Preis", car.dayFrSa, "dayFrSa", 1, 5);
     }
     if(car.weekend){
-      var wcls = car.weekend.length === 3 ? "p3" : "p4";
+      var wcls = raster(car.weekend.length);
       h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
       h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
     }
@@ -4198,8 +4711,9 @@ AVJ_RECHNER({
   autos: {
     m: {
       name: "Transporter M",
+      merkmale: { klasse:"Transporter bis 3,5 t", karosserie:"Kastenwagen", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"z. B. Renault Trafic L2H1" },
+      example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Renault Trafic L2H1",
       frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Renault Trafic L2H1",
       planKm: 0.20,   // vorab geplante Mehrkilometer
       overKm: 0.30,   // ungeplant bei R\u00FCckgabe
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -4219,8 +4733,9 @@ AVJ_RECHNER({
     },
     xl: {
       name: "Transporter XL",
+      merkmale: { klasse:"Transporter bis 3,5 t", karosserie:"Kastenwagen", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"z. B. Mercedes Sprinter L3" },
+      example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Mercedes Sprinter L3",
       frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Mercedes Sprinter L3",
       planKm: 0.26,
       overKm: 0.37,
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -4927,7 +5442,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 34;
+var AVJ_BUILD = 35;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

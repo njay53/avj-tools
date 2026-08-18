@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 34 · 18.08.2026**
+**Stand: Build 35 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -928,3 +928,116 @@ ist ja noch nicht veröffentlicht.
 - Einstellungsbereich als eigener Menüpunkt (Klassen, Korridore, Rundung)
 - Größenklasse × Bauform für PKW
 - Stilllegen statt löschen
+
+---
+
+## 21. Build 35 — PKW-Tarifstruktur, Merkmale, Bearbeiten, Archiv
+
+### Die PKW rechnen anders
+
+Aus den Tariflisten Golf 8 und Golf 8 Variant (Stand 06.2026) — der Rechner
+hatte zwei Annahmen, die für PKW nicht stimmen:
+
+| | Transporter / 9-Sitzer | PKW |
+|---|---|---|
+| Tagespakete | getrennt Mo–Do und Fr/Sa | **ein einziges Raster** |
+| Wochenendstufen | 3 bis 4 | **2** (600 und 900 km) |
+
+Beides hängt jetzt an den Daten: `paketRaster(car, frSa)` nimmt `dayFrSa`
+nur, wenn es das gibt, sonst `dayMoDo`. Ohne zweites Raster entfällt auch
+die Kennzeichnung „Mo-Do" / „Fr/Sa" — es gibt ja nichts zu unterscheiden.
+Die Rasterbreite in den Einstellungen richtet sich nach der Anzahl der
+Stufen (neue Klasse `p2`).
+
+### Golf und Golf Variant sind drin
+
+Was in den Listen steht, ist eingetragen und **exakt nachgerechnet**:
+Tagestarife 100/300/600/900 km, Wochenpreis, beide Wochenendstufen und
+alle drei SB-Stufen für Tag, Wochenende und Woche — 14 Werte je Fahrzeug,
+alle stimmen auf den Euro.
+
+> **Abgeleitet, weil in den Listen nicht veröffentlicht:**
+> * Staffel Tag 2 bis 6 — aus Tages- und Wochenpreis über die Formkurve
+> * Frei-km Tag 2 bis 6 — Raster der Transporter (gleiche Spanne 100→1500)
+> * SB-Zwischenwerte Tag 2 bis 6 — Form der vorhandenen SB-Staffeln
+> * `planKm = overKm`, weil die Listen nur **einen** km-Satz nennen
+>
+> Diese Werte sind meine Konstruktion, nicht deine Preise. Wenn dir einer
+> nicht passt, im Tarife-Reiter überschreiben.
+
+### Merkmale statt Freitext
+
+Vier feste Felder — **Klasse, Karosserie, Kraftstoff, Getriebe** — plus ein
+freier Zusatz. Die Beschriftung unter dem Fahrzeugnamen entsteht daraus, in
+immer derselben Reihenfolge. Alle sieben Fahrzeuge sind umgestellt:
+
+| Fahrzeug | Beschriftung |
+|---|---|
+| Sprinter Tourer | 9-Sitzer · Bus · Diesel · Handschaltung · 214 kurz |
+| Vito Tourer | 9-Sitzer · Bus · Diesel · Automatik · 119 extralang |
+| Transporter M/XL | Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · … |
+| Low-Budget | Kleinwagen · Limousine · Benzin · Handschaltung · z. B. Toyota Yaris |
+| Golf | Kompaktklasse · Limousine · Benzin · Automatik |
+| Golf Variant | Kompaktklasse · Kombi · Benzin · Automatik |
+
+Die Auswahllisten stehen **nicht im Code**, sondern im Browser
+(`avj_merkmale_v1`). Über „+ neuer Eintrag …" am Ende jeder Liste kommt
+etwas dazu und steht beim nächsten Fahrzeug wieder zur Wahl. Startwerte
+werden ergänzt, aber nie etwas entfernt, was du angelegt hast.
+
+### Bearbeiten
+
+Knopfzeile unter der Fahrzeugauswahl: **Bearbeiten** und **Ins Archiv**.
+Bearbeiten ändert Name und Merkmale — bewusst **keine Preise**. Die werden
+weiter in den Feldern gepflegt; sie hier ein zweites Mal anzubieten würde
+nur die Frage aufwerfen, welcher Stand denn gilt.
+
+### Archiv statt Löschen
+
+Ein Fahrzeug wird nie gelöscht. Es verschwindet aus Auswahl, Rechner und
+Preisdatei, bleibt aber vollständig erhalten und steht unten im Archiv mit
+einem Knopf „Zurückholen". Gespeichert wird es im selben localStorage-Satz
+(`{__diff:1, aenderungen:{…}, archiv:{…}}`).
+
+> **Falle:** Ein archiviertes **eingebautes** Fahrzeug steht weiter im
+> Kundenstand — `diffGegen` sieht ein Entfernen nicht. Deshalb führt
+> `loadCfg()` die Archivliste getrennt und streicht die Fahrzeuge nach dem
+> Zusammenbauen wieder aus `CARS`.
+
+### Zwei Fehler, die erst durch die Merkmale sichtbar wurden
+
+**1. Beschreibungen gingen beim Serverabgleich verloren.** Die Merkmale
+stehen neu im Code, in `preise.json` vom 16.08. noch nicht — beim Abgleich
+gewann die Datei und überschrieb sie still. Preise sollen vom Server
+kommen, Beschreibungen nicht. Jetzt gilt: `name`, `example` und `merkmale`
+aus dem Code schlagen die ältere Datei, eigene Änderungen aus dem
+Bearbeiten-Dialog schlagen beides. Sie tauchen dann als Abweichung auf und
+gehen beim nächsten Freigeben mit raus.
+
+**2. Die Fahrzeugknöpfe wurden nach dem Serverabgleich nicht neu
+gezeichnet.** Fiel nie auf, weil sich an Namen nie etwas änderte.
+
+### Beim Bauen aufgefallen
+
+Das Ersetzen der Beschriftungen suchte das Ende eines Datensatzes über den
+Text `"\n    },"`. Das **letzte Fahrzeug eines Blocks hat kein Komma** —
+der Schnitt lief dann über tausende Zeilen weiter und räumte an ganz
+anderer Stelle auf. Jetzt wird die Grenze über Klammernzählen bestimmt.
+Für künftige Umbauten: bei verschachtelten Literalen nie über Suchtext
+abgrenzen.
+
+### Geprüft
+
+- Goldstandard (676 Fälle) **identisch** zu Build 32
+- Golf gegen die Tarifliste: 8 Tarif- und 6 SB-Fälle, alle exakt
+- Bearbeiten, Archivieren, Neuladen, Zurückholen, Freigabe-Datei ohne
+  archiviertes Fahrzeug — durchgespielt, keine Konsolenfehler
+- „+ neuer Eintrag" bei den Merkmalen: angelegt, gespeichert, nach dem
+  Neuöffnen wieder da
+
+### Weiterhin offen
+
+- Kundenrechner auf der Website: Fahrzeugliste ist dort festes HTML, die
+  `pruefe()` dort noch streng. Ein PKW taucht für Kunden also nicht auf.
+- Einstellungsbereich als eigener Menüpunkt (Klassen, Korridore, Rundung)
+- Größenklasse × Bauform als Preislogik (bisher nur als Beschriftung)
