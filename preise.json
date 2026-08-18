@@ -1,7 +1,358 @@
 {
   "version": 1,
-  "stand": "16.08.2026",
-  "erzeugtVon": "AVJ Tools Build 29",
+  "stand": "19.08.2026",
+  "erzeugtVon": "AVJ Tools Build 39",
+  "lb": {
+    "yaris": {
+      "name": "Low-Budget",
+      "example": "Kleinwagen · Limousine · Benzin · Handschaltung · z. B. Toyota Yaris",
+      "planKm": 0.15,
+      "overKm": 0.15,
+      "tier": [
+        45,
+        85,
+        120,
+        150,
+        175,
+        195,
+        210
+      ],
+      "tierKm": [
+        400,
+        700,
+        1000,
+        1250,
+        1450,
+        1650,
+        1800
+      ],
+      "monthPrice": 620,
+      "monthKm": 3500,
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "merkmale": {
+        "klasse": "Kleinwagen",
+        "karosserie": "Limousine",
+        "kraftstoff": "Benzin",
+        "getriebe": "Handschaltung",
+        "zusatz": "z. B. Toyota Yaris"
+      }
+    }
+  },
+  "pkw": {
+    "golf": {
+      "name": "Golf",
+      "merkmale": {
+        "klasse": "Kompaktklasse",
+        "karosserie": "Limousine",
+        "kraftstoff": "Benzin",
+        "getriebe": "Automatik"
+      },
+      "example": "Kompaktklasse · Limousine · Benzin · Automatik",
+      "planKm": 0.3,
+      "overKm": 0.3,
+      "dayMoDo": [
+        [
+          100,
+          90
+        ],
+        [
+          300,
+          120
+        ],
+        [
+          600,
+          140
+        ],
+        [
+          900,
+          160
+        ]
+      ],
+      "weekend": [
+        [
+          600,
+          195
+        ],
+        [
+          900,
+          230
+        ]
+      ],
+      "tier": [
+        90,
+        165,
+        240,
+        305,
+        360,
+        405,
+        440
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "sb": [
+        {
+          "label": "1.500 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 25,
+          "tier": [
+            10,
+            20,
+            28,
+            35,
+            41,
+            47,
+            50
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 40,
+          "tier": [
+            15,
+            35,
+            51,
+            64,
+            78,
+            88,
+            95
+          ]
+        }
+      ]
+    },
+    "golfvariant": {
+      "name": "Golf Variant",
+      "merkmale": {
+        "klasse": "Kompaktklasse",
+        "karosserie": "Kombi",
+        "kraftstoff": "Benzin",
+        "getriebe": "Automatik"
+      },
+      "example": "Kompaktklasse · Kombi · Benzin · Automatik",
+      "planKm": 0.32,
+      "overKm": 0.32,
+      "dayMoDo": [
+        [
+          100,
+          100
+        ],
+        [
+          300,
+          130
+        ],
+        [
+          600,
+          150
+        ],
+        [
+          900,
+          170
+        ]
+      ],
+      "weekend": [
+        [
+          600,
+          215
+        ],
+        [
+          900,
+          240
+        ]
+      ],
+      "tier": [
+        100,
+        180,
+        255,
+        320,
+        375,
+        420,
+        455
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "sb": [
+        {
+          "label": "1.500 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 25,
+          "tier": [
+            12,
+            22,
+            29,
+            35,
+            42,
+            47,
+            50
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 40,
+          "tier": [
+            17,
+            36,
+            52,
+            65,
+            78,
+            88,
+            95
+          ]
+        }
+      ]
+    },
+    "vwtouran": {
+      "name": "VW Touran",
+      "merkmale": {
+        "klasse": "Mittelklasse",
+        "karosserie": "Van",
+        "kraftstoff": "Benzin",
+        "getriebe": "Automatik",
+        "zusatz": "Energy 7-Sitzer"
+      },
+      "example": "Mittelklasse · Van · Benzin · Automatik · Energy 7-Sitzer",
+      "planKm": 0.35,
+      "overKm": 0.35,
+      "dayMoDo": [
+        [
+          100,
+          125
+        ],
+        [
+          300,
+          165
+        ],
+        [
+          600,
+          195
+        ],
+        [
+          900,
+          220
+        ]
+      ],
+      "weekend": [
+        [
+          600,
+          210
+        ],
+        [
+          900,
+          250
+        ]
+      ],
+      "tier": [
+        125,
+        225,
+        325,
+        415,
+        490,
+        550,
+        595
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "sb": [
+        {
+          "label": "1.500 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 25,
+          "tier": [
+            10,
+            20,
+            28,
+            35,
+            41,
+            47,
+            50
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 40,
+          "tier": [
+            15,
+            35,
+            51,
+            64,
+            78,
+            88,
+            95
+          ]
+        }
+      ]
+    }
+  },
   "neunsitzer": {
     "sprinter": {
       "name": "Sprinter Tourer",
@@ -534,38 +885,6 @@
       },
       "kaution": {
         "stunden": 150,
-        "tag": 300
-      }
-    }
-  },
-  "lb": {
-    "yaris": {
-      "name": "Low-Budget",
-      "example": "z. B. Toyota Yaris",
-      "planKm": 0.15,
-      "overKm": 0.15,
-      "tier": [
-        45,
-        85,
-        120,
-        150,
-        175,
-        195,
-        210
-      ],
-      "tierKm": [
-        400,
-        700,
-        1000,
-        1250,
-        1450,
-        1650,
-        1800
-      ],
-      "monthPrice": 620,
-      "monthKm": 3500,
-      "kaution": {
-        "stunden": 0,
         "tag": 300
       }
     }
