@@ -1492,6 +1492,20 @@
 .avj-zl-hin{font-size:11.5px;line-height:1.5;margin-top:7px;min-height:16px;}
 .avj-zl-hin.gut{color:#2E7D46;}
 .avj-zl-hin.schlecht{color:#9A4B4B;}
+/* ══════════════════════════════════════════════════════════════
+   Build 39 · Abweichungen zurücksetzen
+   ══════════════════════════════════════════════════════════════ */
+.avj-kliste li{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px;
+}
+.avj-kliste li .w{flex:0 1 auto;}
+.avj-kliste li .hin{font-size:10.5px;color:#8A7A45;font-style:italic;}
+.avj-kverw{
+  border:1px solid #D9CE9E;background:#fff;border-radius:6px;padding:1px 7px;
+  font-size:10.5px;font-weight:600;font-family:inherit;color:#7A6A2E;cursor:pointer;
+  line-height:1.6;
+}
+.avj-kverw:hover{border-color:#7A6A2E;background:#FFFDF3;}
 </style>
 </head>
 <body>
@@ -1510,7 +1524,7 @@
   <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
   <button class="nav-btn" onclick="showTool('pkw',this)">PKW</button>
   <button class="nav-btn" onclick="showTool('tank',this)">Tank</button>
-  <button class="nav-btn" onclick="showTool('preise',this)">Tarife</button>
+  <button class="nav-btn" onclick="showTool('preise',this)">Tarif Config.</button>
 </div>
 
 <div class="content">
@@ -3845,7 +3859,7 @@ function AVJ_RECHNER(CFG){
       $("TarifLabel").textContent = "Richtpreis";
       $("Badge").textContent = "";
       $("Lines").innerHTML = '<li class="hint">Noch kein Fahrzeug in dieser Kategorie '
-        + '— im Reiter <b>Tarife</b> anlegen.</li>';
+        + '— im Reiter <b>Tarif Config.</b> anlegen.</li>';
       $("KmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
       return;
     }
@@ -3961,7 +3975,7 @@ function AVJ_RECHNER(CFG){
     }
     if(leer){
       h = '<div class="' + K + '-leer">Noch keine Fahrzeuge in dieser Kategorie. '
-        + 'Im Reiter <b>Tarife</b> anlegen.</div>';
+        + 'Im Reiter <b>Tarif Config.</b> anlegen.</div>';
     }
     box.innerHTML = h;
   }
@@ -4366,16 +4380,61 @@ function AVJ_RECHNER(CFG){
   function abweichungen(){
     var liste = [], diff = diffGegen(_kundenstand, CARS);
     for(var k in diff){
+      /* Ein selbst angelegtes Fahrzeug steht im Kundenstand ueberhaupt
+         nicht. Jedes seiner Felder einzeln aufzuzaehlen wuerde die Liste
+         fluten und waere auch falsch verstanden: hier weicht nicht ein
+         Wert ab, hier fehlt ein ganzes Fahrzeug. Also eine Zeile. */
+      if(!_kundenstand[k]){
+        liste.push({
+          key: k,
+          auto: (CARS[k] && CARS[k].name) || k,
+          feld: "neu angelegt",
+          istNeuesFz: true,
+          alt: null,
+          neu: diff[k]
+        });
+        continue;
+      }
       for(var feld in diff[k]){
         liste.push({
+          key:  k,
           auto: (CARS[k] && CARS[k].name) || k,
           feld: feld,
-          alt:  _kundenstand[k] ? _kundenstand[k][feld] : null,
+          istNeuesFz: false,
+          alt:  _kundenstand[k][feld],
           neu:  diff[k][feld]
         });
       }
     }
     return liste;
+  }
+
+  /* ─── Zurueck auf den Kundenstand ───
+     Einzeln, weil pauschal fast immer zu grob ist: meistens soll genau
+     ein verrutschter Wert weg und der Rest bleiben. */
+  function verwirfFeld(key, feld){
+    if(!CARS[key] || !_kundenstand[key]) return false;
+    takeSnapshot();
+    if(_kundenstand[key][feld] === undefined) delete CARS[key][feld];
+    else CARS[key][feld] = JSON.parse(JSON.stringify(_kundenstand[key][feld]));
+    _gridCache = {};
+    saveCfg();
+    renderSettings(); renderSb(); render();
+    return true;
+  }
+
+  /* Alles zurueck — aber nur, was es beim Kunden auch gibt. Selbst
+     angelegte Fahrzeuge und das Archiv bleiben unangetastet; sie sind
+     keine Abweichung im Sinne von "verrutscht", sondern Arbeit. */
+  function verwirfAlle(){
+    takeSnapshot();
+    for(var k in _kundenstand){
+      if(_archiv[k]) continue;
+      CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
+    }
+    _gridCache = {};
+    saveCfg();
+    renderSettings(); renderSb(); render();
   }
 
   AVJ_EDITOR.melde({
@@ -4516,12 +4575,33 @@ function AVJ_RECHNER(CFG){
     var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
           + " vom Kundenstand ab.</b> Kunden sehen weiter die alten Preise."
           + '<ul class="avj-kliste">';
-    for(var i=0;i<abw.length && i<8;i++){
-      h += "<li>" + abw[i].auto + " \u00B7 " + abw[i].feld + "</li>";
+    var zurueck = 0;
+    for(var i=0;i<abw.length && i<12;i++){
+      h += '<li><span class="w">' + abw[i].auto + " \u00B7 " + abw[i].feld + '</span>';
+      if(abw[i].istNeuesFz){
+        h += '<span class="hin">bei dir angelegt, beim Kunden noch nicht</span>';
+      } else {
+        zurueck++;
+        h += '<button type="button" class="avj-kverw" data-verwirf="'
+          +  abw[i].key + '" data-feld="' + abw[i].feld + '">zur\u00FCcksetzen</button>';
+      }
+      h += '</li>';
     }
-    if(abw.length > 8) h += "<li>\u2026 und " + (abw.length-8) + " weitere</li>";
-    h += "</ul>"
-      +  '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
+    if(abw.length > 12) h += "<li>\u2026 und " + (abw.length-12) + " weitere</li>";
+    h += "</ul>";
+    /* Der zweite Knopf nur, wenn es ueberhaupt etwas zurueckzusetzen
+       gibt — bei lauter neuen Fahrzeugen waere er wirkungslos. */
+    if(zurueck){
+      h += '<div class="avj-khinweis">\u201EZur\u00FCcksetzen\u201C holt einen Wert '
+        +  'auf den Stand zur\u00FCck, den die Kunden gerade sehen. Praktisch, wenn '
+        +  'beim Ausprobieren etwas verrutscht ist. R\u00FCckg\u00E4ngig geht auch '
+        +  '\u00FCber den Widerruf oben.</div>';
+    }
+    h += '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
+    if(zurueck > 1){
+      h += '<button type="button" class="avj-kbtn zweit" data-kzurueck="1">'
+        +  'Alle zur\u00FCcksetzen</button>';
+    }
     el.className = "avj-kstand";
     el.innerHTML = h;
   }
@@ -4533,13 +4613,20 @@ function AVJ_RECHNER(CFG){
       var t = e.target;
       if(!t || !t.getAttribute) return;
       if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
+      if(t.getAttribute("data-verwirf")){
+        var vk = t.getAttribute("data-verwirf"), vf = t.getAttribute("data-feld");
+        if(verwirfFeld(vk, vf)) flashSaved("Zur\u00FCckgesetzt");
+        return;
+      }
       if(t.getAttribute("data-kzurueck")){
-        takeSnapshot();
-        for(var k in _kundenstand) CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
-        _gridCache = {};
-        try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-        renderSettings(); renderSb(); render();
+        /* Der alte Weg loeschte den ganzen Speicher — damit waeren auch
+           selbst angelegte Fahrzeuge und das Archiv weg gewesen. */
+        if(!window.confirm("Alle ge\u00E4nderten Werte auf den Kundenstand "
+          + "zur\u00FCcksetzen?\n\nSelbst angelegte Fahrzeuge und das Archiv "
+          + "bleiben erhalten.")) return;
+        verwirfAlle();
         flashSaved("Kundenstand geladen");
+        return;
       }
     });
   })();
@@ -4661,7 +4748,7 @@ function AVJ_RECHNER(CFG){
     if(!hatAuto()){
       var _b = $("SetBody");
       if(_b) _b.innerHTML = '<div class="' + K + '-snote">In dieser Kategorie gibt es noch '
-        + 'kein Fahrzeug. \u00DCber <b>Neues Fahrzeug</b> im Reiter Tarife anlegen.</div>';
+        + 'kein Fahrzeug. \u00DCber <b>Neues Fahrzeug</b> im Reiter Tarif Config. anlegen.</div>';
       return;
     }
     var car = CARS[carKey];
@@ -5661,7 +5748,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 38;
+var AVJ_BUILD = 39;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

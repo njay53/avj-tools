@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 38 · Onepage v38 · 18.08.2026**
+**Stand: Build 39 · Onepage v38 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1375,3 +1375,69 @@ Goldstandard: 1.666 Zeilen, identisch mit Build 37.
 MAN TGE lang, dazu den Autotrailer. Eine Tariftabelle kann es nur für
 Fahrzeuge geben, die im Tool stehen — das ist der nächste Schritt, und mit
 *Neues Fahrzeug* plus *Popup-Zeile* geht er ohne mich.
+
+---
+
+## 26. Build 39 — Abweichungen verstehen und zurücknehmen
+
+Niran meldet acht Abweichungen bei 9-Sitzern und Transportern, obwohl er
+nichts geändert hat. Nachgerechnet, nicht geraten — Code aus `index.html`
+gegen die veröffentlichte `preise.json` (Build 29, 16.08.) Feld für Feld:
+
+| Abweichung | Ursache |
+|---|---|
+| 4 × `example` / `merkmale` | neu im Code seit Build 35, in der Datei vom 16.08. noch nicht. Erwartet. |
+| Vito `dayMoDo` `dayFrSa` `weekend` `tier` | **Code und Datei sind identisch.** Also kommt die Abweichung aus dem gemerkten Stand auf seinem Gerät. |
+
+Die zweite Gruppe ist der eigentliche Fund. `abweichungen()` vergleicht
+`CARS` gegen `_kundenstand` — und `CARS` ist Kundenstand **plus** dem Diff
+aus dem localStorage. Sehr wahrscheinlich der Testlauf mit *Alle Preise
+verschieben* aus Build 32.
+
+Und dagegen gab es keinen Weg. Ein Handler für `data-kzurueck` war da, aber
+**kein Knopf, der ihn auslöst** — und er hätte den ganzen Speicher gelöscht,
+also auch selbst angelegte Fahrzeuge und das Archiv.
+
+### Was jetzt geht
+
+Im Kundenstandkasten hat jede Zeile ein **zurücksetzen** — holt genau
+diesen einen Wert auf den Stand zurück, den die Kunden sehen. Ab zwei
+Werten zusätzlich **Alle zurücksetzen**, mit Rückfrage.
+
+`verwirfAlle()` geht bewusst nur über `_kundenstand` und überspringt
+archivierte Fahrzeuge. Selbst angelegte Fahrzeuge stehen dort nicht und
+bleiben deshalb unangetastet — sie sind keine verrutschte Zahl, sondern
+Arbeit. Statt `localStorage.removeItem` läuft das normale `saveCfg()`.
+
+Ein neu angelegtes Fahrzeug erzeugte bisher **eine Zeile pro Feld** in der
+Liste — bei fünfzehn Feldern eine Flut, die auch inhaltlich falsch gelesen
+wird. Jetzt eine Zeile: *„Probefahrzeug · neu angelegt"*, mit dem Zusatz
+„bei dir angelegt, beim Kunden noch nicht" und ohne Zurücksetzen-Knopf.
+Wer es loswerden will, nimmt *Ins Archiv*.
+
+### Reiter umbenannt
+
+*Tarife* heißt jetzt **Tarif Config.** — auch in den drei Stellen im Text,
+die auf den Reiter verweisen.
+
+### Geprüft
+
+`pruefverwirf.js`, fünfzehn Proben: Reitername, Ausgangslage ohne
+Abweichung, Wert verstellen, Meldung, Knopf, Fahrzeug anlegen, eine Zeile
+statt fünfzehn, zurücksetzen, Wert wieder auf Kundenstand, Vito aus dem
+gemerkten Stand raus, Testfahrzeug überlebt, *Alle zurücksetzen* ab zwei
+Werten, danach keine Abweichung, **Archiv überlebt**, keine Skriptfehler.
+
+Dabei ein Fehler im Test, nicht im Code: `anlegen` und `insArchiv` wechseln
+das ausgewählte Fahrzeug. Wer danach ohne neu zu wählen ins Tarifraster
+greift, liest das falsche Auto. Der Test wählt jetzt vor jedem Zugriff
+explizit.
+
+Goldstandard: 1.666 Zeilen, identisch mit Build 37. Popup-Zeile aus Build
+38 unverändert grün.
+
+### Offen, auf Wunsch später
+
+Anhängertarife (Tag / Woche / Wochenende) bekommen eine eigene, einfache
+Tabelle für das Popup — ohne km-Stufen und ohne Haftungsraster. Nicht
+dringend, wird von Hand gepflegt.
