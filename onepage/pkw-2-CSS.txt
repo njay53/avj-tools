@@ -1,0 +1,253 @@
+
+/* Trigger-Zeile */
+.avjp-trigger{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  max-width:660px;margin:0 auto;padding:0 4px;
+}
+.avjp-open{
+  display:block;width:100%;cursor:pointer;font-family:inherit;text-align:center;
+  background:#E02B21;color:#fff;border:none;border-radius:999px;
+  padding:18px 28px;transition:transform .12s,box-shadow .18s,filter .15s;
+  box-shadow:0 10px 26px -16px rgba(224,43,33,.95);
+}
+.avjp-open:hover{filter:brightness(1.08);box-shadow:0 14px 32px -16px rgba(224,43,33,1);}
+.avjp-open:active{transform:translateY(1px);}
+.avjp-open:focus-visible{outline:3px solid #101C6E;outline-offset:3px;}
+.avjp-open-txt{display:block;font-size:17px;font-weight:750;letter-spacing:-.01em;}
+.avjp-open-sub{display:block;font-size:12.5px;font-weight:500;opacity:.72;margin-top:4px;}
+
+/* Overlay */
+.avjp-overlay{position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.avjp-overlay[hidden]{display:none;}
+.avjp-backdrop{position:absolute;inset:0;background:rgba(10,16,40,.62);backdrop-filter:blur(3px);animation:avjpFade .18s ease;}
+.avjp-modal{
+  position:relative;background:#fff;border-radius:20px;
+  width:100%;max-width:700px;max-height:calc(100vh - 40px);
+  box-shadow:0 30px 80px -30px rgba(10,16,40,.7);
+  animation:avjpRise .22s cubic-bezier(.2,.7,.3,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.avjp-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:30px 28px 26px;}
+.avjp-close{
+  position:absolute;top:12px;right:14px;z-index:2;
+  width:36px;height:36px;border:none;border-radius:50%;
+  background:rgba(17,28,46,.06);color:#5A6675;
+  font-size:24px;line-height:1;cursor:pointer;font-family:inherit;
+  transition:background .15s,color .15s;
+}
+.avjp-close:hover{background:rgba(17,28,46,.12);color:#111C2E;}
+.avjp-close:focus-visible{outline:2px solid #1B2FC4;outline-offset:2px;}
+@keyframes avjpFade{from{opacity:0}to{opacity:1}}
+@keyframes avjpRise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:560px){
+  .avjp-cta{padding:13px 20px;gap:10px;}
+  .avjp-cta .avjp-wa{width:30px;height:30px;}
+  .avjp-cta-txt .t{font-size:15px;}
+  .avjp-overlay{padding:0;align-items:flex-end;}
+  .avjp-modal{max-width:none;border-radius:20px 20px 0 0;max-height:92vh;}
+  .avjp-scroll{padding:26px 18px 22px;}
+  .avjp-open-txt{font-size:16px;}
+}
+@media(prefers-reduced-motion:reduce){.avjp-backdrop,.avjp-modal{animation:none;}}
+
+
+.avjp-calc{
+  --ink:#111C2E;
+  --ink-soft:#5A6675;
+  --line:#DCE3EA;
+  --blue:#1B2FC4;
+  --blue-deep:#101C6E;
+  --yellow:#F5EC22;
+  --field:#F7F9FB;
+  --radius:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  max-width:660px;
+  margin:0 auto;
+  -webkit-font-smoothing:antialiased;
+}
+.avjp-calc *{box-sizing:border-box;}
+
+/* Head */
+.avjp-head{margin-bottom:22px;}
+.avjp-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:8px;
+}
+.avjp-head h3{
+  font-size:26px;line-height:1.15;font-weight:700;margin:0 0 8px;letter-spacing:-.02em;
+}
+.avjp-head p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-soft);}
+
+/* Fahrzeugwahl */
+.avjp-cars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.avjp-car{
+  text-align:left;font-family:inherit;cursor:pointer;
+  background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:13px 15px;transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avjp-car .n{display:block;font-size:15px;font-weight:650;letter-spacing:-.01em;}
+.avjp-car .d{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+.avjp-car:hover{border-color:#B9C4D0;}
+.avjp-car.is-active{
+  border-color:var(--blue);background:#F4F6FF;
+  box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avjp-car:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Felder */
+.avjp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.avjp-f{
+  display:block;background:var(--field);border:1.5px solid var(--line);
+  border-radius:var(--radius);padding:11px 14px;transition:border-color .15s,box-shadow .15s;
+}
+.avjp-f:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,47,196,.09);}
+.avjp-f .l{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;
+}
+.avjp-f .l em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;}
+.avjp-f .dt{display:flex;align-items:center;gap:7px;}
+.avjp-f input{
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  border:none;background:transparent;outline:none;padding:0;width:100%;min-width:0;
+}
+.avjp-f .dt input[type=time]{
+  flex:0 0 74px;width:74px;border-left:1px solid var(--line);padding-left:8px;
+}
+.avjp-km{margin-bottom:16px;}
+.avjp-km input{font-size:20px;font-weight:700;}
+.avjp-km .h{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:4px;min-height:15px;}
+
+.avjp-durline{
+  min-height:20px;font-size:12.5px;font-weight:600;color:var(--blue-deep);
+  text-align:center;margin:0 0 14px;letter-spacing:.01em;
+}
+.avjp-durline .warn{color:#C0392B;}
+
+/* Selbstbeteiligung */
+.avjp-sb{border:none;padding:0;margin:0 0 20px;}
+.avjp-sb legend{
+  padding:0;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;
+}
+.avjp-sbrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.avjp-sbrow button{
+  font-family:inherit;cursor:pointer;background:#fff;
+  border:1.5px solid var(--line);border-radius:11px;padding:10px 6px;
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.avjp-sbrow button .v{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em;}
+.avjp-sbrow button .p{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.avjp-sbrow button:hover{border-color:#B9C4D0;}
+.avjp-sbrow button.is-active{
+  border-color:var(--blue);background:#F4F6FF;box-shadow:0 0 0 3px rgba(27,47,196,.09);
+}
+.avjp-sbrow button:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* Ergebnis */
+.avjp-out{
+  background:var(--blue-deep);color:#fff;border-radius:18px;
+  padding:22px 24px 20px;box-shadow:0 14px 34px -20px rgba(16,28,110,.75);
+}
+.avjp-out-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.avjp-out-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.68;margin-bottom:5px;
+}
+.avjp-price{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.03em;}
+.avjp-price .c{font-size:23px;font-weight:600;opacity:.75;margin-right:3px;}
+.avjp-badge{
+  flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--yellow);color:#101C6E;padding:5px 10px;border-radius:20px;
+}
+.avjp-badge:empty{display:none;}
+.avjp-lines{
+  list-style:none;margin:18px 0 0;padding:16px 0 0;
+  border-top:1px solid rgba(255,255,255,.16);display:grid;gap:9px;
+}
+.avjp-lines li{display:flex;justify-content:space-between;gap:14px;font-size:13.5px;align-items:baseline;}
+.avjp-lines li .k{opacity:.76;}
+.avjp-lines li .v{font-weight:650;text-align:right;}
+.avjp-lines li.km .v{color:var(--yellow);}
+.avjp-lines li.sum{
+  border-top:1px solid rgba(255,255,255,.16);padding-top:11px;margin-top:2px;font-size:15px;
+}
+.avjp-lines li.sum .v{font-size:18px;font-weight:750;}
+.avjp-lines li.hint{display:block;font-size:11.5px;opacity:.6;line-height:1.45;}
+.avjp-cta{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  text-decoration:none;margin-top:20px;
+  background:#5CC96A;color:#fff;
+  padding:14px 26px;border-radius:999px;
+  transition:transform .12s,filter .15s;
+}
+.avjp-cta .avjp-wa{
+  flex:0 0 auto;width:34px;height:34px;fill:currentColor;opacity:.95;
+}
+.avjp-cta-txt{display:block;text-align:left;line-height:1.2;}
+.avjp-cta-txt .t{
+  display:block;font-size:16px;font-weight:750;letter-spacing:-.01em;
+}
+.avjp-cta-txt .s{
+  display:block;font-size:12.5px;font-weight:500;opacity:.82;margin-top:1px;
+}
+.avjp-cta:hover{filter:brightness(1.06);}
+.avjp-cta:active{transform:translateY(1px);}
+.avjp-cta:focus-visible{outline:3px solid #101C6E;outline-offset:3px;}
+
+.avjp-legal{
+  font-size:11px;line-height:1.55;color:var(--ink-soft);
+  margin:14px 0 0;text-align:center;
+}
+
+@media(max-width:560px){
+  .avjp-head h3{font-size:22px;}
+  .avjp-cars,.avjp-grid{grid-template-columns:1fr;}
+  .avjp-price{font-size:36px;}
+  .avjp-sbrow{grid-template-columns:1fr;}
+  .avjp-sbrow button{display:flex;justify-content:space-between;align-items:baseline;padding:11px 14px;}
+  .avjp-sbrow button .p{margin-top:0;}
+}
+@media(prefers-reduced-motion:reduce){
+  .avjp-calc *{transition:none!important;}
+}
+
+/* Zeit-Dropdown statt Safari-Zeitstrahl */
+.avjp-f .dt select{
+  flex:0 0 auto;width:82px;
+  font-family:inherit;font-size:15px;font-weight:600;color:#111C2E;
+  border:none;border-left:1px solid #DCE3EA;background:transparent;
+  outline:none;padding:0 0 0 8px;margin:0;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%235A6675' d='M4.5 6 0 0h9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;
+  padding-right:14px;
+}
+.avjp-f .dt select:focus{outline:none;}
+
+/* Hinweise unter Datum/Uhrzeit */
+.avjp-f .h{
+  display:block;font-size:11.5px;line-height:1.35;color:#5A6675;
+  margin-top:5px;min-height:0;
+}
+.avjp-f .h.tresor{color:#A8710C;font-weight:600;}
+.avjp-f .h.warn{color:#C0392B;font-weight:600;}
+.avjp-f .dt select option.tresor{color:#A8710C;}
+
+/* ── Wochentag neben dem Datum ── */
+.avjp-f .l{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.avjp-f .l .wd{
+  font-style:normal;font-weight:800;letter-spacing:.04em;color:#1B2FC4;flex:0 0 auto;
+}
+.avjp-f .l .wd.zu{color:#C0392B;}
+.avjp-f .l .wd:empty{display:none;}
+
+/* ── Versionskennung ── */
+.avjp-ver{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+  font-size:9.5px;letter-spacing:.03em;
+  color:#B4BDC7;text-align:center;
+  margin:10px 0 0;
+}
+.avjp-ver:empty{display:none;}

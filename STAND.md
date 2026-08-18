@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 36 · 18.08.2026**
+**Stand: Build 37 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1091,3 +1091,77 @@ PKW speisen.
 Goldstandard identisch, Golf gegen die Tarifliste (8 Tarif- und 6
 SB-Fälle), Bearbeiten/Archiv/Neuladen, Sichtprüfung in vier Breiten —
 keine Konsolenfehler.
+
+---
+
+## 23. Build 37 — die PKW gehen online
+
+Die Kundenrechner auf rent-in-nom.de sind auf denselben Stand gebracht und
+es gibt einen dritten Block: **PKW**.
+
+### Vier Sachen fehlten auf der Website
+
+1. **Die Fahrzeugknöpfe standen fest im HTML-Feld.** Ein in AVJ Tools neu
+   angelegtes Fahrzeug wäre für Kunden unsichtbar geblieben. Sie werden
+   jetzt aus den Tarifdaten gezeichnet (`renderCars()`), im HTML steht nur
+   noch der leere Behälter.
+2. **Der Serverabgleich nahm nur bekannte Fahrzeuge:**
+   `for(var k in d.transporter){ if(CARS[k]) … }` — ein neues fiel durch,
+   ein archiviertes verschwand nie. Jetzt wird die ganze Gruppe übernommen
+   und `carKey` nachgezogen, falls das gewählte Fahrzeug weg ist.
+3. **`quote()` setzte voraus**, dass jedes Fahrzeug Fr/Sa-Pakete, ein
+   Wochenendraster und Haftungsstufen hat. Jetzt datengesteuert, wortgleich
+   mit der App seit Build 35.
+4. **Es gab keinen PKW-Rechner.** Der neue Block ist ein Klon des
+   Transporters mit den Vorsilben `avjP…` / `avjp-…`, Abschnitt `pkw`,
+   Golf und Golf Variant als eingebaute Rückfallebene.
+
+### Die Prüfung der Preisdatei — in allen vier Dateien gleich
+
+`if(!d.neunsitzer || !d.transporter) return false;` war zu eng: sobald ein
+Rechner eine andere Gruppe liest, hängt die Gültigkeit der ganzen Datei an
+zwei fremden Abschnitten. Jetzt reicht **mindestens eine Gruppe mit
+mindestens einem Fahrzeug**; alles Weitere wird geprüft, wenn es da ist.
+Das steht jetzt identisch in der App und in allen drei Onepage-Feldern.
+
+> **Falle:** Die drei Blöcke teilen sich auf der Seite EINE Instanz von
+> `AVJ_PREISE` (das `window.AVJ_PREISE ||` davor). Welcher Block sie anlegt,
+> hängt an der Reihenfolge auf der Seite. Das Lademodul muss deshalb in
+> allen drei JS-Feldern **wortgleich** sein — sonst hängt das Verhalten
+> davon ab, welcher Rechner zufällig zuerst geladen wird. Das Bauskript
+> prüft das und bricht ab, wenn die drei auseinanderlaufen.
+
+### Beschriftungen der Rückfalldaten
+
+Die Werte oben in den JS-Feldern gelten nur, wenn `preise.json` nicht
+erreichbar ist. Trotzdem sollen die Knöpfe dann nicht anders aussehen —
+beim 9-Sitzer stand die Beschriftung bisher ausschließlich im HTML-Feld.
+Alle sechs Fahrzeuge tragen jetzt dieselbe Merkmalzeile wie in der App.
+
+Beim Einbauen wieder dieselbe Falle wie in Build 35: `example` steht nicht
+bei jedem Fahrzeug direkt hinter `name`. Nur einzufügen erzeugt zwei Zeilen,
+und die alte weiter unten gewinnt. Der Datensatz wird deshalb per
+Klammernzählen abgegrenzt und darin aufgeräumt.
+
+### Geprüft — auf einer nachgebauten Fahrzeugseite
+
+Alle drei Blöcke zusammen auf einer Seite, wie bei Onepage:
+
+- `preise.json` wird **einmal** geholt, nicht dreimal ✓
+- Golf gegen die Tarifliste: 1 Tag bei 100/300/900 km, 7 Tage, beide
+  Wochenendstufen, Freitag als Tagesmiete — alle exakt ✓
+- Golf Variant 7 Tage / 1500 km = 455 € ✓
+- Kautionshinweis steht im Ergebnis ✓
+- **Ein drittes Transporter-Fahrzeug in `preise.json` eingefügt** → taucht
+  in der Kundenauswahl auf und rechnet richtig ✓
+- **`preise.json` weggenommen** → alle drei fallen auf die eingebauten
+  Werte zurück, keine Fehler ✓
+- Goldstandard der App (676 Fälle) unverändert ✓
+
+### Noch zu tun beim ersten Mal
+
+`preise.json` auf dem Server hat noch **keinen `pkw`-Abschnitt**. Bis der
+da ist, rechnen die PKW auf der Website mit ihren eingebauten Werten —
+richtig, aber nicht zentral pflegbar. Einmal *Für Kunden freigeben* im
+Reiter Tarife und `Kundenpreise aktualisieren.command` laufen lassen, dann
+kommen auch die PKW-Preise aus der Datei.

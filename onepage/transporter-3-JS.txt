@@ -1,6 +1,6 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 28;
-var AVJ_WEB_DATE  = "15.08.2026";
+var AVJ_WEB_BUILD = 37;
+var AVJ_WEB_DATE  = "18.08.2026";
 (function(){
   var el = document.getElementById("avjTVer");
   if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
@@ -26,21 +26,57 @@ window.AVJ_PREISE = window.AVJ_PREISE || (function(){
 
   function pruefe(d){
     if(!d || typeof d !== "object") return false;
-    if(!d.neunsitzer || !d.transporter) return false;
+
+    /* Frueher stand hier "neunsitzer und transporter muessen da sein".
+       Das war zu eng: sobald ein Rechner eine andere Gruppe liest, haengt
+       die Gueltigkeit der ganzen Datei an zwei fremden Abschnitten.
+       Jetzt reicht: mindestens eine Gruppe mit mindestens einem Fahrzeug. */
+    var gefunden = 0;
+    for(var g0 in d){
+      if(g0 === "version" || g0 === "stand" || g0 === "erzeugtVon") continue;
+      if(d[g0] && typeof d[g0] === "object"){
+        for(var k0 in d[g0]){ gefunden++; break; }
+      }
+    }
+    if(!gefunden) return false;
     var ok = true;
-    ["neunsitzer","transporter"].forEach(function(g){
+
+    function zahlenreihe(a, laenge){
+      if(!a || a.length !== laenge) return false;
+      for(var i=0;i<a.length;i++){
+        if(typeof a[i] !== "number" || !isFinite(a[i]) || a[i] < 0) return false;
+      }
+      return true;
+    }
+    function paarliste(a){
+      if(!a || !a.length) return false;
+      for(var i=0;i<a.length;i++){
+        if(!a[i] || a[i].length !== 2) return false;
+        if(typeof a[i][0] !== "number" || typeof a[i][1] !== "number") return false;
+        if(!isFinite(a[i][0]) || !isFinite(a[i][1]) || a[i][0] < 0 || a[i][1] < 0) return false;
+      }
+      return true;
+    }
+
+    for(var g in d){
+      if(g === "version" || g === "stand" || g === "erzeugtVon") continue;
+      if(!d[g] || typeof d[g] !== "object") continue;
       for(var k in d[g]){
         var c = d[g][k];
         if(!c || typeof c !== "object"){ ok = false; continue; }
-        if(!c.tier   || c.tier.length   !== 7) ok = false;
-        if(!c.tierKm || c.tierKm.length !== 7) ok = false;
-        if(!c.dayMoDo || !c.dayFrSa || !c.weekend) ok = false;
-        if(!c.sb || !c.sb.length) ok = false;
-        for(var i=0;i<(c.tier||[]).length;i++){
-          if(typeof c.tier[i] !== "number" || !isFinite(c.tier[i]) || c.tier[i] < 0) ok = false;
+        if(!zahlenreihe(c.tier, 7))   ok = false;
+        if(!zahlenreihe(c.tierKm, 7)) ok = false;
+        if(c.dayMoDo && !paarliste(c.dayMoDo)) ok = false;
+        if(c.dayFrSa && !paarliste(c.dayFrSa)) ok = false;
+        if(c.weekend && !paarliste(c.weekend)) ok = false;
+        if(c.sb){
+          if(!c.sb.length) ok = false;
+          for(var s=0;s<(c.sb||[]).length;s++){
+            if(!c.sb[s] || !zahlenreihe(c.sb[s].tier, 7)) ok = false;
+          }
         }
       }
-    });
+    }
     return ok;
   }
 
@@ -169,8 +205,8 @@ function avjtTrack(name, params){
   var CARS = {
     m: {
       name: "Transporter M",
+      example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Renault Trafic L2H1",
       frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Renault Trafic L2H1",
       planKm: 0.20,   // vorab geplante Mehrkilometer
       overKm: 0.30,   // ungeplant bei R\u00FCckgabe
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -187,8 +223,8 @@ function avjtTrack(name, params){
     },
     xl: {
       name: "Transporter XL",
+      example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Mercedes Sprinter L3",
       frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Mercedes Sprinter L3",
       planKm: 0.26,
       overKm: 0.37,
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -209,10 +245,16 @@ function avjtTrack(name, params){
      falls der Abruf scheitert — gelten die Werte oben im Code. */
   AVJ_PREISE.bereit(function(d){
     if(d && d.transporter){
-      for(var k in d.transporter){ if(CARS[k]) CARS[k] = d.transporter[k]; }
+      /* Ganze Gruppe uebernehmen, nicht nur die bekannten Fahrzeuge:
+         sonst taucht ein neu angelegtes nie auf und ein archiviertes
+         verschwindet nie. Die eingebauten Werte oben im Code sind nur
+         die Rueckfallebene, wenn preise.json gar nicht erreichbar ist. */
+      CARS = {};
+      for(var k in d.transporter) CARS[k] = d.transporter[k];
+      if(!CARS[carKey]){ carKey = null; for(var e in CARS){ carKey = e; break; } }
       _gridCache = {};
     }
-    try{ renderSb(); render(); }catch(e){}
+    try{ renderCars(); renderSb(); render(); }catch(e){}
   });
 
   var _trackTimer = null, _lastSig = null;
@@ -324,28 +366,33 @@ function avjtTrack(name, params){
     var wd   = d.from.getDay();
     var frSa = (wd === 5 || wd === 6);
 
-    if(isWeekend(d)){
-      /* Wochenendtarif: eigenes Paketraster */
+    /* Welche Tarifarten es gibt, steht in den Daten des Fahrzeugs.
+       Die PKW haben nur EIN Tagesraster (nicht getrennt nach Mo-Do und
+       Fr/Sa) und zwei Wochenendstufen statt drei. */
+    var hatWE  = !!(car.weekend && car.weekend.length);
+    var hatPkt = !!(car.dayMoDo && car.dayMoDo.length);
+    var hatFrSa = !!(car.dayFrSa && car.dayFrSa.length);
+    var hatSb  = !!(car.sb && car.sb.length);
+
+    if(hatWE && isWeekend(d)){
       mode = "we";
       var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
       base = stW.price; freeKm = stW.km;
-      sbCost = car.sb[sbIdx].we;
+      sbCost = hatSb ? car.sb[sbIdx].we : 0;
       tarifLabel = "Wochenendtarif";
       badge = "Fr-Mo";
 
-    } else if(d.days <= 2){
-      /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
+    } else if(hatPkt && d.days <= 2){
       mode = "pkg";
       var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
-      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
+      var stD = pickStep(gridFor(car, (frSa && hatFrSa) ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
-      sbCost = car.sb[sbIdx].tier[d.days - 1];
+      sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
       tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
-      badge = frSa ? "Fr/Sa" : "Mo-Do";
+      badge = hatFrSa ? (frSa ? "Fr/Sa" : "Mo-Do") : "";
 
     } else {
-      /* ab 3 Tagen: Staffel Richtung Wochentarif */
       mode = "tier";
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
@@ -355,10 +402,14 @@ function avjtTrack(name, params){
         base   += extra * (car.tier[6] / 7) * 0.92;
         freeKm += Math.round(extra * car.tierKm[6] / 7);
       }
-      var sbTier = car.sb[sbIdx].tier;
-      sbCost = sbTier[Math.min(d.days, 7) - 1];
-      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
-      tarifLabel = d.days + " Tage";
+      if(hatSb){
+        var sbTier = car.sb[sbIdx].tier;
+        sbCost = sbTier[Math.min(d.days, 7) - 1];
+        if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+      } else {
+        sbCost = 0;
+      }
+      tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
       if(d.days === 7) badge = "Wochentarif";
     }
 
@@ -377,6 +428,7 @@ function avjtTrack(name, params){
   /* ─── Rendering ──────────────────────────────────────────── */
   function renderSb(){
     var car = CARS[carKey];
+    if(!car || !$("avjTSbRow") || !car.sb || !car.sb.length) return;
     var html = "";
     for(var i=0;i<car.sb.length;i++){
       var s = car.sb[i];
@@ -446,8 +498,10 @@ function avjtTrack(name, params){
       $("avjTKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
     }
 
-    if(r.sbCost > 0){
-      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+    if(r.car.sb && r.car.sb.length){
+      if(r.sbCost > 0){
+        L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+      }
     } else {
       L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
     }
@@ -496,21 +550,37 @@ function avjtTrack(name, params){
     }, 1200);
   }
 
-  /* ─── Events ─────────────────────────────────────────────── */
-  var cars = document.querySelectorAll(".avjt-car");
-  for(var i=0;i<cars.length;i++){
-    cars[i].addEventListener("click", function(){
-      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
-      this.classList.add("is-active");
-      carKey = this.getAttribute("data-car");
-      sbIdx = 0;
-      avjtTrack("fahrzeug_gewechselt", { kategorie: "Transporter", fahrzeug: CARS[carKey].name });
-      renderSb();
-      render();
-    });
+  /* ─── Fahrzeugknoepfe ─────────────────────────────────────────
+     Werden aus den Tarifdaten gezeichnet, nicht mehr aus dem festen
+     HTML-Feld. Nur so taucht ein neu angelegtes Fahrzeug auch bei
+     Kunden auf, ohne dass das HTML-Feld angefasst werden muss. */
+  var carsBox = document.querySelector(".avjt-calc .avjt-cars");
+  function renderCars(){
+    if(!carsBox) return;
+    var h = "";
+    for(var k in CARS){
+      h += '<button type="button" class="avjt-car' + (k === carKey ? ' is-active' : '')
+        +  '" data-car="' + k + '">'
+        +    '<span class="n">' + (CARS[k].name || k) + '</span>'
+        +    '<span class="d">' + (CARS[k].example || "") + '</span>'
+        +  '</button>';
+    }
+    carsBox.innerHTML = h;
   }
+  renderCars();
 
-  $("avjTSbRow").addEventListener("click", function(e){
+  if(carsBox) carsBox.addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button[data-car]") : null;
+    if(!b) return;
+    carKey = b.getAttribute("data-car");
+    sbIdx = 0;
+    renderCars();
+    avjtTrack("fahrzeug_gewechselt", { kategorie: "Transporter", fahrzeug: CARS[carKey].name });
+    renderSb();
+    render();
+  });
+
+  if($("avjTSbRow")) $("avjTSbRow").addEventListener("click", function(e){
     var b = e.target.closest("button[data-sb]");
     if(!b) return;
     sbIdx = parseInt(b.getAttribute("data-sb"),10);

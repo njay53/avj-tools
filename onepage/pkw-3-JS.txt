@@ -2,7 +2,7 @@
 var AVJ_WEB_BUILD = 37;
 var AVJ_WEB_DATE  = "18.08.2026";
 (function(){
-  var el = document.getElementById("avjVer");
+  var el = document.getElementById("avjPVer");
   if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
 })();
 
@@ -151,7 +151,7 @@ window.AVJ_PREISE = window.AVJ_PREISE || (function(){
 
 /* ─── GA4-Events ─────────────────────────────────────────────
    Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
-function avjTrack(name, params){
+function avjpTrack(name, params){
   try{
     if(typeof window.gtag === "function"){
       window.gtag("event", name, params || {});
@@ -159,27 +159,23 @@ function avjTrack(name, params){
   }catch(e){}
 }
 
-/* ═══ Popup-Steuerung ═══ */
+/* Popup-Steuerung */
 (function(){
   "use strict";
-  var ov    = document.getElementById("avjOverlay");
-  var open  = document.getElementById("avjOpen");
-  var close = document.getElementById("avjClose");
+  var ov    = document.getElementById("avjPOverlay");
+  var open  = document.getElementById("avjPOpen");
+  var close = document.getElementById("avjPClose");
   if(!ov || !open) return;
   var lastFocus = null;
 
-  /* Overlay aus dem Onepage-Abschnitt herausl\u00F6sen und direkt an <body> h\u00E4ngen.
-     Sonst kann ein transform/z-index auf dem Elternabschnitt das Popup einsperren. */
-  if(ov.parentNode !== document.body){
-    document.body.appendChild(ov);
-  }
+  if(ov.parentNode !== document.body){ document.body.appendChild(ov); }
 
   function show(){
     lastFocus = document.activeElement;
     ov.hidden = false;
-    avjTrack("rechner_geoeffnet", { kategorie: "9-Sitzer" });
+    avjpTrack("rechner_geoeffnet", { kategorie: "PKW" });
     document.body.style.overflow = "hidden";
-    var first = ov.querySelector(".avj-car");
+    var first = ov.querySelector(".avjp-car");
     if(first) first.focus();
   }
   function hide(){
@@ -187,17 +183,10 @@ function avjTrack(name, params){
     document.body.style.overflow = "";
     if(lastFocus) lastFocus.focus();
   }
-
   open.addEventListener("click", show);
   if(close) close.addEventListener("click", hide);
-  ov.addEventListener("click", function(e){
-    if(e.target.hasAttribute("data-close")) hide();
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape" && !ov.hidden) hide();
-  });
-
-  /* Fokus im Dialog halten */
+  ov.addEventListener("click", function(e){ if(e.target.hasAttribute("data-close")) hide(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !ov.hidden) hide(); });
   ov.addEventListener("keydown", function(e){
     if(e.key !== "Tab") return;
     var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
@@ -214,42 +203,38 @@ function avjTrack(name, params){
 
   /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
   var CARS = {
-    sprinter: {
-      name: "Sprinter Tourer",
-      example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Handschaltung \u00B7 214 kurz",
-      frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      planKm: 0.18,   // vorab geplante Mehrkilometer
-      overKm: 0.33,   // ungeplant bei R\u00FCckgabe
-      // Wochenendtarif Fr 12:00 bis Mo 10:00
-      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
-      dayMoDo: [ [200,130], [500,150], [800,175], [1200,225] ],
-      dayFrSa: [ [200,150], [500,175], [800,200], [1200,250] ],
-      weekend: [ [200,245], [600,275], [900,330], [1200,395] ],
-      // Staffel Tag 1-7 + Frei-km
-      tier:   [130, 255, 375, 475, 555, 615, 650],
-      tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+    /* Volkswagen Golf 8, Automatik — Tarifliste Stand 06.2026.
+       Nur Rueckfallebene: sobald preise.json erreichbar ist, gelten
+       die Werte von dort. */
+    golf: {
+      name: "Golf",
+      example: "Kompaktklasse \u00B7 Limousine \u00B7 Benzin \u00B7 Automatik",
+      planKm: 0.30,
+      overKm: 0.30,
+      dayMoDo: [ [100,90], [300,120], [600,140], [900,160] ],
+      weekend: [ [600,195], [900,230] ],
+      tier:   [90, 165, 240, 305, 360, 405, 440],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
       sb: [
         { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]        },
-        { label:"1.000 \u20AC", we:25, tier:[15,30,43,54,63,70,75] },
-        { label:"500 \u20AC",   we:60, tier:[30,58,78,90,98,102,105] }
+        { label:"1.000 \u20AC", we:25, tier:[10,20,28,35,41,47,50] },
+        { label:"500 \u20AC",   we:40, tier:[15,35,51,64,78,88,95] }
       ]
     },
-    vito: {
-      name: "Vito Tourer",
-      example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Automatik \u00B7 119 extralang",
-      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      planKm: 0.22,   // vorab geplante Mehrkilometer
-      overKm: 0.37,   // ungeplant bei R\u00FCckgabe
-      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
-      dayMoDo: [ [200,160], [500,195], [800,230], [1200,275] ],
-      dayFrSa: [ [200,170], [500,210], [800,250], [1200,300] ],
-      weekend: [ [200,275], [600,345], [900,395], [1200,460] ],
-      tier:   [160, 315, 465, 600, 730, 845, 950],
-      tierKm: [200, 400, 650, 900, 1200, 1500, 1800],
+    /* Volkswagen Golf 8 Variant, Automatik */
+    golfvariant: {
+      name: "Golf Variant",
+      example: "Kompaktklasse \u00B7 Kombi \u00B7 Benzin \u00B7 Automatik",
+      planKm: 0.32,
+      overKm: 0.32,
+      dayMoDo: [ [100,100], [300,130], [600,150], [900,170] ],
+      weekend: [ [600,215], [900,240] ],
+      tier:   [100, 180, 255, 320, 375, 420, 455],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
       sb: [
-        { label:"2.000 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]           },
-        { label:"1.000 \u20AC", we:35, tier:[18,36,52,68,82,92,100]   },
-        { label:"500 \u20AC",   we:75, tier:[35,68,95,118,134,144,150] }
+        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]        },
+        { label:"1.000 \u20AC", we:25, tier:[12,22,29,35,42,47,50] },
+        { label:"500 \u20AC",   we:40, tier:[17,36,52,65,78,88,95] }
       ]
     }
   };
@@ -257,13 +242,13 @@ function avjTrack(name, params){
   /* Preise vom Server uebernehmen, sobald sie da sind. Bis dahin — und
      falls der Abruf scheitert — gelten die Werte oben im Code. */
   AVJ_PREISE.bereit(function(d){
-    if(d && d.neunsitzer){
+    if(d && d.pkw){
       /* Ganze Gruppe uebernehmen, nicht nur die bekannten Fahrzeuge:
          sonst taucht ein neu angelegtes nie auf und ein archiviertes
          verschwindet nie. Die eingebauten Werte oben im Code sind nur
          die Rueckfallebene, wenn preise.json gar nicht erreichbar ist. */
       CARS = {};
-      for(var k in d.neunsitzer) CARS[k] = d.neunsitzer[k];
+      for(var k in d.pkw) CARS[k] = d.pkw[k];
       if(!CARS[carKey]){ carKey = null; for(var e in CARS){ carKey = e; break; } }
       _gridCache = {};
     }
@@ -271,7 +256,7 @@ function avjTrack(name, params){
   });
 
   var _trackTimer = null, _lastSig = null;
-  var carKey = "sprinter";
+  var carKey = "golf";
   var sbIdx  = 0;
 
   var $ = function(id){ return document.getElementById(id); };
@@ -286,8 +271,8 @@ function avjTrack(name, params){
   }
 
   function duration(){
-    var a = parseDT("avjFrom","avjFromT");
-    var b = parseDT("avjTo","avjToT");
+    var a = parseDT("avjPFrom","avjPFromT");
+    var b = parseDT("avjPTo","avjPToT");
     if(!a || !b) return null;
     var ms = b - a;
     if(ms <= 0) return { invalid:true };
@@ -371,7 +356,7 @@ function avjTrack(name, params){
     if(!d) return { empty:true };
     if(d.invalid) return { invalid:true };
 
-    var kmRaw = $("avjKm").value.trim();
+    var kmRaw = $("avjPKm").value.trim();
     var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
 
     var mode, base, freeKm, sbCost, tarifLabel, badge = "";
@@ -441,7 +426,7 @@ function avjTrack(name, params){
   /* ─── Rendering ──────────────────────────────────────────── */
   function renderSb(){
     var car = CARS[carKey];
-    if(!car || !$("avjSbRow") || !car.sb || !car.sb.length) return;
+    if(!car || !$("avjPSbRow") || !car.sb || !car.sb.length) return;
     var html = "";
     for(var i=0;i<car.sb.length;i++){
       var s = car.sb[i];
@@ -450,12 +435,12 @@ function avjTrack(name, params){
             +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
             + '</button>';
     }
-    $("avjSbRow").innerHTML = html;
+    $("avjPSbRow").innerHTML = html;
   }
 
   function renderDur(){
     var d = duration();
-    var el = $("avjDur");
+    var el = $("avjPDur");
     if(!d){ el.textContent = ""; return; }
     if(d.invalid){
       el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
@@ -475,24 +460,24 @@ function avjTrack(name, params){
 
   function render(){
     renderDur();
-    var q = $("avjOut");
+    var q = $("avjPOut");
     var r = quote();
 
     if(r.empty || r.invalid){
-      $("avjPrice").textContent = "\u2014";
-      $("avjTarifLabel").textContent = "Richtpreis";
-      $("avjBadge").textContent = "";
-      $("avjLines").innerHTML =
+      $("avjPPrice").textContent = "\u2014";
+      $("avjPTarifLabel").textContent = "Richtpreis";
+      $("avjPBadge").textContent = "";
+      $("avjPLines").innerHTML =
         '<li class="hint">'+(r.invalid
           ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
           : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
-      $("avjKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      $("avjPKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
       return;
     }
 
-    $("avjPrice").textContent = eur(r.total);
-    $("avjTarifLabel").textContent = r.tarifLabel;
-    $("avjBadge").textContent = r.badge;
+    $("avjPPrice").textContent = eur(r.total);
+    $("avjPTarifLabel").textContent = r.tarifLabel;
+    $("avjPBadge").textContent = r.badge;
 
     var L = "";
     L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
@@ -503,12 +488,12 @@ function avjTrack(name, params){
       if(r.overKm > 0){
         L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
           +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
-        $("avjKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
+        $("avjPKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
       } else {
-        $("avjKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
+        $("avjPKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
       }
     } else {
-      $("avjKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
+      $("avjPKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
     }
 
     if(r.car.sb && r.car.sb.length){
@@ -544,7 +529,7 @@ function avjTrack(name, params){
       L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
     }
 
-    $("avjLines").innerHTML = L;
+    $("avjPLines").innerHTML = L;
 
     /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
     clearTimeout(_trackTimer);
@@ -552,8 +537,8 @@ function avjTrack(name, params){
       var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
       if(sig === _lastSig) return;
       _lastSig = sig;
-      avjTrack("preis_berechnet", {
-        kategorie: "9-Sitzer",
+      avjpTrack("preis_berechnet", {
+        kategorie: "PKW",
         fahrzeug:  r.car.name,
         tage:      r.d.days,
         tarif:     r.mode,
@@ -567,12 +552,12 @@ function avjTrack(name, params){
      Werden aus den Tarifdaten gezeichnet, nicht mehr aus dem festen
      HTML-Feld. Nur so taucht ein neu angelegtes Fahrzeug auch bei
      Kunden auf, ohne dass das HTML-Feld angefasst werden muss. */
-  var carsBox = document.querySelector(".avj-calc .avj-cars");
+  var carsBox = document.querySelector(".avjp-calc .avjp-cars");
   function renderCars(){
     if(!carsBox) return;
     var h = "";
     for(var k in CARS){
-      h += '<button type="button" class="avj-car' + (k === carKey ? ' is-active' : '')
+      h += '<button type="button" class="avjp-car' + (k === carKey ? ' is-active' : '')
         +  '" data-car="' + k + '">'
         +    '<span class="n">' + (CARS[k].name || k) + '</span>'
         +    '<span class="d">' + (CARS[k].example || "") + '</span>'
@@ -588,12 +573,12 @@ function avjTrack(name, params){
     carKey = b.getAttribute("data-car");
     sbIdx = 0;
     renderCars();
-    avjTrack("fahrzeug_gewechselt", { kategorie: "9-Sitzer", fahrzeug: CARS[carKey].name });
+    avjpTrack("fahrzeug_gewechselt", { kategorie: "PKW", fahrzeug: CARS[carKey].name });
     renderSb();
     render();
   });
 
-  if($("avjSbRow")) $("avjSbRow").addEventListener("click", function(e){
+  if($("avjPSbRow")) $("avjPSbRow").addEventListener("click", function(e){
     var b = e.target.closest("button[data-sb]");
     if(!b) return;
     sbIdx = parseInt(b.getAttribute("data-sb"),10);
@@ -601,19 +586,19 @@ function avjTrack(name, params){
     render();
   });
 
-  ["avjFrom","avjTo"].forEach(function(id){
+  ["avjPFrom","avjPTo"].forEach(function(id){
     $(id).addEventListener("change", function(){ refreshTimes(); render(); });
   });
-  ["avjFromT","avjToT"].forEach(function(id){
+  ["avjPFromT","avjPToT"].forEach(function(id){
     $(id).addEventListener("change", function(){ refreshTimes(); render(); });
   });
-  $("avjKm").addEventListener("input", render);
+  $("avjPKm").addEventListener("input", render);
 
   /* WhatsApp-Klick melden */
-  $("avjCta").addEventListener("click", function(){
+  $("avjPCta").addEventListener("click", function(){
     var r = quote();
-    avjTrack("whatsapp_klick", {
-      kategorie: "9-Sitzer",
+    avjpTrack("whatsapp_klick", {
+      kategorie: "PKW",
       fahrzeug:  CARS[carKey].name,
       tage:      (r && r.d) ? r.d.days : 0,
       preis:     (r && r.total) ? Math.round(r.total) : 0
@@ -741,31 +726,31 @@ function avjTrack(name, params){
   }
 
   function refreshTimes(){
-    var fromEl = $("avjFromT"), toEl = $("avjToT");
-    fillTimes(fromEl, $("avjFrom").value, "start");
-    fillTimes(toEl,   $("avjTo").value,   "end");
-    setWd("avjFromWd", $("avjFrom").value);
-    setWd("avjToWd",   $("avjTo").value);
+    var fromEl = $("avjPFromT"), toEl = $("avjPToT");
+    fillTimes(fromEl, $("avjPFrom").value, "start");
+    fillTimes(toEl,   $("avjPTo").value,   "end");
+    setWd("avjPFromWd", $("avjPFrom").value);
+    setWd("avjPToWd",   $("avjPTo").value);
 
     /* Hinweis Abholung */
-    var hF = hoursFor($("avjFrom").value);
-    var eF = $("avjFromHint");
+    var hF = hoursFor($("avjPFrom").value);
+    var eF = $("avjPFromHint");
     if(!hF){
-      var fnF = feiertagName($("avjFrom").value);
+      var fnF = feiertagName($("avjPFrom").value);
       eF.textContent = fnF
         ? (fnF + " \u2013 an diesem Tag keine Abholung m\u00F6glich.")
         : "Sonntags keine Abholung \u2013 bitte Samstag abholen.";
       eF.className = "h warn";
     } else {
-      var ktF = kurztagName($("avjFrom").value);
+      var ktF = kurztagName($("avjPFrom").value);
       eF.textContent = (ktF ? ktF + " \u00B7 " : "") +
                        "Abholung " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
       eF.className = "h";
     }
 
     /* Hinweis Rueckgabe */
-    var hT = hoursFor($("avjTo").value);
-    var eT = $("avjToHint");
+    var hT = hoursFor($("avjPTo").value);
+    var eT = $("avjPToHint");
     var mT = minutesOf(toEl.value || "10:00");
     var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
     if(insideT){
@@ -782,7 +767,7 @@ function avjTrack(name, params){
     var d = new Date();
     var guard = 0;
     while(!HOURS[d.getDay()] && guard < 7){ d.setDate(d.getDate()+1); guard++; }
-    $("avjFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+    $("avjPFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
   })();
   refreshTimes();
 

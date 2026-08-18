@@ -2876,7 +2876,19 @@ var AVJ_PREISE = (function(){
 
   function pruefe(d){
     if(!d || typeof d !== "object") return false;
-    if(!d.neunsitzer || !d.transporter) return false;
+
+    /* Frueher stand hier "neunsitzer und transporter muessen da sein".
+       Das war zu eng: sobald ein Rechner eine andere Gruppe liest, haengt
+       die Gueltigkeit der ganzen Datei an zwei fremden Abschnitten.
+       Jetzt reicht: mindestens eine Gruppe mit mindestens einem Fahrzeug. */
+    var gefunden = 0;
+    for(var g0 in d){
+      if(g0 === "version" || g0 === "stand" || g0 === "erzeugtVon") continue;
+      if(d[g0] && typeof d[g0] === "object"){
+        for(var k0 in d[g0]){ gefunden++; break; }
+      }
+    }
+    if(!gefunden) return false;
     var ok = true;
 
     function zahlenreihe(a, laenge){
@@ -5506,7 +5518,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 36;
+var AVJ_BUILD = 37;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
