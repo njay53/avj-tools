@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 39 · Onepage v38 · 18.08.2026**
+**Stand: Build 40 · Onepage v39 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1441,3 +1441,154 @@ Goldstandard: 1.666 Zeilen, identisch mit Build 37. Popup-Zeile aus Build
 Anhängertarife (Tag / Woche / Wochenende) bekommen eine eigene, einfache
 Tabelle für das Popup — ohne km-Stufen und ohne Haftungsraster. Nicht
 dringend, wird von Hand gepflegt.
+
+---
+
+## 27. Onepage v39 — der Freigabe-Weg war blockiert
+
+Niran hat das erste Mal freigegeben und `Kundenpreise aktualisieren.command`
+gestartet. Ergebnis: **„Die Datei ist kein gueltiges JSON und wurde NICHT
+uebernommen."** Damit stand der ganze Weg zum Kunden.
+
+### Die Datei war in Ordnung
+
+Zugriff auf den Download-Ordner geholt und nachgesehen. Die Datei ist
+13.648 Bytes, `AVJ Tools Build 39`, Stand 19.08., vier Gruppen, kein BOM,
+kein `null`, `file` sagt „JSON data" und `json.load` liest sie ohne Murren.
+
+Der Fehler lag im Skript: geprüft wurde mit **`plutil -lint`**. plutil ist
+ein Property-List-Werkzeug; dass es JSON meistens mitliest, ist ein
+Nebeneffekt, auf den kein Verlass ist. Warum es auf Nirans Mac abgelehnt
+hat, lässt sich von hier aus nicht mehr feststellen — muss es auch nicht:
+für JSON ist es schlicht das falsche Werkzeug.
+
+**Jetzt prüft python3**, das weiter unten im Skript ohnehin gebraucht wird,
+und die Meldung sagt, *wo* es klemmt statt nur *dass*:
+
+```
+✗ Die Datei ist kein gueltiges JSON und wurde NICHT uebernommen.
+  Expecting value: line 20 column 17 (char 396)
+```
+
+plutil bleibt als Rückfall, falls python3 fehlt — dann aber mit dem
+ehrlichen Hinweis, dass das die unzuverlässigere Prüfung ist, und mit der
+Möglichkeit weiterzumachen.
+
+### Zweiter Fund im selben Skript
+
+Die inhaltliche Prüfung kannte nur `neunsitzer` und `transporter` und
+verlangte dort von **jedem** Fahrzeug `dayMoDo`, `dayFrSa`, `weekend` und
+`sb`. Seit den PKW stimmt das nicht mehr: die haben kein getrenntes
+Fr/Sa-Raster, Low Budget weder Tagespakete noch Haftungsstufen. Das wäre
+die nächste Sackgasse gewesen, sobald ein PKW in eine geprüfte Gruppe
+wandert oder ein 9-Sitzer ohne Wochenendtarif dazukommt.
+
+Jetzt gilt dieselbe Regel wie in der App seit Build 37: **`tier` und
+`tierKm` sind Pflicht** (7 Werte, nicht fallend), alles andere wird
+geprüft, wenn es da ist. Und geprüft werden alle Gruppen, nicht zwei.
+
+Geprüft in einer Sandbox mit seiner echten Datei:
+
+- altes Skript → Ablehnung (reproduziert) ✓
+- neues Skript → 88 Änderungen, sauber aufgelistet ✓
+- abgeschnittene Datei → Ablehnung mit Zeile und Spalte ✓
+- gültiges JSON mit fallendem Staffelpreis → „vito: Staffelpreis faellt bei
+  Tag 4 (465 -> 10)" ✓
+
+### Der Rechner-Knopf in der Tabelle
+
+Der Hinweis auf den Preisrechner stand als Fließtext mit Link unter der
+Kopfzeile — ordentlich, aber niemand klickt das. Die Tabelle beantwortet
+nur drei Mietdauern; alles dazwischen kann nur der Rechner. Jetzt ein
+richtiger Knopf in Markenblau mit Untertitel, Fließtext von 13,5 auf 15 px.
+Unter 640 px rutscht der Knopf unter den Text.
+
+Der Klick-Handler hörte auf `a[data-rechner]` und musste auf
+`[data-rechner]` gelockert werden, damit ein `<button>` auch zählt.
+
+### Versionsstände
+
+- App: **Build 39**
+- Rechner auf Onepage: **v37**, unverändert
+- Tariftabellen: **v39** — muss neu eingesetzt werden
+- Notfallhinweis: **v39** — nur die Versionszeile im Kommentar hat sich
+  geändert, Neueinsetzen nicht nötig
+
+### Nebenbei repariert
+
+`prueftab.js` hatte das Rückfall-Datum abgetippt und schlug bei jeder
+Versionsänderung fehl. Es liest es jetzt aus dem gebauten Feld.
+
+---
+
+## 28. Build 40 — Zwischenwerte aus 1T und 7T
+
+Niran legt den Touran an, hat aus seiner alten Tarifliste die Anker für
+1 Tag, 7 Tage und Wochenende, tippt bei der Haftungsreduzierung 1T und 7T
+von Hand ein — und die Tage 2 bis 6 bleiben auf den Werten der Vorlage.
+Im Screenshot gut zu sehen:
+
+```
+SB 500 €   20   35   51   64   78   88   115
+Sprünge       +15  +16  +13  +14  +10  +27   ← der letzte fällt raus
+```
+
+Beim **Anlegen** erledigt das der Dialog: aus Tagespreis und Wochenpreis
+zieht er die Staffel über die Formkurve des Bestands. **Danach** gab es
+das nicht mehr — wer später einen Endwert ändert, stand ohne da.
+
+### Der Knopf
+
+Jede Reihe mit sieben Werten hat jetzt ein kleines **„1T + 7T → Rest"**
+in der Beschriftung: Staffelpreis, Frei-km und jede Haftungsstufe. Er
+nimmt die beiden Endwerte, die dort stehen, und legt die fünf dazwischen
+auf die mittlere Form des Bestands.
+
+Nirans Fall danach:
+
+```
+SB 500 €   20   43   62   79   93  105   115
+Sprünge       +23  +19  +17  +14  +12  +10   ← fällt gleichmäßig ab
+```
+
+### Drei Reihenarten, drei Kurven
+
+Aus dem eigenen Bestand gerechnet, bei jedem Klick neu — sie wandern also
+mit, wenn Fahrzeuge dazukommen:
+
+| Art | Mittelkurve (Tag 2–6) | max. Streuung |
+|---|---|---|
+| `tier` Staffelpreis | 0,220 0,431 0,615 0,775 0,904 | 0,106 |
+| `tierKm` Frei-km | 0,128 0,284 0,436 0,612 0,809 | 0,214 |
+| `sb` Haftung | 0,248 0,452 0,629 0,786 0,910 | 0,292 |
+
+**Die Haftung streut mit Abstand am stärksten** — kein Wunder, das sind
+über Jahre von Hand gesetzte Aufschläge. Gegenprobe: die Mittelkurve auf
+die zwölf vorhandenen SB-Reihen angewandt trifft acht davon auf unter
+6 %, die Ausreißer sind Sprinter SB 500 (17,9 %, sehr steil) und
+Transporter XL SB 500 (19,7 %, sehr flach). Der Knopf liefert also einen
+sauberen Ausgangspunkt, keine Wahrheit — Nachtippen bleibt richtig.
+
+Feste Kurven im Code greifen nur, wenn weniger als zwei brauchbare Reihen
+zum Mitteln da sind.
+
+### Details, die im Test aufgefallen sind
+
+- Gerundet wird in der Schrittweite des Feldes: Staffelpreis auf 5 €,
+  Frei-km auf 50 km, Haftung auf 1 €.
+- Nach dem Runden kann es hinten eng werden. Deshalb erst von links
+  monoton machen, dann von rechts nachziehen — und wenn dann immer noch
+  kein Platz ist, wird gar nichts geschrieben statt einer flachen Reihe.
+- Anker bleiben unangetastet, `takeSnapshot()` vorher: *Änderungen
+  verwerfen* nimmt den Klick zurück.
+- Unbrauchbare Anker (7T ≤ 1T) werden gemeldet, nicht gerechnet.
+- Kein Knopf an den Tagespaketen — dort gibt es keine Mitte zu treffen.
+
+### Geprüft
+
+`prueffuell.js`, dreizehn Proben, Nirans Fall eins zu eins nachgestellt:
+Touran nach Golf-Vorlage anlegen, SB 500 auf 20/115 setzen, Knopf, Reihe
+prüfen. Dazu Rasterung, Widerruf und die Fehlermeldung.
+
+Goldstandard: 1.666 Zeilen, identisch mit Build 37. Popup-Zeile und
+Zurücksetzen aus 38/39 unverändert grün.

@@ -1506,6 +1506,17 @@
   line-height:1.6;
 }
 .avj-kverw:hover{border-color:#7A6A2E;background:#FFFDF3;}
+/* ══════════════════════════════════════════════════════════════
+   Build 40 · Zwischenwerte aus 1T und 7T
+   ══════════════════════════════════════════════════════════════ */
+.avjt-fuell{
+  border:1px solid #DCE3EA;background:#fff;border-radius:6px;
+  padding:1px 8px;margin-left:7px;vertical-align:1px;
+  font-size:10.5px;font-weight:600;font-family:inherit;
+  color:#40505E;cursor:pointer;letter-spacing:0;text-transform:none;
+  line-height:1.7;
+}
+.avjt-fuell:hover{border-color:#1B2FC4;color:#1B2FC4;}
 </style>
 </head>
 <body>
@@ -4613,6 +4624,12 @@ function AVJ_RECHNER(CFG){
       var t = e.target;
       if(!t || !t.getAttribute) return;
       if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
+      if(t.getAttribute("data-fuell")){
+        var meldung = fuelleZwischen(t.getAttribute("data-fuell"),
+                        Number(t.getAttribute("data-schritt")) || 1);
+        flashSaved(meldung || "Zwischenwerte gesetzt");
+        return;
+      }
       if(t.getAttribute("data-verwirf")){
         var vk = t.getAttribute("data-verwirf"), vf = t.getAttribute("data-feld");
         if(verwirfFeld(vk, vf)) flashSaved("Zur\u00FCckgesetzt");
@@ -4631,7 +4648,17 @@ function AVJ_RECHNER(CFG){
     });
   })();
 
+  /* Nur Reihen mit sieben Werten koennen aus zwei Ankern gefuellt
+     werden — bei den Tagespaketen gibt es keine Mitte zu treffen. */
+  function fuellKnopf(key, step){
+    return ' <button type="button" class="avjt-fuell" data-fuell="' + key + '"'
+      +  ' data-schritt="' + (step || 1) + '"'
+      +  ' title="Die f\u00FCnf Werte zwischen 1T und 7T neu verteilen">'
+      +  '1T + 7T \u2192 Rest</button>';
+  }
+
   function numRow(cls, label, arr, key, sub, step){
+    if(sub === null && arr && arr.length === 7) label += fuellKnopf(key, step);
     var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'" data-deltas="1">';
     for(var i=0;i<arr.length;i++){
       var val = (sub === null) ? arr[i] : arr[i][sub];
@@ -4724,6 +4751,106 @@ function AVJ_RECHNER(CFG){
 
   var _snapshot = null;
   function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
+
+  /* ─── Zwischenwerte aus 1T und 7T ───────────────────────────────
+     Beim Anlegen zieht der Dialog die Staffel aus zwei Ankern. Danach
+     stand man ohne da: wer 1T und 7T von Hand aendert, hatte fuenf
+     Werte dazwischen, die noch zur alten Spanne gehoerten.
+
+     Die Form kommt aus dem eigenen Bestand, nicht aus einer Formel —
+     und sie wird bei jedem Klick neu gerechnet, damit sie mitwandert,
+     wenn Fahrzeuge dazukommen. Die festen Kurven unten greifen nur,
+     wenn es noch zu wenig zu mitteln gibt. */
+  var FORM_FEST = {
+    tier:   [0, 0.220, 0.431, 0.615, 0.775, 0.904, 1],
+    tierKm: [0, 0.128, 0.284, 0.436, 0.612, 0.809, 1],
+    sb:     [0, 0.248, 0.452, 0.629, 0.786, 0.910, 1]
+  };
+
+  function reihenAusBestand(art){
+    var raus = [];
+    var bs = [];
+    try{ bs = AVJ_EDITOR.bereiche() || []; }catch(e){ return raus; }
+    for(var i=0;i<bs.length;i++){
+      var d = {};
+      try{ d = bs[i].daten() || {}; }catch(e){ continue; }
+      for(var k in d){
+        var c = d[k];
+        if(!c) continue;
+        if(art === "sb"){
+          var l = c.sb || [];
+          for(var s=0;s<l.length;s++) if(l[s] && l[s].tier) raus.push(l[s].tier);
+        } else if(c[art]){
+          raus.push(c[art]);
+        }
+      }
+    }
+    return raus;
+  }
+
+  function formVonBestand(art){
+    var reihen = reihenAusBestand(art), gut = [];
+    for(var i=0;i<reihen.length;i++){
+      var r = reihen[i];
+      if(!r || r.length !== 7) continue;
+      if(!(r[6] > r[0])) continue;          /* Nullreihe oder verdreht */
+      var steigt = true, a = [];
+      for(var j=0;j<7;j++){
+        if(j && r[j] < r[j-1]) steigt = false;
+        a.push((r[j] - r[0]) / (r[6] - r[0]));
+      }
+      if(steigt) gut.push(a);
+    }
+    if(gut.length < 2) return FORM_FEST[art] ? FORM_FEST[art].slice() : FORM_FEST.tier.slice();
+    var m = [];
+    for(var q=0;q<7;q++){
+      var summe = 0;
+      for(var g=0;g<gut.length;g++) summe += gut[g][q];
+      m.push(summe / gut.length);
+    }
+    m[0] = 0; m[6] = 1;
+    return m;
+  }
+
+  /* pfad ist "tier", "tierKm" oder "sb0", "sb1", … */
+  function reiheAus(pfad){
+    var car = CARS[carKey];
+    if(!car) return null;
+    if(pfad.indexOf("sb") === 0 && pfad.length > 2){
+      var idx = parseInt(pfad.slice(2), 10);
+      return (car.sb && car.sb[idx]) ? car.sb[idx].tier : null;
+    }
+    return car[pfad] || null;
+  }
+
+  function fuelleZwischen(pfad, schritt){
+    var r = reiheAus(pfad);
+    if(!r || r.length !== 7) return "Diese Reihe hat keine sieben Werte.";
+    var a = Number(r[0]), b = Number(r[6]);
+    if(!isFinite(a) || !isFinite(b)) return "1T oder 7T ist keine Zahl.";
+    if(b <= a) return "7T muss groesser sein als 1T \u2014 sonst gibt es nichts zu verteilen.";
+
+    var art = pfad.indexOf("sb") === 0 ? "sb" : pfad;
+    var form = formVonBestand(art);
+    var s = schritt > 0 ? schritt : 1;
+
+    takeSnapshot();
+    for(var i=1;i<6;i++){
+      var v = Math.round((a + (b - a) * form[i]) / s) * s;
+      if(v <= r[i-1]) v = r[i-1] + s;       /* nie flach oder fallend */
+      if(v >= b) v = b - s;                 /* und nie ueber den Endwert */
+      r[i] = v;
+    }
+    /* Nach dem Deckeln kann es hinten eng werden — einmal von rechts
+       nachziehen, damit die Reihe garantiert steigt. */
+    for(var j=5;j>=1;j--) if(r[j] >= r[j+1]) r[j] = r[j+1] - s;
+    for(var k=1;k<6;k++) if(r[k] <= r[k-1]) return "Zwischen 1T und 7T ist zu wenig Platz.";
+
+    _gridCache = {};
+    saveCfg();
+    renderSettings(); renderSb(); render();
+    return null;
+  }
   function restoreSnapshot(){
     if(!_snapshot) return false;
     try{
@@ -5748,7 +5875,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 39;
+var AVJ_BUILD = 40;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

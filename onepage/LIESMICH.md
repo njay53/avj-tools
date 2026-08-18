@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 38 · 18.08.2026
+# Onepage-Felder · Stand Version 39 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -70,6 +70,11 @@ Rechner ihre Preise holen.
 `Kundenpreise aktualisieren.command`. Rechner **und** Tabelle stimmen.
 Kein Bild mehr bauen, kein Bild mehr austauschen.
 
+Unter der Kopfzeile steht ein **Knopf zum Preisrechner**. Die Tabelle
+deckt nur einzelne Tage, das Wochenende und 7 Tage ab — alles dazwischen
+kann nur der Rechner. Bis v38 stand dort ein Link im Fließtext; das hat
+niemand angeklickt.
+
 Einbau in zwei Schritten, ausführlich in `tariftabelle-3-EINBAU.txt`:
 
 1. **einmal pro Seite** — ein Feld mit `tariftabelle-1-CSS` und
@@ -83,6 +88,10 @@ Einbau in zwei Schritten, ausführlich in `tariftabelle-3-EINBAU.txt`:
 
 `data-titel` ist die blaue Kopfzeile, `*Sternchen*` machen den
 Modellnamen rot. Lässt man es weg, kommt der Titel aus dem Tool.
+
+**Abtippen muss man die Zeile nicht:** im Tool unter *Tarif Config.* das
+Fahrzeug auswählen, Knopf **Popup-Zeile** — dort steht sie fertig und geht
+per Klick in die Zwischenablage.
 
 Was die Tabelle zeigt, richtet sich nach dem, was beim Fahrzeug
 hinterlegt ist: Kurzzeittarife nur mit `kurzzeit`, Wochenende nur mit

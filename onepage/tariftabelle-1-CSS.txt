@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Aussehen
-   Version 38 · 18.08.2026
+   Version 39 · 19.08.2026
 
    Eigene Vorsilbe avjtab- , damit sich nichts mit den Rechnern
    beisst (die benutzen avj- , avjt- und avjp-).
@@ -53,14 +53,26 @@
 .avjtab-pr{ font-weight:700; font-size:15.5px; }
 .avjtab-luecke{ height:14px; }
 
-/* Hinweis auf den Rechner, direkt unter der Kopfzeile */
+/* Hinweis auf den Rechner, direkt unter der Kopfzeile.
+   Bewusst laut: die Tabelle beantwortet nur drei Mietdauern, alles
+   dazwischen kann nur der Rechner. Als Fliesstext mit Link ist das
+   niemandem aufgefallen. */
 .avjtab-schnell{
   grid-column:1 / -1; background:#EEF1F6; border-left:5px solid #0018C4;
-  display:block; text-align:left; padding:9px 13px;
-  font-size:13.5px; line-height:1.5;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; flex-wrap:wrap; text-align:left; padding:13px 16px;
 }
+.avjtab-schnell .t{ font-size:15px; line-height:1.5; flex:1 1 300px; }
 .avjtab-schnell b{ font-weight:700; }
-.avjtab-schnell a{ color:#0018C4; font-weight:700; cursor:pointer; }
+.avjtab-knopf{
+  flex:0 0 auto; display:flex; flex-direction:column; align-items:center;
+  border:0; border-radius:999px; padding:13px 26px; cursor:pointer;
+  background:#0018C4; color:#fff; font-family:inherit; text-align:center;
+  box-shadow:0 2px 10px rgba(0,24,196,.28);
+}
+.avjtab-knopf:hover{ background:#0014A3; }
+.avjtab-knopf .k1{ font-size:16px; font-weight:700; line-height:1.25; }
+.avjtab-knopf .k2{ font-size:12px; font-weight:400; opacity:.85; margin-top:2px; }
 
 .avjtab-fuss{
   display:flex; justify-content:space-between; align-items:flex-start;

@@ -57,11 +57,34 @@ echo "  vom $(date -r "$NEU" '+%d.%m.%Y %H:%M')"
 echo ""
 
 # ── Ist es ueberhaupt lesbares JSON? ──────────────────────────
-# plutil gehoert zu macOS und versteht JSON — kein Zusatzwerkzeug noetig.
-if ! plutil -lint "$NEU" >/dev/null 2>&1; then
-  echo "  ✗ Die Datei ist kein gueltiges JSON und wurde NICHT uebernommen."
-  echo "    Bitte in der App neu freigeben."
-  ende 1
+# Frueher stand hier "plutil -lint". plutil ist ein Property-List-
+# Werkzeug; dass es JSON meistens mitliest, ist ein Nebeneffekt, auf den
+# kein Verlass ist — am 19.08. hat es eine einwandfreie Datei abgelehnt.
+# python3 ist fuer JSON zustaendig und sagt ausserdem, wo es klemmt.
+if command -v python3 >/dev/null 2>&1; then
+  MELDUNG="$(python3 -c '
+import json, sys
+try:
+    json.load(open(sys.argv[1], encoding="utf-8"))
+except Exception as e:
+    print(e)
+    sys.exit(1)
+' "$NEU" 2>&1)"
+  if [ $? -ne 0 ]; then
+    echo "  ✗ Die Datei ist kein gueltiges JSON und wurde NICHT uebernommen."
+    echo "    $MELDUNG"
+    echo "    Bitte in der App neu freigeben."
+    ende 1
+  fi
+elif command -v plutil >/dev/null 2>&1; then
+  if ! plutil -lint "$NEU" >/dev/null 2>&1; then
+    echo "  ✗ Die Datei sieht nicht nach gueltigem JSON aus."
+    echo "    Geprueft wurde mit plutil, weil python3 fehlt — das ist die"
+    echo "    unzuverlaessigere Pruefung. Wenn die Datei frisch aus der App"
+    echo "    kommt, ist sie vermutlich in Ordnung."
+    read -r -p "  Trotzdem weitermachen? [j/n] " EGAL
+    case "$EGAL" in j|J|ja|Ja|y|Y) ;; *) echo "  Abgebrochen."; ende 0 ;; esac
+  fi
 fi
 
 # ── Inhaltliche Pruefung und Vergleich ────────────────────────
@@ -73,10 +96,32 @@ neu_pfad, alt_pfad = sys.argv[1], sys.argv[2]
 neu = json.load(open(neu_pfad, encoding="utf-8"))
 
 fehler = []
-for gruppe in ("neunsitzer", "transporter"):
-    if gruppe not in neu:
-        fehler.append(f"Bereich '{gruppe}' fehlt"); continue
-    for name, auto in neu[gruppe].items():
+
+# Frueher wurden nur "neunsitzer" und "transporter" geprueft, und dort
+# von jedem Fahrzeug dayMoDo, dayFrSa, weekend und sb verlangt. Seit den
+# PKW stimmt das nicht mehr: die haben kein getrenntes Fr/Sa-Raster, Low
+# Budget weder Tagespakete noch Haftungsstufen. Jetzt gilt dieselbe Regel
+# wie in der App: tier und tierKm sind Pflicht, alles andere wird
+# geprueft, wenn es ueberhaupt da ist.
+KOPF = ("version", "stand", "erzeugtVon", "kaution")
+gruppen = {g: v for g, v in neu.items() if g not in KOPF and isinstance(v, dict)}
+if not gruppen or not any(v for v in gruppen.values()):
+    fehler.append("Die Datei enthaelt keine Fahrzeuge")
+
+def paarliste(a):
+    if not isinstance(a, list) or not a:
+        return False
+    for paar in a:
+        if not isinstance(paar, list) or len(paar) != 2:
+            return False
+        if any((not isinstance(x, (int, float))) or x < 0 for x in paar):
+            return False
+    return True
+
+for gruppe, autos in gruppen.items():
+    for name, auto in autos.items():
+        if not isinstance(auto, dict):
+            fehler.append(f"{gruppe}.{name}: kein Datensatz"); continue
         for feld in ("tier", "tierKm"):
             w = auto.get(feld)
             if not isinstance(w, list) or len(w) != 7:
@@ -89,10 +134,16 @@ for gruppe in ("neunsitzer", "transporter"):
                 if t[i] < t[i-1]:
                     fehler.append(f"{name}: Staffelpreis faellt bei Tag {i+1} ({t[i-1]} -> {t[i]})")
         for feld in ("dayMoDo", "dayFrSa", "weekend"):
-            if not isinstance(auto.get(feld), list) or not auto[feld]:
-                fehler.append(f"{name}: {feld} fehlt oder ist leer")
-        if not auto.get("sb"):
-            fehler.append(f"{name}: Haftungsstufen fehlen")
+            if feld in auto and not paarliste(auto[feld]):
+                fehler.append(f"{name}: {feld} ist unbrauchbar")
+        if "sb" in auto:
+            if not auto["sb"]:
+                fehler.append(f"{name}: Haftungsstufen sind leer")
+            else:
+                for stufe in auto["sb"]:
+                    w = (stufe or {}).get("tier")
+                    if not isinstance(w, list) or len(w) != 7:
+                        fehler.append(f"{name}: Haftungsstufe ohne 7 Werte")
 
 if fehler:
     print("  ✗ Die Preisdatei ist nicht schluessig — NICHTS wurde uebernommen:")

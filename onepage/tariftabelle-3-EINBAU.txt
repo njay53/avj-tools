@@ -1,4 +1,4 @@
-AVJ Tariftabellen · Einbau · Version 38 · 18.08.2026
+AVJ Tariftabellen · Einbau · Version 39 · 19.08.2026
 ================================================================
 
 WAS HIER PASSIERT
@@ -98,6 +98,7 @@ aus dem Tool:
 <div class="avjtab" data-fz="neunsitzer.vito"></div>
 
 NEUES FAHRZEUG
-Legst du im Tool ein Fahrzeug an, brauchst du hier nur die eine Zeile
-mit dem neuen Schlüssel. Den Schlüssel siehst du im Tool unter Tarife
-in der Adresszeile des Fahrzeugs, oder du fragst mich.
+Die Zeile musst du nicht abtippen. Im Tool unter "Tarif Config."
+das Fahrzeug auswählen, dann der Knopf "Popup-Zeile": dort steht sie
+fertig, mit einem Vorschlag für die Kopfzeile, und geht per Klick in
+die Zwischenablage.
