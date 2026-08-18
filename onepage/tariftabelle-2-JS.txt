@@ -8,10 +8,17 @@
    und die Tabelle im Popup stimmt, ohne dass ein Bild neu
    gebaut und hochgeladen werden muss.
 
-   Dieser Block kommt EINMAL auf die Fahrzeugseite. In jedes Popup
-   kommt dann nur noch eine Zeile:
+   ACHTUNG — diese Datei gehoert in den JS-Kasten des Custom-Code-
+   Feldes, nicht in den HTML-Kasten. Landet sie im HTML-Kasten, zeigt
+   die Seite den ganzen Quelltext als Fliesstext an.
 
-     <div class="avjtab" data-fz="neunsitzer.vito"></div>
+   Dieser Block kommt EINMAL auf die Fahrzeugseite. In jedes Popup
+   kommt dann nur noch eine Zeile — sie steht ausgeschrieben in
+   tariftabelle-3-EINBAU.txt. Hier absichtlich ohne spitze Klammern,
+   damit aus dem Beispiel keine echte Tabelle wird, falls diese Datei
+   doch einmal im HTML-Kasten landet:
+
+     div class="avjtab" data-fz="neunsitzer.vito"
 
    Alles Weitere macht dieser Block.
    ═══════════════════════════════════════════════════════════════ */

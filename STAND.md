@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 37 · Onepage v38 · 18.08.2026**
+**Stand: Build 38 · Onepage v38 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1303,3 +1303,75 @@ Bauskripte: `/tmp/bautabelle.js` (zieht die Fahrzeugdaten per
 Klammernzählung aus `index.html`, damit nichts abgetippt wird),
 `/tmp/bau404.js`. Tests: `/tmp/prueftab.js`, `/tmp/pruefnot.js`,
 `/tmp/pruefnachtrag.js`.
+
+---
+
+## 25. Build 38 — die Popup-Zeile kommt aus dem Tool
+
+Nirans Frage nach dem ersten geglückten Einbau: *„woher kommt dann die eine
+HTML-Zeile? Musst du die schreiben oder entsteht die selbst?"*
+
+Ehrliche Antwort war: geschrieben, von mir, für die sieben vorhandenen
+Fahrzeuge. Das ist genau die Abhängigkeit, die der Dialog *Neues Fahrzeug*
+aus Build 34 beseitigen sollte — legt er selbst ein Fahrzeug an, müsste er
+mich wieder fragen, wie der interne Schlüssel heißt. Also erzeugt das Tool
+die Zeile jetzt selbst.
+
+**Im Reiter Tarife**, in der Knopfzeile neben *Bearbeiten* und *Ins Archiv*,
+ein dritter Knopf: **Popup-Zeile**. Er öffnet ein kleines Fenster mit
+
+- einem Feld für die blaue Kopfzeile, vorbelegt aus Name und Merkmalen,
+- der fertigen Zeile darunter, die beim Tippen mitläuft,
+- *In die Zwischenablage*.
+
+Der Vorschlag lautet z. B. `*Vito Tourer* 119 extralang (9-Sitzer, Bus,
+Automatik)`. Er trifft nie das, was im Verkauf draufstehen soll — dafür
+immer die Fakten. Überschreiben ist der Normalfall.
+
+Neues Modul `AVJ_ZEILE` mit `zeige(bereich, key)`, `bauen(gruppe, key,
+titel)` und `vorschlag(auto, key)`. Es kennt die Onepage-Dateien nicht,
+sondern nur die Form der Zeile — ändert sich drüben etwas, ändert sich hier
+eine Zeichenkette.
+
+**Zwei Wege in die Zwischenablage:** `navigator.clipboard` braucht eine
+sichere Herkunft und fällt aus, wenn `index.html` per Doppelklick aus dem
+Finder geöffnet wird. Dann greift `execCommand("copy")` über die
+Textauswahl. Schlägt auch das fehl, ist der Text markiert und der Hinweis
+sagt ⌘C.
+
+### Ein Fehler, den erst der Test gefunden hat
+
+Anführungszeichen in der Kopfzeile hätten das `data-titel`-Attribut
+vorzeitig geschlossen und die Zeile zerrissen. Mein erster Anlauf
+maskierte sie mit `\u0022` — was im Browser wieder ein `"` ist, also
+nichts tut. Der Test prüft seitdem die Anzahl der Anführungszeichen in
+der erzeugten Zeile. Richtig ist `&quot;`.
+
+### Geprüft — der Kreis schließt sich
+
+`pruefzeile.js` fährt beides zusammen: Tool auf einem Server, Fahrzeugseite
+auf einem zweiten. Für Vito, Transporter M und Golf Variant je:
+
+1. Fahrzeug im Reiter Tarife wählen, *Popup-Zeile* klicken
+2. Kopfzeile eintippen, *In die Zwischenablage*
+3. die erzeugte Zeile auf die Fahrzeugseite setzen und nachsehen
+
+Jedes Mal steht die richtige Tabelle da, mit der eingetippten Kopfzeile,
+`data-fertig="1"`, ohne Skriptfehler. Dazu der Anführungszeichen-Fall.
+
+Goldstandard: 1.666 Zeilen, identisch mit Build 37.
+
+### Versionsstände auseinandergehalten
+
+- **App:** Build 38
+- **Rechner auf Onepage:** v37, unverändert — an ihnen hat sich nichts
+  geändert, deshalb kein Neueinsetzen nötig
+- **Tariftabellen und Notfallhinweis:** v38
+
+### Beobachtung von der Fahrzeugseite
+
+`rent-in-nom.de/fahrzeuge` führt mehr Fahrzeuge als das Tool kennt: Touran
+7-Sitzer, Skoda Octavia Combi TDI, Trafic L2H1 in zwei Motorisierungen,
+MAN TGE lang, dazu den Autotrailer. Eine Tariftabelle kann es nur für
+Fahrzeuge geben, die im Tool stehen — das ist der nächste Schritt, und mit
+*Neues Fahrzeug* plus *Popup-Zeile* geht er ohne mich.

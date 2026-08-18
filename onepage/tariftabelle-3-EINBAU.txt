@@ -8,18 +8,31 @@ der auch die Rechner ihre Preise holen. Preis im Tool ändern, für
 Kunden freigeben, hochladen: die Tabelle im Popup stimmt sofort.
 Kein Bild mehr bauen, kein Bild mehr austauschen.
 
+DER HÄUFIGSTE FEHLER ZUERST
+Jede Datei gehört in GENAU EINEN Kasten. Die Zahl im Dateinamen sagt,
+in welchen:
+
+  …-1-HTML.txt  →  HTML-Kasten
+  …-2-CSS.txt   →  CSS-Kasten
+  …-2-JS.txt    →  JS-Kasten
+
+Landet tariftabelle-2-JS.txt im HTML-Kasten, zeigt die Seite den
+ganzen Quelltext als Fließtext an — man sieht dann Kommentare,
+Klammern und Zahlenreihen mitten im Popup. Dann ist nichts kaputt,
+der Text steht nur im falschen Kasten.
+
 SCHRITT 1 — einmal pro Seite
 Ein neues Custom-Code-Feld auf der Fahrzeugseite anlegen (irgendwo
 unten, es zeigt nichts an) und dort einsetzen:
 
-  CSS-Feld   tariftabelle-1-CSS.txt
-  JS-Feld    tariftabelle-2-JS.txt
-  HTML-Feld  bleibt leer
+  CSS-Kasten   tariftabelle-1-CSS.txt
+  JS-Kasten    tariftabelle-2-JS.txt
+  HTML-Kasten  bleibt LEER
 
 SCHRITT 2 — einmal pro Popup
 Im Fahrzeug-Popup das JPG löschen und stattdessen ein Custom-Code-Feld
-einsetzen. Nur ins HTML-Feld, eine Zeile, CSS und JS bleiben leer.
-Die passende Zeile steht unten.
+einsetzen. In den HTML-Kasten kommt EINE Zeile, sonst nichts. CSS- und
+JS-Kasten bleiben LEER. Die passende Zeile steht unten.
 
 WICHTIG
 · Schritt 1 muss auf derselben Seite liegen wie die Popups.
@@ -27,6 +40,8 @@ WICHTIG
   Popups stehen.
 · Fehlt Schritt 1, zeigt das Popup nichts an. Deshalb Schritt 1 zuerst
   einsetzen und speichern, dann die Popups.
+· Schritt 1 kommt genau EINMAL auf die Seite. Ein zweites Motorfeld
+  schadet zwar nicht, ist aber unnötiger Ballast.
 
 DIE ZEILEN
 Der Text in data-titel ist die blaue Kopfzeile. Was zwischen

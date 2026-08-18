@@ -1470,6 +1470,28 @@
   font-style:normal;letter-spacing:.04em;
 }
 .nf-f select option{font-weight:400;color:#111C2E;}
+/* ══════════════════════════════════════════════════════════════
+   Build 38 · Popup-Zeile
+   ══════════════════════════════════════════════════════════════ */
+.avj-zl-f{display:block;margin:10px 0 8px;}
+.avj-zl-f > span{
+  display:block;font-size:11.5px;font-weight:600;color:#40505E;margin-bottom:4px;
+}
+.avj-zl-f > span em{font-weight:400;font-style:normal;color:#8A96A3;}
+.avj-zl-f input{
+  width:100%;border:1px solid #DCE3EA;border-radius:8px;padding:8px 10px;
+  font-size:13px;font-family:inherit;color:#111C2E;box-sizing:border-box;
+}
+.avj-zl-f input:focus{outline:none;border-color:#1B2FC4;}
+.avj-zl textarea{
+  width:100%;border:1px solid #DCE3EA;border-radius:8px;padding:9px 10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11.5px;line-height:1.55;color:#26313B;background:#F7F9FB;
+  resize:vertical;box-sizing:border-box;
+}
+.avj-zl-hin{font-size:11.5px;line-height:1.5;margin-top:7px;min-height:16px;}
+.avj-zl-hin.gut{color:#2E7D46;}
+.avj-zl-hin.schlecht{color:#9A4B4B;}
 </style>
 </head>
 <body>
@@ -1819,6 +1841,7 @@ var AVJ_EDITOR = (function(){
     if(!a){ el.innerHTML = ""; return; }
     el.innerHTML = '<span class="pr-fzname">' + (a.name || aktivFz) + '</span>'
       + '<button type="button" data-fzakt="bearbeiten">Bearbeiten</button>'
+      + '<button type="button" data-fzakt="zeile">Popup-Zeile</button>'
       + '<button type="button" data-fzakt="archiv">Ins Archiv</button>';
   }
 
@@ -1984,6 +2007,10 @@ var AVJ_EDITOR = (function(){
       if(!b || !aktiv || !aktivFz) return;
       if(b.getAttribute("data-fzakt") === "bearbeiten"){
         AVJ_NEUFZ.bearbeite(aktiv, aktivFz);
+        return;
+      }
+      if(b.getAttribute("data-fzakt") === "zeile"){
+        AVJ_ZEILE.zeige(aktiv, aktivFz);
         return;
       }
       var autos = {}; try{ autos = aktiv.vorlagen() || {}; }catch(err){}
@@ -2201,6 +2228,122 @@ var AVJ_MERKMALE = (function(){
 
   return { felder:FELDER, laden:laden, select:select, behandleWahl:behandleWahl,
            beschriftung:beschriftung, einsammeln:einsammeln, name:name };
+})();
+
+/* ═══ Popup-Zeile ══════════════════════════════════════════════
+   Die Tariftabellen auf rent-in-nom.de brauchen je Fahrzeug-Popup
+   genau eine Zeile HTML. Sie ist mechanisch — Gruppe und Schluessel
+   stehen hier im Tool, die Kopfzeile ist Geschmackssache. Also
+   erzeugt das Tool sie, statt dass jemand sie abtippt.
+
+   Absichtlich kein Bezug auf die Onepage-Dateien: dieses Modul weiss
+   nur, wie die Zeile aussieht. Aendert sich drueben etwas, aendert
+   sich hier eine Zeichenkette und sonst nichts.                     */
+var AVJ_ZEILE = (function(){
+  "use strict";
+
+  /* Vorschlag fuer die blaue Kopfzeile. Sternchen machen den
+     Modellnamen rot — so stand es auf den bisherigen JPG-Tabellen.
+     Der Vorschlag ist bewusst schlicht: er trifft nie genau das, was
+     im Verkauf draufstehen soll, aber er trifft immer die Fakten.
+     Ueberschreiben ist der Normalfall, nicht die Ausnahme. */
+  function vorschlag(a, key){
+    var m = a.merkmale || {};
+    var klammer = [];
+    if(m.klasse)     klammer.push(m.klasse);
+    if(m.karosserie) klammer.push(m.karosserie);
+    if(m.getriebe)   klammer.push(m.getriebe);
+    return "*" + (a.name || key) + "*"
+      + (m.zusatz ? " " + m.zusatz : "")
+      + (klammer.length ? " (" + klammer.join(", ") + ")" : "");
+  }
+
+  /* Anfuehrungszeichen im Titel wuerden das Attribut vorzeitig
+     schliessen und die Zeile zerreissen. Als HTML-Entitaet geschrieben
+     stehen sie spaeter ganz normal in der blauen Kopfzeile. */
+  function bauen(gruppe, key, titel){
+    var t = String(titel || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+    return '<div class="avjtab" data-fz="' + gruppe + '.' + key + '"\n'
+      + '     data-titel="' + t + '"></div>';
+  }
+
+  function schliesse(){
+    var ov = document.getElementById("avjZlOv");
+    if(ov && ov.parentNode) ov.parentNode.removeChild(ov);
+  }
+
+  function zeige(bereich, key){
+    if(!bereich) return;
+    var autos = {};
+    try{ autos = bereich.vorlagen() || {}; }catch(e){}
+    var a = autos[key];
+    if(!a) return;
+    var gruppe = bereich.schluessel;
+
+    var h = '<div class="avj-frei-box avj-zl">'
+      + '<h3>Popup-Zeile f\u00FCr \u201E' + (a.name || key) + '\u201C</h3>'
+      + '<p>Diese eine Zeile kommt bei Onepage in den <b>HTML-Kasten</b> eines '
+      + 'Custom-Code-Feldes im Fahrzeug-Popup. CSS- und JS-Kasten bleiben leer. '
+      + 'Die Tabelle baut sich daraus selbst \u2014 aus denselben Tarifen, die '
+      + 'hier im Tool stehen.</p>'
+      + '<label class="avj-zl-f"><span>Kopfzeile <em>blau, ganz oben \u2014 '
+      + 'was zwischen *Sternchen* steht, wird rot</em></span>'
+      + '<input type="text" id="avjZlTitel" value="' + vorschlag(a, key).replace(/"/g,"&quot;") + '"></label>'
+      + '<textarea id="avjZlText" rows="3" readonly></textarea>'
+      + '<div class="avj-zl-hin" id="avjZlHin"></div>'
+      + '<div class="avj-frei-akt">'
+      +   '<button type="button" class="avj-frei-nein" id="avjZlZu">Schlie\u00DFen</button>'
+      +   '<button type="button" class="avj-frei-ja" id="avjZlKop">In die Zwischenablage</button>'
+      + '</div></div>';
+
+    var ov = document.createElement("div");
+    ov.className = "avj-frei-ov";
+    ov.id = "avjZlOv";
+    ov.innerHTML = h;
+    document.body.appendChild(ov);
+
+    var feld = document.getElementById("avjZlTitel");
+    var text = document.getElementById("avjZlText");
+    var hin  = document.getElementById("avjZlHin");
+
+    function frisch(){ text.value = bauen(gruppe, key, feld.value); }
+    frisch();
+    feld.addEventListener("input", function(){ frisch(); hin.textContent = ""; });
+
+    document.getElementById("avjZlZu").addEventListener("click", schliesse);
+    ov.addEventListener("click", function(e){ if(e.target === ov) schliesse(); });
+
+    document.getElementById("avjZlKop").addEventListener("click", function(){
+      var fertig = function(ok){
+        hin.className = "avj-zl-hin " + (ok ? "gut" : "schlecht");
+        hin.textContent = ok
+          ? "Kopiert. Bei Onepage in den HTML-Kasten des Popups einsetzen."
+          : "Kopieren hat nicht geklappt \u2014 der Text ist markiert, "
+            + "bitte mit \u2318C kopieren.";
+      };
+      /* Zwei Wege: der moderne braucht eine sichere Herkunft und faellt
+         beim Oeffnen per Doppelklick aus der Datei heraus aus. Dann
+         greift der alte ueber die Textauswahl. */
+      text.focus();
+      text.select();
+      var alt = function(){
+        var ok = false;
+        try{ ok = document.execCommand("copy"); }catch(e){}
+        fertig(ok);
+      };
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text.value)
+            .then(function(){ fertig(true); })
+            .catch(alt);
+          return;
+        }
+      }catch(e){}
+      alt();
+    });
+  }
+
+  return { zeige: zeige, bauen: bauen, vorschlag: vorschlag };
 })();
 
 /* ═══ Neues Fahrzeug ═══════════════════════════════════════════
@@ -5518,7 +5661,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 37;
+var AVJ_BUILD = 38;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
