@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════════════════════════
+   AVJ Notfallhinweis
+   Version 38 · 18.08.2026
+
+   Was hier NICHT passiert: dieser Block prüft nicht, ob GitHub
+   erreichbar ist. Das muss er auch nicht — fällt avj-tools aus, holen
+   Rechner und Preistabellen einfach die Werte, die beim letzten
+   Hochladen mitgegeben wurden. Der Kunde sieht dann Preise vom
+   vorletzten Stand statt gar nichts. Ein Störungshinweis wäre an der
+   Stelle sogar schädlich: er würde jemanden vertreiben, der gerade
+   einen völlig gültigen Preis vor sich hat.
+
+   Was hier passiert: der Block wartet ab, ob Rechner und Tabellen
+   überhaupt etwas anzeigen. Bleibt nach ein paar Sekunden ein Kasten
+   leer — Skript blockiert, Browser zu alt, ein Feld bei Onepage
+   versehentlich gelöscht — dann steht dort die Telefonnummer statt
+   eines leeren Rahmens.
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+
+  /* So lange bekommen Rechner und Tabellen Zeit. Der Abruf von
+     preise.json bricht selbst nach 3 Sekunden ab, danach wird auf die
+     eingebauten Werte zurückgefallen — 7 Sekunden sind also reichlich
+     Puffer und trotzdem kein Kunde, der minutenlang vor Leere sitzt. */
+  var FRIST = 7000;
+
+  /* Woran man erkennt, dass ein Rechner läuft: zwei Stellen, die im
+     HTML-Feld leer sind und erst vom JS-Feld gefüllt werden — die
+     Versionszeile ganz unten und die Reihe der Haftungsstufen. Die
+     Fahrzeugknöpfe taugen dafür nicht: die stehen schon fest im
+     HTML-Feld und sind auch dann da, wenn nichts läuft. */
+  var RECHNER = [
+    { huelle:".avj-calc",  zeugen:["avjVer","avjSbRow"]   },
+    { huelle:".avjt-calc", zeugen:["avjTVer","avjTSbRow"] },
+    { huelle:".avjp-calc", zeugen:["avjPVer","avjPSbRow"] },
+    { huelle:".avjl-calc", zeugen:["avjLVer","avjLSbRow"] }
+  ];
+
+  function box(was){
+    return '<div class="avjnot-box">'
+      + '<b>' + was + ' gerade nicht verfügbar</b>'
+      + '<p>Da ist bei uns technisch etwas schiefgelaufen — wir kümmern uns '
+      + 'darum. Ihren Preis nennen wir Ihnen sofort am Telefon oder über '
+      + 'WhatsApp, mit allen Kilometer- und Haftungsstufen.</p>'
+      + '<p class="nr"><a href="tel:+49555154545">05551-54545</a></p>'
+      + '<p class="wa"><a href="https://wa.me/49555154545" rel="noopener">'
+      + 'per WhatsApp schreiben</a></p>'
+      + '<p class="zeit">Autovermietung Jansen · Berliner Allee 14 · 37154 Northeim</p>'
+      + '</div>';
+  }
+
+  function leer(el){
+    if(!el) return true;
+    return !el.children.length && !(el.textContent || "").replace(/\s/g,"").length;
+  }
+
+  function pruefe(){
+    for(var i=0;i<RECHNER.length;i++){
+      var r = RECHNER[i];
+      var h = document.querySelector(r.huelle);
+      if(!h) continue;                       /* Rechner nicht auf der Seite */
+      if(h.getAttribute("data-avjnot")) continue;
+
+      /* Nur anschlagen, wenn KEINER der Zeugen etwas anzeigt. Steht
+         auch nur einer, ist das JS-Feld gelaufen und der Rechner
+         gehört nicht überschrieben. */
+      var gefunden = 0, laeuft = 0;
+      for(var z=0;z<r.zeugen.length;z++){
+        var e = document.getElementById(r.zeugen[z]);
+        if(!e) continue;
+        gefunden++;
+        if(!leer(e)) laeuft++;
+      }
+      if(!gefunden || laeuft) continue;
+
+      h.setAttribute("data-avjnot","1");
+      h.innerHTML = box("Der Preisrechner ist");
+    }
+
+    var t = document.querySelectorAll(".avjtab");
+    for(var j=0;j<t.length;j++){
+      if(t[j].getAttribute("data-fertig")) continue;
+      if(!leer(t[j])) continue;
+      t[j].innerHTML = box("Die Preistabelle ist");
+    }
+  }
+
+  function start(){
+    setTimeout(pruefe, FRIST);
+    /* Popups werden oft erst beim Öffnen sichtbar. Deshalb noch einmal
+       nachsehen, sobald jemand irgendwo klickt — aber frühestens nach
+       der Frist, sonst schlägt es an, während noch geladen wird. */
+    var ab = new Date().getTime() + FRIST;
+    document.addEventListener("click", function(){
+      if(new Date().getTime() < ab) return;
+      setTimeout(pruefe, 400);
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", start);
+  } else { start(); }
+})();

@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 37 · 18.08.2026**
+**Stand: Build 37 · Onepage v38 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -691,8 +691,7 @@ Alle vier Fahrzeuge bestehen das, Vorschau und Felder stimmen überein.
   Richtpreise (Vorlage skalieren statt Formel, fünf Ankerwerte) und die
   Umbauten, die dafür nötig sind. Wichtigster davon: die drei fast identischen
   Rechner-Blöcke zu einem zusammenführen, bevor eine vierte Kategorie dazukommt.
-- **Tariftabelle in die Onepage-Popups** einbauen — Entwurf 3 ist abgenommen,
-  die Anleitung zum Einpflegen steht noch aus.
+- ~~Tariftabelle in die Onepage-Popups~~ — erledigt in v38, siehe Abschnitt 24.
 - **Hash-Links für die Kundenrechner** (`#rechner=vito`), damit man einem Kunden
   direkt das richtige Fahrzeug schicken kann.
 
@@ -1165,3 +1164,142 @@ da ist, rechnen die PKW auf der Website mit ihren eingebauten Werten —
 richtig, aber nicht zentral pflegbar. Einmal *Für Kunden freigeben* im
 Reiter Tarife und `Kundenpreise aktualisieren.command` laufen lassen, dann
 kommen auch die PKW-Preise aus der Datei.
+
+---
+
+## 24. Onepage v38 — Tariftabellen aus preise.json, Notfallhinweis, 404
+
+Zwei Punkte aus dem Betrieb, beide kundenseitig.
+
+### 24.1 Die Preistabellen waren JPGs
+
+In den Fahrzeug-Popups auf `rent-in-nom.de/fahrzeuge` lagen die Tarifblätter
+als hochgeladene Bilder. Jede Preisänderung hieß: Bild bauen, Bild
+hochladen, Bild austauschen — und zwar zusätzlich zu `preise.json`. Zwei
+Wege für dieselbe Zahl, und der eine hängt an der Hand.
+
+Jetzt baut der Browser die Tabelle aus **derselben** `preise.json`, aus der
+auch die Rechner ihre Preise holen. Preis im Tool ändern → *Für Kunden
+freigeben* → `Kundenpreise aktualisieren.command`, und Rechner **und**
+Tabelle stimmen.
+
+Grundlage ist `entwurf3-tariftabelle.html` aus Build 32 — pixeltreu
+übernommen, aber datengetrieben statt abgetippt: Farben `#0018C4`,
+`#FDFA61`, `#FF7F7F`, `#DCDCDC`, weiße Lücken statt Rahmen, Logo als
+base64, Stand-Datum aus `preise.json`.
+
+**Aufbau:** ein Motorfeld pro Seite, eine Zeile pro Popup.
+
+```html
+<div class="avjtab" data-fz="neunsitzer.vito"
+     data-titel="Kleinbus Mercedes-Benz *Vito Tourer* 119 (9-Sitzer, extralang, AHK)"></div>
+```
+
+`data-fz` ist `gruppe.fahrzeug`, `*Sternchen*` machen den Modellnamen rot.
+Ohne `data-titel` kommt der Titel aus `name` und `example`. Das Motorfeld
+zeichnet alles, was es findet — beim Laden, wenn die Preise eintreffen, und
+per `MutationObserver` für alles, was Onepage nachträglich in die Seite
+hängt. Ein neu angelegtes Fahrzeug braucht deshalb nur seine eine Zeile.
+
+**Was gezeigt wird, richtet sich nach den Daten:** Kurzzeittarife nur mit
+`kurzzeit`, Wochenende nur mit `weekend`, Haftung nur mit `sb`, AHK-Zeilen
+nur mit `ahk`. Low Budget hat kein Tagespaketraster und bekommt stattdessen
+die Staffel 1–7 Tage plus Monatspreis. Damit deckt ein Bauplan alle vier
+Gruppen ab.
+
+**Eigene Vorsilbe `avjtab-`.** Wichtig, weil `avjp-` seit Build 37 dem
+PKW-Rechner gehört — der Entwurf benutzte genau diese Vorsilbe. Ohne
+Umbenennung hätten sich Tabelle und PKW-Rechner das CSS zerschossen.
+
+**Fallstrick, der beim Ansehen auffiel:** `.avjtab-z` ist ein
+Spalten-Flexbox. Ein `<span>` im Titel wird darin zu einem eigenen
+Flex-Element — die Kopfzeile brach dreifach um, statt eine Zeile zu sein
+wie auf den JPGs. `display:block` auf `.avjtab-blau` behebt es.
+
+**Nachtrag für ältere Preisdateien:** `kurzzeit`, `ahk` und `kaution`
+braucht nur die Tabelle. Fehlen sie beim Fahrzeug in `preise.json`, nimmt
+die Tabelle diese drei aus dem Code — sonst wären Kurzzeittarife und
+AHK-Zeilen still verschwunden. Preise nie: `tier`, `tierKm`, `dayMoDo`,
+`dayFrSa`, `weekend`, `sb` kommen immer vom Server. In der Datei vom 16.08.
+(Build 29) sind die drei bei 9-Sitzer und Transporter schon drin, der
+Nachtrag greift dort also gar nicht.
+
+### 24.2 „Was, wenn GitHub ausfällt?"
+
+Die Frage war berechtigt, die Antwort ist unspektakulär: die Website liegt
+bei Onepage, von GitHub kommt nur `preise.json`. Ist die nicht erreichbar,
+nehmen Rechner und Tabellen die eingebauten Werte vom letzten Hochladen —
+der Kunde sieht Preise vom vorletzten Stand statt gar nichts. **Ein
+Störungshinweis wäre da falsch**, er würde jemanden vertreiben, der einen
+gültigen Preis vor sich hat.
+
+Was wirklich weh tut, ist ein Feld, das nicht durchläuft: Skript blockiert,
+Browser zu alt, ein Feld bei Onepage versehentlich gelöscht. Dann steht da
+ein leerer Kasten. Dafür der **Notfallhinweis** (`stoerung-1/2/3`), ein Feld
+pro Seite. Er zeigt normalerweise nichts. Bleibt nach 7 Sekunden ein Rechner
+oder eine Tabelle leer, steht dort `05551-54545` und der WhatsApp-Knopf.
+Dazu ein `<noscript>` für abgeschaltetes JavaScript.
+
+**Woran er erkennt, dass ein Rechner läuft:** an `avjVer` und `avjSbRow` —
+zwei Stellen, die im HTML-Feld leer sind und erst vom JS-Feld gefüllt
+werden. Der erste Versuch prüfte die Fahrzeugknöpfe; die stehen aber fest
+im HTML-Feld und sind auch dann da, wenn nichts läuft. Der Test schlug
+deshalb zu Recht fehl.
+
+**`404.html`** liegt neben `index.html` und `CNAME`. GitHub Pages zeigt sie
+bei jeder Adresse auf `avj-tools.rent-in-nom.de`, die es nicht gibt:
+„Technische Störung", Nummer, WhatsApp, Link zur Startseite. Ist GitHub
+Pages selbst weg, wird auch sie nicht ausgeliefert — dagegen hülfe nur ein
+zweiter Anbieter, was sich für eine Datei, die nur Niran benutzt, nicht
+lohnt.
+
+### 24.3 Offen zum Entscheiden
+
+Ganz oben in `tariftabelle-2-JS.txt`:
+
+```js
+var AVJTAB_GEPLANT = false;
+```
+
+Auf `false` zeigt „je extra km" nur den ungeplanten Satz — genau wie die
+bisherigen JPGs. Der Rechner unterscheidet aber zwei Sätze: vorab geplante
+Mehrkilometer sind günstiger (Vito 0,22 statt 0,37). Auf `true` stehen
+beide in der Tabelle. Preisaussage, keine Technikfrage — deshalb erstmal
+unverändert gelassen.
+
+### Geprüft
+
+Alles auf einer nachgebauten Fahrzeugseite, drei Rechner plus sieben
+Tabellen nebeneinander:
+
+- Jede Zahl in jeder Tabelle gegen die Tarifdaten des Tools abgeglichen —
+  sieben Fahrzeuge, 21 bis 24 Werte je Fahrzeug ✓
+- `preise.json` wird weiterhin **einmal** geholt, trotz vier Feldern, die
+  denselben Lader mitbringen ✓
+- Der Lader ist in allen vier JS-Feldern wortgleich (das Bauskript bricht
+  sonst ab) ✓
+- `preise.json` weggenommen → Rückfall auf die eingebauten Werte, keine
+  Konsolenfehler ✓
+- Ein nur auf dem Server angelegtes Fahrzeug erscheint in der Tabelle ✓
+- Ein unbekanntes `data-fz` → Störungsbox mit Telefonnummer statt leerem
+  Kasten ✓
+- Serverdatei **ohne** `kurzzeit`/`ahk`/`kaution`, dafür mit geändertem
+  Wochenpreis: Kurzzeittarife und AHK-Zeilen bleiben, der Preis kommt vom
+  Server ✓
+- Notfallhinweis: heile Seite → kein Hinweis; Rechner-JS zerschossen →
+  Hinweis mit Nummer; Motorfeld der Tabelle fehlt → Hinweis mit Nummer ✓
+
+### Dateien
+
+| Datei | wohin |
+|---|---|
+| `onepage/tariftabelle-1-CSS.txt` | Motorfeld, CSS-Kasten |
+| `onepage/tariftabelle-2-JS.txt` | Motorfeld, JS-Kasten |
+| `onepage/tariftabelle-3-EINBAU.txt` | Anleitung + fertige Zeilen für alle sieben Popups |
+| `onepage/stoerung-1-HTML.txt` `-2-CSS` `-3-JS` | Notfallhinweis, ein Feld pro Seite |
+| `404.html` | Ordner `avj-tools`, geht mit `hochladen.command` mit |
+
+Bauskripte: `/tmp/bautabelle.js` (zieht die Fahrzeugdaten per
+Klammernzählung aus `index.html`, damit nichts abgetippt wird),
+`/tmp/bau404.js`. Tests: `/tmp/prueftab.js`, `/tmp/pruefnot.js`,
+`/tmp/pruefnachtrag.js`.

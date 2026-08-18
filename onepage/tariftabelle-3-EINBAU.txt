@@ -1,0 +1,88 @@
+AVJ Tariftabellen · Einbau · Version 38 · 18.08.2026
+================================================================
+
+WAS HIER PASSIERT
+Die Preistabellen liegen bisher als JPG in den Fahrzeug-Popups.
+Ab jetzt baut der Browser sie aus preise.json — derselben Datei, aus
+der auch die Rechner ihre Preise holen. Preis im Tool ändern, für
+Kunden freigeben, hochladen: die Tabelle im Popup stimmt sofort.
+Kein Bild mehr bauen, kein Bild mehr austauschen.
+
+SCHRITT 1 — einmal pro Seite
+Ein neues Custom-Code-Feld auf der Fahrzeugseite anlegen (irgendwo
+unten, es zeigt nichts an) und dort einsetzen:
+
+  CSS-Feld   tariftabelle-1-CSS.txt
+  JS-Feld    tariftabelle-2-JS.txt
+  HTML-Feld  bleibt leer
+
+SCHRITT 2 — einmal pro Popup
+Im Fahrzeug-Popup das JPG löschen und stattdessen ein Custom-Code-Feld
+einsetzen. Nur ins HTML-Feld, eine Zeile, CSS und JS bleiben leer.
+Die passende Zeile steht unten.
+
+WICHTIG
+· Schritt 1 muss auf derselben Seite liegen wie die Popups.
+· Reihenfolge egal — das Feld aus Schritt 1 darf auch unter den
+  Popups stehen.
+· Fehlt Schritt 1, zeigt das Popup nichts an. Deshalb Schritt 1 zuerst
+  einsetzen und speichern, dann die Popups.
+
+DIE ZEILEN
+Der Text in data-titel ist die blaue Kopfzeile. Was zwischen
+*Sternchen* steht, wird rot — wie bisher der Modellname.
+
+
+────────────────────────────────────────────────────────────────
+Vito Tourer   (neunsitzer.vito)
+
+<div class="avjtab" data-fz="neunsitzer.vito"
+     data-titel="Kleinbus Mercedes-Benz *Vito Tourer* 119 (9-Sitzer, extralang, AHK)"></div>
+
+────────────────────────────────────────────────────────────────
+Sprinter Tourer   (neunsitzer.sprinter)
+
+<div class="avjtab" data-fz="neunsitzer.sprinter"
+     data-titel="Kleinbus Mercedes-Benz *Sprinter Tourer* 214 (9-Sitzer, kurz, Flachdach)"></div>
+
+────────────────────────────────────────────────────────────────
+Transporter M   (transporter.m)
+
+<div class="avjtab" data-fz="transporter.m"
+     data-titel="Transporter *M* lang z.B. Renault Trafic lang (AHK)"></div>
+
+────────────────────────────────────────────────────────────────
+Transporter XL   (transporter.xl)
+
+<div class="avjtab" data-fz="transporter.xl"
+     data-titel="Transporter *XL* z.B. Mercedes-Benz Sprinter lang (AHK)"></div>
+
+────────────────────────────────────────────────────────────────
+Golf   (pkw.golf)
+
+<div class="avjtab" data-fz="pkw.golf"
+     data-titel="PKW Volkswagen *Golf* 8 (Kompaktklasse, Automatik)"></div>
+
+────────────────────────────────────────────────────────────────
+Golf Variant   (pkw.golfvariant)
+
+<div class="avjtab" data-fz="pkw.golfvariant"
+     data-titel="PKW Volkswagen *Golf Variant* 8 (Kombi, Automatik)"></div>
+
+────────────────────────────────────────────────────────────────
+Low-Budget   (lb.yaris)
+
+<div class="avjtab" data-fz="lb.yaris"
+     data-titel="*Low-Budget* Kleinwagen z.B. Toyota Yaris"></div>
+
+────────────────────────────────────────────────────────────────
+OHNE EIGENE KOPFZEILE
+Lässt du data-titel weg, nimmt die Tabelle Name und Kurzbeschreibung
+aus dem Tool:
+
+<div class="avjtab" data-fz="neunsitzer.vito"></div>
+
+NEUES FAHRZEUG
+Legst du im Tool ein Fahrzeug an, brauchst du hier nur die eine Zeile
+mit dem neuen Schlüssel. Den Schlüssel siehst du im Tool unter Tarife
+in der Adresszeile des Fahrzeugs, oder du fragst mich.

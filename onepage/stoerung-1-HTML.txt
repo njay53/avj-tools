@@ -1,0 +1,15 @@
+<!-- AVJ Notfallhinweis · Version 38 · 18.08.2026
+     Einmal pro Fahrzeugseite. Im Normalfall zeigt dieser Block nichts an.
+     Er springt nur ein, wenn ein Rechner oder eine Preistabelle leer
+     geblieben ist — dann steht dort die Telefonnummer statt eines
+     leeren Kastens. -->
+
+<noscript>
+  <div class="avjnot-box">
+    <b>Preisrechner und Preistabellen brauchen JavaScript</b>
+    <p>In diesem Browser ist JavaScript abgeschaltet. Ihren Preis nennen wir
+       Ihnen gern direkt &mdash; mit allen Kilometer- und Haftungsstufen.</p>
+    <p class="nr"><a href="tel:+49555154545">05551-54545</a></p>
+    <p class="wa"><a href="https://wa.me/49555154545" rel="noopener">per WhatsApp schreiben</a></p>
+  </div>
+</noscript>

@@ -1,0 +1,23 @@
+/* ═══════════════════════════════════════════════════════════════
+   AVJ Notfallhinweis · Aussehen
+   Version 38 · 18.08.2026
+   ═══════════════════════════════════════════════════════════════ */
+
+.avjnot-box{
+  background:#fff; border:2px solid #0018C4; border-radius:14px;
+  padding:26px 22px; margin:14px auto; max-width:520px; text-align:center;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:#111C2E; box-shadow:0 2px 14px rgba(0,0,0,.07);
+}
+.avjnot-box b{ display:block; font-size:18px; line-height:1.35; margin-bottom:10px; }
+.avjnot-box p{ font-size:14.5px; line-height:1.6; margin:0 0 12px; color:#40505E; }
+.avjnot-box .nr{ margin-bottom:6px; }
+.avjnot-box .nr a{
+  font-size:30px; font-weight:800; color:#0018C4; text-decoration:none;
+  letter-spacing:.005em; white-space:nowrap;
+}
+.avjnot-box .wa a{
+  display:inline-block; font-size:14px; font-weight:700; color:#fff;
+  background:#25D366; border-radius:999px; padding:10px 20px; text-decoration:none;
+}
+.avjnot-box .zeit{ font-size:12px; color:#8A96A3; margin:8px 0 0; }
