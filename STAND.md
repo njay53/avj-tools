@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 33 · 18.08.2026**
+**Stand: Build 34 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -801,3 +801,130 @@ Menüpunkt, Fahrzeugliste dynamisch zeichnen (steht intern **und** auf der
 Website noch als festes HTML da), Speicherformat und `preise.json` für neue
 Fahrzeuge öffnen, dann der Dialog „Neues Fahrzeug" mit Klassen, Ankern und
 Ampel.
+
+---
+
+## 20. Build 34 — Fahrzeuge selbst anlegen
+
+Der Punkt, auf den die Builds 33 und 34 hinausliefen: **eine neue Kategorie
+ist eine Konfiguration, ein neues Fahrzeug ein Dialog.** Kein HTML, kein Code.
+
+### Auch das HTML-Gerüst wird erzeugt
+
+Bis Build 33 stand das Gerüst jedes Rechners dreimal fest im Dokument —
+rund 90 Zeilen je Kategorie, jede Kennung von Hand umbenannt. Jetzt baut
+`AVJ_RECHNER` es selbst (`geruest()`), gesteuert über drei neue Angaben:
+
+```js
+  k:       "avjt",        // Vorsilbe der CSS-Klassen
+  ziel:    "wrapTrans",   // Behälter im Dokument, der gefüllt wird
+  frage:   "Was kostet dein Transporter?",
+  haftung: false          // nur Low Budget: keine SB-Stufen im Gerüst
+```
+
+Auch die **Fahrzeugknöpfe** kommen jetzt aus den Daten (`renderCars()`) statt
+aus festem HTML. Ohne das könnte ein selbst angelegtes Fahrzeug gar nicht in
+der Auswahl auftauchen. Die Kurzbeschreibung unter dem Namen steht dafür neu
+als `example` in den Tarifdaten (beim 9-Sitzer nachgetragen, Text unverändert).
+
+> **Reihenfolge-Falle:** `renderCars()` läuft beim Aufbau — da ist eine
+> Kategorie mit ausschließlich selbst angelegten Fahrzeugen noch leer. Die
+> kommen erst mit `loadCfg()` aus dem localStorage. Deshalb wird nach
+> `loadCfg()` das Startfahrzeug neu bestimmt und die Knopfreihe noch einmal
+> gezeichnet. Ohne das war der PKW-Rechner nach dem Neuladen leer.
+
+### PKW-Kategorie
+
+Ein Reiter, ein leerer Behälter, zwölf Zeilen Konfiguration. Neu ist nur,
+dass eine Kategorie **leer** sein kann — bis hierher gab es immer mindestens
+ein Fahrzeug, also griff nirgends eine Prüfung. `hatAuto()` fängt das jetzt
+in `quote()`, `renderSb()`, `renderSettings()` und `render()` ab.
+
+### „+ Neues Fahrzeug"
+
+Im Reiter Tarife neben dem Vergleich. Fünf Anker:
+
+| Feld | wird daraus abgeleitet |
+|---|---|
+| Tagespreis Mo–Do | Anfang der Staffel |
+| Wochenpreis (7 Tage) | Ende der Staffel |
+| Wochenendpreis Fr–Mo | die Wochenendstufen |
+| Frei-km pro Tag | die Frei-km-Staffel |
+| Mehrkilometer ungeplant | geplant folgt im Verhältnis der Vorlage |
+
+**Die Staffel entsteht aus der Formkurve** `[0, 0,220, 0,430, 0,614, 0,776,
+0,906, 1]` — dem Anteil des Wegs von Tag 1 zu Tag 7, gemittelt über den
+eigenen Bestand. Gegen die echten Preise gehalten liegt sie im schlechtesten
+Fall 7,5 % daneben (Vito, Tag 3), beim Transporter M 1,4 %. Wählt man ein
+Fahrzeug als Vorlage, wird stattdessen dessen eigene Kurve genommen.
+
+**Alles Übrige behält das Verhältnis der Vorlage:** Preise werden mit dem
+Preisfaktor skaliert, Kilometer mit dem km-Faktor. Tagespakete,
+Wochenendstufen, Kurzzeittarife, AHK, Monatsanker. **Haftungsstufen und
+Kaution werden unverändert übernommen** — sie hängen am Schadenrisiko, nicht
+am Mietpreis. (Das war eine offene Frage aus `PLAN-fahrzeuge.md`; sollte es
+anders sein, ist es eine Zeile in `AVJ_NEUFZ.baue()`.)
+
+Felder, die die Zielkategorie nicht liest, werden entfernt — ein Monatsanker
+aus einer Low-Budget-Vorlage landet nicht im PKW, sonst stünde er als tote
+Angabe in `preise.json` und tauchte als Abweichung auf.
+
+**Die Ampel vergleicht mit dem eigenen Bestand**, nicht mit erfundenen
+Branchenwerten: grün innerhalb der Spanne der Kategorie (±10 %), gelb bis
+±25 %, rot darüber. Ist die Kategorie leer, wird der ganze Fuhrpark
+herangezogen; gibt es nichts zu vergleichen, bleibt die Ampel grau und sagt
+das auch. Angezeigt werden Wochenfaktor, Wochenende je Tagespreis und Preis
+je Frei-km.
+
+### Vierte Markierungsfarbe: blau
+
+Bei einem noch nicht veröffentlichten Fahrzeug gibt es keinen Kundenstand,
+gegen den sich „teurer" oder „günstiger" bestimmen ließe — die Felder
+leuchteten trotzdem grün, als lägen sie über dem Kundenpreis. Dafür gibt es
+jetzt Blau `#CFE0FF`:
+
+| Farbe | Bedeutung |
+|---|---|
+| Grün | teurer als der veröffentlichte Preis |
+| Rot | günstiger als der veröffentlichte Preis |
+| Grau | genau auf dem Kundenstand |
+| **Blau** | **noch nicht veröffentlicht — kein Vergleichswert** |
+
+### Prüfung der Preisdatei gelockert
+
+`pruefe()` verlangte von **jedem** Fahrzeug Tagespakete, Wochenende und
+Haftungsstufen. Ein selbst angelegtes Fahrzeug ohne diese Raster hätte die
+**ganze Datei** ungültig gemacht — und Kunden hätten still die alten Preise
+weitergesehen. Jetzt sind nur `tier` und `tierKm` Pflicht (je sieben endliche
+Zahlen ≥ 0); alles Weitere wird geprüft, **wenn es da ist**. Ein Fahrzeug ohne
+Wochenendraster ist erlaubt, ein kaputtes nicht.
+
+> **Noch offen:** die beiden Kundenrechner auf der Website haben eine eigene,
+> noch strenge `pruefe()`. Solange die nicht nachgezogen ist, darf in
+> `neunsitzer` oder `transporter` kein Fahrzeug ohne Wochenendraster
+> veröffentlicht werden — sonst weisen die Kundenrechner die Datei ab und
+> fallen auf ihre eingebauten Preise zurück. Für PKW gilt das nicht, den
+> Abschnitt lesen sie gar nicht.
+
+### Speicherformat
+
+Hat schon gepasst: `diffGegen()` legt ein Fahrzeug, das der Kundenstand nicht
+kennt, vollständig ab; `legeAuf()` baut es beim Laden wieder auf. Ein neues
+Fahrzeug erscheint dadurch mit allen Feldern als Abweichung — richtig so, es
+ist ja noch nicht veröffentlicht.
+
+### Geprüft
+
+- Goldstandard (676 Fälle) nach jedem Schritt **identisch** zu Build 32
+- Reiter vorher/nachher pixelweise verglichen: gleich bis auf die Build-Nummer
+- PKW von Hand durchgespielt: anlegen → Auswahl → eigener Rechner → Neuladen →
+  Preisverschiebung → Freigabe-Dialog. Keine Konsolenfehler.
+
+### Was noch fehlt
+
+- Kundenrechner auf der Website: Fahrzeugliste ist dort weiter festes HTML,
+  ein neues Fahrzeug taucht für Kunden also noch nicht auf. Dazu die
+  gelockerte `pruefe()`.
+- Einstellungsbereich als eigener Menüpunkt (Klassen, Korridore, Rundung)
+- Größenklasse × Bauform für PKW
+- Stilllegen statt löschen

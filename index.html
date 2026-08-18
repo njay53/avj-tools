@@ -1314,6 +1314,106 @@
   border-left:3px solid #CFE0D6;padding-left:9px;
 }
 .avj-khinweis b{color:#40505E;font-weight:700;}
+/* ══════════════════════════════════════════════════════════════
+   Build 34 · leere Kategorie
+   ══════════════════════════════════════════════════════════════ */
+.avj-leer,.avjt-leer{
+  grid-column:1 / -1;
+  border:1px dashed #C6D0DA;border-radius:12px;background:#F7F9FB;
+  padding:18px 16px;text-align:center;
+  font-size:13px;line-height:1.6;color:#5A6675;
+}
+.avj-leer b,.avjt-leer b{color:#111C2E;font-weight:700;}
+/* ══════════════════════════════════════════════════════════════
+   Build 34 · Dialog "Neues Fahrzeug"
+   ══════════════════════════════════════════════════════════════ */
+.nf-ov{
+  position:fixed;inset:0;z-index:9999;background:rgba(17,28,46,.55);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:24px 16px;overflow:auto;-webkit-overflow-scrolling:touch;
+}
+.nf-box{
+  background:#fff;border-radius:16px;max-width:760px;width:100%;
+  padding:22px 24px 20px;box-shadow:0 18px 60px rgba(0,0,0,.28);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:#111C2E;
+}
+.nf-box h3{font-size:17px;font-weight:700;margin:0 0 6px;}
+.nf-sub{font-size:12.5px;line-height:1.6;color:#5A6675;margin:0 0 16px;}
+.nf-reihe{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.nf-f{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.nf-f > span{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8A96A3;}
+.nf-f > span em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;color:#A9B4BF;}
+.nf-f input,.nf-f select{
+  font-family:inherit;font-size:14px;padding:9px 10px;border:1px solid #DCE3EA;
+  border-radius:9px;outline:none;color:#111C2E;background:#fff;width:100%;box-sizing:border-box;
+}
+.nf-f input:focus,.nf-f select:focus{border-color:#1B2FC4;}
+
+.nf-anker{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0 4px;}
+.nf-a{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.nf-a > span{font-size:11px;font-weight:700;letter-spacing:.04em;color:#5A6675;line-height:1.35;}
+.nf-in{display:flex;align-items:center;gap:6px;background:#F7F9FB;border:1px solid #DCE3EA;border-radius:9px;padding:7px 10px;}
+.nf-in input{
+  width:100%;min-width:0;border:none;outline:none;background:transparent;padding:0;
+  font-family:ui-monospace,monospace;font-size:15px;font-weight:700;color:#111C2E;
+}
+.nf-in em{font-style:normal;font-size:12px;font-weight:600;color:#8A96A3;white-space:nowrap;}
+
+.nf-ampeln{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:14px 0 4px;}
+.nf-ampel{
+  border-radius:9px;padding:8px 11px;border:1px solid #DCE3EA;background:#F7F9FB;
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;
+}
+.nf-ampel .n{font-size:11px;font-weight:700;color:#40505E;flex:1 1 100%;}
+.nf-ampel .w{font-family:ui-monospace,monospace;font-size:15px;font-weight:800;}
+.nf-ampel .t{font-size:10.5px;color:#5A6675;}
+.nf-ampel.gruen{background:#EAF7EE;border-color:#9FD6B2;}
+.nf-ampel.gruen .w{color:#12693C;}
+.nf-ampel.gelb{background:#FFF6E0;border-color:#E7C879;}
+.nf-ampel.gelb .w{color:#8A6A12;}
+.nf-ampel.rot{background:#FDECEC;border-color:#E7A9A9;}
+.nf-ampel.rot .w{color:#8E1C1C;}
+.nf-ampel.grau .w{color:#5A6675;}
+
+.nf-vorschau{margin-top:14px;}
+.nf-vt{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A96A3;margin-bottom:6px;}
+.nf-vorschau table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums;}
+.nf-vorschau th,.nf-vorschau td{padding:5px 6px;text-align:right;border-bottom:1px solid #EDF1F4;}
+.nf-vorschau th{font-size:10.5px;color:#8A96A3;font-weight:600;}
+.nf-vorschau td:first-child,.nf-vorschau th:first-child{text-align:left;font-weight:650;}
+.nf-vorschau tr.km td{color:#8A96A3;font-size:11.5px;}
+.nf-hint{font-size:11.5px;line-height:1.55;color:#5A6675;margin-top:9px;}
+.nf-warn{
+  font-size:11.5px;line-height:1.55;color:#6B5520;margin-top:9px;
+  border:1px solid #E2C275;background:#FFF9EC;border-radius:8px;padding:8px 10px;
+}
+
+.nf-akt{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+.nf-akt button{font-family:inherit;font-size:13px;font-weight:700;border-radius:9px;padding:11px 18px;cursor:pointer;}
+.nf-nein{background:#fff;border:1px solid #DCE3EA;color:#5A6675;}
+.nf-ja{background:#1F6F43;border:none;color:#fff;}
+.nf-ja:hover{filter:brightness(1.1);}
+@media(max-width:560px){
+  .nf-reihe{grid-template-columns:1fr;}
+  .nf-box{padding:18px 16px 16px;}
+}
+/* ══════════════════════════════════════════════════════════════
+   Build 34 · noch nicht veroeffentlicht
+   Blau statt gruen oder rot: es gibt schlicht keinen Kundenpreis,
+   gegen den sich die Richtung bestimmen liesse.
+   ══════════════════════════════════════════════════════════════ */
+.avj-scol.avj-neu input,.avjt-scol.avj-neu input,
+#tool-preise .avj-scol.avj-neu input,#tool-preise .avjt-scol.avj-neu input{
+  background:#CFE0FF;border-color:#1B2FC4;color:#0E1E5E;font-weight:800;
+  box-shadow:0 0 0 3px rgba(27,47,196,.22);
+}
+.avj-scol.avj-neu .d,.avjt-scol.avj-neu .d,
+#tool-preise .avj-scol.avj-neu .d,#tool-preise .avjt-scol.avj-neu .d{
+  color:#1B2FC4;font-weight:800;
+}
+.avj-scale-prev .pv.neu u,.avjt-scale-prev .pv.neu u{background:#CFE0FF;color:#0E1E5E;}
+.avj-scale-prev .pv.neu,.avjt-scale-prev .pv.neu{border-color:#A8C2F0;}
 </style>
 </head>
 <body>
@@ -1330,6 +1430,7 @@
   <button class="nav-btn" onclick="showTool('lb',this)">LB-Preis</button>
   <button class="nav-btn" onclick="showTool('neun',this)">9-Sitzer</button>
   <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
+  <button class="nav-btn" onclick="showTool('pkw',this)">PKW</button>
   <button class="nav-btn" onclick="showTool('tank',this)">Tank</button>
   <button class="nav-btn" onclick="showTool('preise',this)">Tarife</button>
 </div>
@@ -1387,277 +1488,21 @@
 
   <!-- ═══ LOW BUDGET ═══ -->
   <div class="tool" id="tool-lb">
-    <div class="calc-wrap">
-<div class="avjt-calc">
-
-  <div class="avjt-head">
-    <div class="avjt-eyebrow">Preisrechner</div>
-    <h3>Was kostet dein Mietwagen?</h3>
-    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
-  </div>
-
-  <!-- Fahrzeugwahl -->
-  <div class="avjt-cars">
-    <button class="avjt-car is-active" data-car="yaris">
-      <span class="n">Low-Budget</span>
-      <span class="d">z.&#8239;B. Toyota Yaris</span>
-    </button>
-  </div>
-
-  <!-- Zeitraum -->
-  <div class="avjt-grid">
-    <label class="avjt-f">
-      <span class="l">Abholung<b class="wd" id="avjLFromWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjLFrom">
-        <select id="avjLFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjLFromHint"></span>
-    </label>
-    <label class="avjt-f">
-      <span class="l">R&uuml;ckgabe<b class="wd" id="avjLToWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjLTo">
-        <select id="avjLToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjLToHint"></span>
-    </label>
-  </div>
-
-  <div class="avjt-durline" id="avjLDur"></div>
-
-  <!-- Kilometer -->
-  <label class="avjt-f avjt-km">
-    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
-    <input type="number" id="avjLKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
-    <span class="h" id="avjLKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
-  </label>
-
-  <!-- Ergebnis -->
-  <div class="avjt-extras">
-    <div class="avjt-extras-head">Zusatzposten</div>
-    <div id="avjLExtraRows"></div>
-  </div>
-
-  <div class="avjt-disc">
-    <div class="avjt-disc-head">Rabatt</div>
-    <div class="avjt-disc-row">
-      <label class="avjt-dfield">
-        <span class="dl">Betrag</span>
-        <span class="du"><input type="text" id="avjLDiscEur" inputmode="decimal" placeholder="0,00"><em>&euro;</em></span>
-      </label>
-      <label class="avjt-dfield">
-        <span class="dl">Prozent</span>
-        <span class="du"><input type="text" id="avjLDiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>
-      </label>
-      <button type="button" class="avjt-dclear" id="avjLDiscClear" title="Rabatt entfernen">&times;</button>
-    </div>
-  </div>
-
-  <div class="avjt-out" id="avjLOut">
-    <div class="avjt-out-top">
-      <div>
-        <div class="avjt-out-label" id="avjLTarifLabel">Richtpreis</div>
-        <div class="avjt-price"><span class="c">&euro;</span><span id="avjLPrice">&mdash;</span></div>
-      </div>
-      <div class="avjt-badge" id="avjLBadge"></div>
-    </div>
-    <ul class="avjt-lines" id="avjLLines"></ul>
-</div>
-
-  <div class="avjt-set-body" id="avjLSetBody" hidden></div>
-</div>
-    </div>
+    <div class="calc-wrap" id="wrapLb"><!-- Inhalt erzeugt AVJ_RECHNER --></div>
   </div>
 
 
   <!-- 9-SITZER -->
   <div class="tool" id="tool-neun">
-    <div class="calc-wrap">
-<div class="avj-calc">
-
-  <div class="avj-head">
-    <div class="avj-eyebrow">Preisrechner</div>
-    <h3>Was kostet dein 9-Sitzer?</h3>
-    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
-  </div>
-
-  <!-- Fahrzeugwahl -->
-  <div class="avj-cars">
-    <button class="avj-car is-active" data-car="sprinter">
-      <span class="n">Sprinter Tourer</span>
-      <span class="d">214 &middot; kurz &middot; Handschaltung</span>
-    </button>
-    <button class="avj-car" data-car="vito">
-      <span class="n">Vito Tourer</span>
-      <span class="d">119 &middot; extralang &middot; Automatik</span>
-    </button>
-  </div>
-
-  <!-- Zeitraum -->
-  <div class="avj-grid">
-    <label class="avj-f">
-      <span class="l">Abholung<b class="wd" id="avjFromWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjFrom">
-        <select id="avjFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjFromHint"></span>
-    </label>
-    <label class="avj-f">
-      <span class="l">R&uuml;ckgabe<b class="wd" id="avjToWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjTo">
-        <select id="avjToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjToHint"></span>
-    </label>
-  </div>
-
-  <div class="avj-durline" id="avjDur"></div>
-
-  <!-- Kilometer -->
-  <label class="avj-f avj-km">
-    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
-    <input type="number" id="avjKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
-    <span class="h" id="avjKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
-  </label>
-
-  <!-- Haftung -->
-  <fieldset class="avj-sb">
-    <legend>Selbstbeteiligung je Schadenfall</legend>
-    <div class="avj-sbrow" id="avjSbRow"></div>
-  </fieldset>
-
-  <!-- Ergebnis -->
-  <div class="avj-extras">
-    <div class="avj-extras-head">Zusatzposten</div>
-    <div id="avjExtraRows"></div>
-  </div>
-
-  <div class="avj-disc">
-    <div class="avj-disc-head">Rabatt</div>
-    <div class="avj-disc-row">
-      <label class="avj-dfield">
-        <span class="dl">Betrag</span>
-        <span class="du"><input type="text" id="avjDiscEur" inputmode="decimal" placeholder="0,00"><em>&euro;</em></span>
-      </label>
-      <label class="avj-dfield">
-        <span class="dl">Prozent</span>
-        <span class="du"><input type="text" id="avjDiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>
-      </label>
-      <button type="button" class="avj-dclear" id="avjDiscClear" title="Rabatt entfernen">&times;</button>
-    </div>
-  </div>
-
-  <div class="avj-out" id="avjOut">
-    <div class="avj-out-top">
-      <div>
-        <div class="avj-out-label" id="avjTarifLabel">Richtpreis</div>
-        <div class="avj-price"><span class="c">&euro;</span><span id="avjPrice">&mdash;</span></div>
-      </div>
-      <div class="avj-badge" id="avjBadge"></div>
-    </div>
-    <ul class="avj-lines" id="avjLines"></ul>
-</div>
-
-  <div class="avj-set-body" id="avjSetBody" hidden></div>
-</div>
-    </div>
+    <div class="calc-wrap" id="wrapNeun"><!-- Inhalt erzeugt AVJ_RECHNER --></div>
   </div>
 
   <div class="tool" id="tool-trans">
-    <div class="calc-wrap">
-<div class="avjt-calc">
-
-  <div class="avjt-head">
-    <div class="avjt-eyebrow">Preisrechner</div>
-    <h3>Was kostet dein Transporter?</h3>
-    <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
+    <div class="calc-wrap" id="wrapTrans"><!-- Inhalt erzeugt AVJ_RECHNER --></div>
   </div>
 
-  <!-- Fahrzeugwahl -->
-  <div class="avjt-cars">
-    <button class="avjt-car is-active" data-car="m">
-      <span class="n">Transporter M</span>
-      <span class="d">z.&#8239;B. Renault Trafic L2H1</span>
-    </button>
-    <button class="avjt-car" data-car="xl">
-      <span class="n">Transporter XL</span>
-      <span class="d">z.&#8239;B. Mercedes Sprinter L3</span>
-    </button>
-  </div>
-
-  <!-- Zeitraum -->
-  <div class="avjt-grid">
-    <label class="avjt-f">
-      <span class="l">Abholung<b class="wd" id="avjTFromWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjTFrom">
-        <select id="avjTFromT" aria-label="Uhrzeit Abholung"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjTFromHint"></span>
-    </label>
-    <label class="avjt-f">
-      <span class="l">R&uuml;ckgabe<b class="wd" id="avjTToWd"></b></span>
-      <span class="dt">
-        <input type="date" id="avjTTo">
-        <select id="avjTToT" aria-label="Uhrzeit R&uuml;ckgabe"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00" selected>09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option></select>
-      </span>
-      <span class="h" id="avjTToHint"></span>
-    </label>
-  </div>
-
-  <div class="avjt-durline" id="avjTDur"></div>
-
-  <!-- Kilometer -->
-  <label class="avjt-f avjt-km">
-    <span class="l">Geplante Kilometer <em>Hin- und R&uuml;ckfahrt zusammen</em></span>
-    <input type="number" id="avjTKm" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">
-    <span class="h" id="avjTKmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>
-  </label>
-
-  <!-- Haftung -->
-  <fieldset class="avjt-sb">
-    <legend>Selbstbeteiligung je Schadenfall</legend>
-    <div class="avjt-sbrow" id="avjTSbRow"></div>
-  </fieldset>
-
-  <!-- Ergebnis -->
-  <div class="avjt-extras">
-    <div class="avjt-extras-head">Zusatzposten</div>
-    <div id="avjTExtraRows"></div>
-  </div>
-
-  <div class="avjt-disc">
-    <div class="avjt-disc-head">Rabatt</div>
-    <div class="avjt-disc-row">
-      <label class="avjt-dfield">
-        <span class="dl">Betrag</span>
-        <span class="du"><input type="text" id="avjTDiscEur" inputmode="decimal" placeholder="0,00"><em>&euro;</em></span>
-      </label>
-      <label class="avjt-dfield">
-        <span class="dl">Prozent</span>
-        <span class="du"><input type="text" id="avjTDiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>
-      </label>
-      <button type="button" class="avjt-dclear" id="avjTDiscClear" title="Rabatt entfernen">&times;</button>
-    </div>
-  </div>
-
-  <div class="avjt-out" id="avjTOut">
-    <div class="avjt-out-top">
-      <div>
-        <div class="avjt-out-label" id="avjTTarifLabel">Richtpreis</div>
-        <div class="avjt-price"><span class="c">&euro;</span><span id="avjTPrice">&mdash;</span></div>
-      </div>
-      <div class="avjt-badge" id="avjTBadge"></div>
-    </div>
-    <ul class="avjt-lines" id="avjTLines"></ul>
-</div>
-
-  <div class="avjt-set-body" id="avjTSetBody" hidden></div>
-</div>
-    </div>
+  <div class="tool" id="tool-pkw">
+    <div class="calc-wrap" id="wrapPkw"><!-- Inhalt erzeugt AVJ_RECHNER --></div>
   </div>
 
   <div class="tool" id="tool-tank">
@@ -1753,6 +1598,7 @@
     <div class="pr-akt">
       <button type="button" id="prFrei">Für Kunden freigeben</button>
       <button type="button" class="zweit" id="prVglAn">Vergleich aller Fahrzeuge</button>
+      <button type="button" class="zweit" id="prNeu">+ Neues Fahrzeug</button>
     </div>
 
     <div class="pr-vgl" id="prVgl" hidden></div>
@@ -1884,8 +1730,10 @@ var AVJ_EDITOR = (function(){
     var h = "";
     for(var k=0;k<KATEGORIEN.length;k++){
       var kat = KATEGORIEN[k], bs = fuerKategorie(kat);
+      var anzahl = 0;
+      for(var z=0;z<bs.length;z++){ try{ anzahl += bs[z].fahrzeuge().length; }catch(e){} }
       h += '<div class="pr-gruppe"><div class="t">' + kat + '</div><div class="pr-fz">';
-      if(!bs.length){
+      if(!anzahl){
         h += '<button type="button" class="leer" disabled>noch keine Fahrzeuge</button>';
       } else {
         for(var i=0;i<bs.length;i++){
@@ -2019,6 +1867,9 @@ var AVJ_EDITOR = (function(){
       waehle(b.getAttribute("data-b"), b.getAttribute("data-f"));
     });
 
+    var neu = document.getElementById("prNeu");
+    if(neu) neu.addEventListener("click", function(){ AVJ_NEUFZ.zeige(); });
+
     var frei = document.getElementById("prFrei");
     if(frei) frei.addEventListener("click", function(){ AVJ_PREISE.freigabe(); });
 
@@ -2060,10 +1911,410 @@ var AVJ_EDITOR = (function(){
     }
   }
 
-  return { melde: melde, start: start, bloecke: bloecke, neuZeichnen: function(){
+  return { melde: melde, start: start, bloecke: bloecke,
+    kategorien: function(){ return KATEGORIEN.slice(); },
+    bereiche:   function(){ return bereiche.slice(); },
+    fuerKategorie: fuerKategorie,
+    zeichneWahl: zeichneWahl,
+    waehle: waehle,
+    neuZeichnen: function(){
     var vgl = document.getElementById("prVgl");
     if(vgl && !vgl.hasAttribute("hidden")) vgl.innerHTML = vergleich();
   }};
+})();
+
+
+/* ═══ Neues Fahrzeug ═══════════════════════════════════════════
+   Fuenf Anker, der Rest kommt aus einer Vorlage.
+
+   Die Formkurve ist der Anteil des Wegs von Tag 1 zu Tag 7. Ueber alle
+   fuenf Fahrzeuge des Bestands (Yaris bis Sprinter, drei Kategorien) ist
+   sie erstaunlich stabil: die groesste Streuung liegt bei Tag 4 mit
+   0,106. Aus Tagespreis und Wochenpreis laesst sich die Staffel damit
+   auf hoechstens 7,5 Prozent genau vorhersagen — als Startwert reicht
+   das, danach wird ohnehin von Hand nachgezogen.
+
+   Alles ausser der Staffel behaelt das Verhaeltnis der Vorlage: Preise
+   werden mit dem Preisfaktor skaliert, Kilometer mit dem km-Faktor.
+   Haftungsstufen werden unveraendert uebernommen — sie haengen am
+   Schadenrisiko, nicht am Mietpreis.
+
+   Die Ampel vergleicht mit dem eigenen Bestand derselben Kategorie,
+   nicht mit erfundenen Branchenwerten. Ist die Kategorie leer, wird der
+   ganze Fuhrpark herangezogen; gibt es gar nichts zu vergleichen,
+   bleibt die Ampel grau. */
+var AVJ_NEUFZ = (function(){
+  "use strict";
+
+  var FORM_MITTEL = [0, 0.220, 0.430, 0.614, 0.776, 0.906, 1];
+
+  function r5(n){  return Math.max(5,  Math.round(n/5)*5);   }
+  function r50(n){ return Math.max(50, Math.round(n/50)*50); }
+  function zahl(id){
+    var e = document.getElementById(id);
+    if(!e) return NaN;
+    return parseFloat(String(e.value).replace(",", "."));
+  }
+  function tief(o){ return JSON.parse(JSON.stringify(o)); }
+
+  /* ── Formkurve eines vorhandenen Fahrzeugs ── */
+  function formVon(tier){
+    if(!tier || tier.length !== 7 || tier[6] === tier[0]) return FORM_MITTEL.slice();
+    var f = [];
+    for(var i=0;i<7;i++) f.push((tier[i] - tier[0]) / (tier[6] - tier[0]));
+    return f;
+  }
+
+  function staffel(t1, t7, form){
+    var out = [];
+    for(var i=0;i<7;i++) out.push(r5(t1 + form[i] * (t7 - t1)));
+    /* streng steigend halten — sonst kippt die Staffel durch die Rundung */
+    for(var j=1;j<7;j++) if(out[j] <= out[j-1]) out[j] = out[j-1] + 5;
+    return out;
+  }
+
+  /* ── Alle Fahrzeuge, nach Kategorie ── */
+  function bestand(kat){
+    var raus = [];
+    var bs = kat ? AVJ_EDITOR.fuerKategorie(kat) : AVJ_EDITOR.bereiche();
+    for(var i=0;i<bs.length;i++){
+      var d = {};
+      try{ d = bs[i].daten() || {}; }catch(e){}
+      for(var k in d) raus.push({ kat: bs[i].kategorie, schluessel: bs[i].schluessel,
+                                  key: k, auto: d[k], bereich: bs[i] });
+    }
+    return raus;
+  }
+
+  /* ── Ampel: Korridor aus dem eigenen Bestand ── */
+  function korridor(liste, wert){
+    var werte = [];
+    for(var i=0;i<liste.length;i++){
+      var v = liste[i];
+      if(typeof v === "number" && isFinite(v) && v > 0) werte.push(v);
+    }
+    if(!werte.length || !isFinite(wert)) return { stufe:"grau", text:"kein Vergleich" };
+    var min = Math.min.apply(null, werte), max = Math.max.apply(null, werte);
+    var spanne = min.toFixed(2).replace(".", ",") + " bis " + max.toFixed(2).replace(".", ",");
+    if(wert >= min * 0.90 && wert <= max * 1.10)
+      return { stufe:"gruen", text:"im Rahmen (Bestand " + spanne + ")" };
+    if(wert >= min * 0.75 && wert <= max * 1.25)
+      return { stufe:"gelb",  text:"knapp daneben (Bestand " + spanne + ")" };
+    return { stufe:"rot", text:"weit daneben (Bestand " + spanne + ")" };
+  }
+
+  /* ── Datensatz bauen ── */
+  function baue(v){
+    var vorlage = v.vorlage ? tief(v.vorlage) : null;
+    var form    = v.formVonVorlage && vorlage ? formVon(vorlage.tier) : FORM_MITTEL.slice();
+
+    var satz = vorlage ? tief(vorlage) : {};
+    satz.name    = v.name;
+    satz.example = v.beschriftung || "";
+
+    satz.tier = staffel(v.tag, v.woche, form);
+
+    /* Frei-km: Verhaeltnis der Vorlage, auf den Tageswert gezogen */
+    if(vorlage && vorlage.tierKm && vorlage.tierKm[0]){
+      var kf = v.freiKm / vorlage.tierKm[0];
+      satz.tierKm = vorlage.tierKm.map(function(x){ return r50(x * kf); });
+    } else {
+      var stufen = [1, 1.75, 2.5, 3.1, 3.6, 4.1, 4.5];
+      satz.tierKm = stufen.map(function(x){ return r50(v.freiKm * x); });
+    }
+    for(var i=1;i<7;i++) if(satz.tierKm[i] <= satz.tierKm[i-1]) satz.tierKm[i] = satz.tierKm[i-1] + 50;
+
+    satz.overKm = v.mehrKm;
+    satz.planKm = Math.round(v.mehrKm * (vorlage && vorlage.overKm
+                    ? (vorlage.planKm / vorlage.overKm) : 0.62) * 100) / 100;
+
+    var pf = (vorlage && vorlage.tier && vorlage.tier[0]) ? v.tag / vorlage.tier[0] : 1;
+    var kf2 = (vorlage && vorlage.tierKm && vorlage.tierKm[0]) ? v.freiKm / vorlage.tierKm[0] : 1;
+
+    function paare(a, preisFaktor){
+      return a.map(function(p){ return [r50(p[0] * kf2), r5(p[1] * preisFaktor)]; });
+    }
+    if(satz.dayMoDo) satz.dayMoDo = paare(satz.dayMoDo, pf);
+    if(satz.dayFrSa) satz.dayFrSa = paare(satz.dayFrSa, pf);
+
+    if(satz.weekend){
+      /* Wochenende haengt am eigenen Anker, nicht am Tagespreis */
+      var wf = (vorlage.weekend && vorlage.weekend[0] && vorlage.weekend[0][1])
+             ? v.wochenende / vorlage.weekend[0][1] : pf;
+      satz.weekend = paare(satz.weekend, wf);
+      satz.weekend[0][1] = r5(v.wochenende);
+      for(var w=1;w<satz.weekend.length;w++){
+        if(satz.weekend[w][1] <= satz.weekend[w-1][1]) satz.weekend[w][1] = satz.weekend[w-1][1] + 5;
+      }
+    }
+    if(satz.frSaPlus) satz.frSaPlus = Math.max(1, Math.round(satz.frSaPlus * pf));
+    if(satz.kurzzeit){
+      satz.kurzzeit = tief(satz.kurzzeit);
+      satz.kurzzeit.km   = r50(satz.kurzzeit.km * kf2);
+      satz.kurzzeit.moDo = satz.kurzzeit.moDo.map(function(x){ return r5(x * pf); });
+      satz.kurzzeit.frSa = satz.kurzzeit.frSa.map(function(x){ return r5(x * pf); });
+    }
+    if(satz.ahk){
+      satz.ahk = tief(satz.ahk);
+      for(var a in satz.ahk) if(satz.ahk[a]) satz.ahk[a] = r5(satz.ahk[a] * pf);
+    }
+    if(satz.monthPrice) satz.monthPrice = r5(satz.monthPrice / (vorlage.tier[6] || 1) * v.woche);
+    if(satz.monthKm)    satz.monthKm    = r50(satz.monthKm * kf2);
+
+    /* Aus einer fremden Vorlage koennen Felder mitkommen, die in der
+       Zielkategorie niemand liest. Die wandern sonst als tote Daten in
+       preise.json und tauchen als Abweichung auf. */
+    if(v.ziel){
+      if(v.ziel.langzeit !== "monat"){ delete satz.monthPrice; delete satz.monthKm; }
+      if(!v.ziel.haftung){ delete satz.sb; }
+    }
+    /* Haftungsstufen und Kaution bleiben sonst, wie sie in der Vorlage stehen */
+    return satz;
+  }
+
+  /* ── Dialog ── */
+  var offen = null;
+
+  function schliesse(){
+    var ov = document.getElementById("nfOv");
+    if(ov && ov.parentNode) ov.parentNode.removeChild(ov);
+    offen = null;
+  }
+
+  function vorlagenListe(kat){
+    var l = bestand(kat);
+    if(!l.length) l = bestand(null);
+    return l;
+  }
+
+  function zeichne(){
+    var kats = AVJ_EDITOR.kategorien();
+    var h = '<div class="nf-box">'
+      + '<h3>Neues Fahrzeug</h3>'
+      + '<p class="nf-sub">Fünf Werte reichen. Alles andere — Tagespakete, '
+      + 'Wochenendstufen, Haftung, Kaution — kommt aus der Vorlage und wird '
+      + 'auf deine Anker gezogen. Danach lässt sich jedes Feld einzeln '
+      + 'ändern wie bei jedem anderen Fahrzeug.</p>'
+
+      + '<div class="nf-reihe">'
+      +   '<label class="nf-f"><span>Kategorie</span><select id="nfKat">';
+    for(var i=0;i<kats.length;i++) h += '<option value="' + kats[i] + '">' + kats[i] + '</option>';
+    h += '</select></label>'
+      +   '<label class="nf-f"><span>Vorlage für alles Übrige</span>'
+      +     '<select id="nfVorlage"></select></label>'
+      + '</div>'
+
+      + '<div class="nf-reihe">'
+      +   '<label class="nf-f"><span>Name</span>'
+      +     '<input type="text" id="nfName" placeholder="z. B. Golf Kombi"></label>'
+      +   '<label class="nf-f"><span>Kurzbeschreibung <em>steht unter dem Namen</em></span>'
+      +     '<input type="text" id="nfBez" placeholder="z. B. Kompaktklasse · Diesel"></label>'
+      + '</div>'
+
+      + '<div class="nf-anker">'
+      +   feld("nfTag",   "Tagespreis Mo–Do", "€", 5)
+      +   feld("nfWoche", "Wochenpreis (7 Tage)",  "€", 5)
+      +   feld("nfWe",    "Wochenendpreis Fr–Mo", "€", 5)
+      +   feld("nfKm",    "Frei-km pro Tag",       "km", 50)
+      +   feld("nfMehr",  "Mehrkilometer ungeplant", "€/km", 0.01)
+      + '</div>'
+
+      + '<div class="nf-ampeln" id="nfAmpeln"></div>'
+      + '<div class="nf-vorschau" id="nfVorschau"></div>'
+
+      + '<div class="nf-akt">'
+      +   '<button type="button" class="nf-nein" id="nfNein">Abbrechen</button>'
+      +   '<button type="button" class="nf-ja" id="nfJa">Fahrzeug anlegen</button>'
+      + '</div>'
+      + '</div>';
+
+    var ov = document.createElement("div");
+    ov.className = "nf-ov"; ov.id = "nfOv"; ov.innerHTML = h;
+    document.body.appendChild(ov);
+
+    ov.addEventListener("click", function(e){ if(e.target === ov) schliesse(); });
+    document.getElementById("nfNein").addEventListener("click", schliesse);
+    document.getElementById("nfJa").addEventListener("click", anlegen);
+    document.getElementById("nfKat").addEventListener("change", function(){
+      fuelleVorlagen(); rechne();
+    });
+    document.getElementById("nfVorlage").addEventListener("change", rechne);
+    ov.addEventListener("input", function(e){ if(e.target.tagName === "INPUT") rechne(); });
+
+    fuelleVorlagen();
+    rechne();
+  }
+
+  function feld(id, beschriftung, einheit, schritt){
+    return '<label class="nf-a"><span>' + beschriftung + '</span>'
+         + '<span class="nf-in"><input type="number" step="' + schritt + '" id="' + id
+         + '" inputmode="decimal"><em>' + einheit + '</em></span></label>';
+  }
+
+  function fuelleVorlagen(){
+    var kat = document.getElementById("nfKat").value;
+    var l = vorlagenListe(kat);
+    var s = document.getElementById("nfVorlage");
+    var h = "";
+    for(var i=0;i<l.length;i++){
+      h += '<option value="' + i + '">' + (l[i].auto.name || l[i].key)
+        +  (l[i].kat !== kat ? " (" + l[i].kat + ")" : "") + '</option>';
+    }
+    h += '<option value="mittel">nur Mittelwertkurve, sonst nichts</option>';
+    s.innerHTML = h;
+    offen = l;
+
+    /* Anker mit den Werten der Vorlage vorbelegen, damit man sieht,
+       in welcher Groessenordnung man sich bewegt */
+    if(l.length){
+      var a = l[0].auto;
+      setzeWenn("nfTag",   a.tier ? a.tier[0] : "");
+      setzeWenn("nfWoche", a.tier ? a.tier[6] : "");
+      setzeWenn("nfWe",    a.weekend ? a.weekend[0][1] : "");
+      setzeWenn("nfKm",    a.tierKm ? a.tierKm[0] : "");
+      setzeWenn("nfMehr",  a.overKm || "");
+    }
+  }
+  function setzeWenn(id, wert){
+    var e = document.getElementById(id);
+    if(e && !e.value) e.value = wert;
+  }
+
+  function eingaben(){
+    var kat = document.getElementById("nfKat").value;
+    var vi  = document.getElementById("nfVorlage").value;
+    var v   = (vi !== "mittel" && offen && offen[vi]) ? offen[vi] : null;
+    var bs = AVJ_EDITOR.fuerKategorie(kat);
+    return {
+      kat: kat,
+      ziel: bs.length ? bs[0] : null,
+      name: (document.getElementById("nfName").value || "").trim(),
+      beschriftung: (document.getElementById("nfBez").value || "").trim(),
+      tag: zahl("nfTag"), woche: zahl("nfWoche"), wochenende: zahl("nfWe"),
+      freiKm: zahl("nfKm"), mehrKm: zahl("nfMehr"),
+      vorlageEintrag: v,
+      vorlage: v ? v.auto : null,
+      formVonVorlage: !!v
+    };
+  }
+
+  function rechne(){
+    var v = eingaben();
+    var ampeln = document.getElementById("nfAmpeln");
+    var vor    = document.getElementById("nfVorschau");
+    if(!ampeln || !vor) return;
+
+    var liste = bestand(v.kat);
+    if(!liste.length) liste = bestand(null);
+
+    var a = "";
+    if(isFinite(v.tag) && isFinite(v.woche) && v.tag > 0){
+      a += ampel("Wochenfaktor", (v.woche / v.tag).toFixed(2),
+             korridor(liste.map(function(x){
+               return (x.auto.tier && x.auto.tier[0]) ? x.auto.tier[6] / x.auto.tier[0] : null;
+             }), v.woche / v.tag));
+    }
+    if(isFinite(v.wochenende) && isFinite(v.tag) && v.tag > 0 && v.wochenende > 0){
+      a += ampel("Wochenende je Tagespreis", (v.wochenende / v.tag).toFixed(2),
+             korridor(liste.map(function(x){
+               return (x.auto.weekend && x.auto.tier && x.auto.tier[0])
+                 ? x.auto.weekend[0][1] / x.auto.tier[0] : null;
+             }), v.wochenende / v.tag));
+    }
+    if(isFinite(v.tag) && isFinite(v.freiKm) && v.freiKm > 0){
+      a += ampel("Preis je Frei-km", (v.tag / v.freiKm).toFixed(2) + " €",
+             korridor(liste.map(function(x){
+               return (x.auto.tier && x.auto.tierKm && x.auto.tierKm[0])
+                 ? x.auto.tier[0] / x.auto.tierKm[0] : null;
+             }), v.tag / v.freiKm));
+    }
+    ampeln.innerHTML = a;
+
+    if(!isFinite(v.tag) || !isFinite(v.woche) || !isFinite(v.freiKm) || !isFinite(v.mehrKm)){
+      vor.innerHTML = '<div class="nf-hint">Tagespreis, Wochenpreis, Frei-km und '
+        + 'Mehrkilometer eintragen — dann steht hier die Staffel.</div>';
+      return;
+    }
+    var satz = baue(v);
+    var h = '<div class="nf-vt">Das kommt dabei heraus</div><table><tr><th></th>';
+    for(var d=1;d<=7;d++) h += '<th>' + d + ' T</th>';
+    h += '</tr><tr><td>Preis</td>';
+    for(var i=0;i<7;i++) h += '<td>' + satz.tier[i] + ' €</td>';
+    h += '</tr><tr class="km"><td>Frei-km</td>';
+    for(var j=0;j<7;j++) h += '<td>' + satz.tierKm[j] + '</td>';
+    h += '</tr></table>';
+    var mit = [];
+    if(satz.dayMoDo) mit.push("Tagespakete");
+    if(satz.weekend) mit.push("Wochenendstufen");
+    if(satz.sb)      mit.push(satz.sb.length + " Haftungsstufen");
+    if(satz.kurzzeit) mit.push("Kurzzeittarife");
+    if(satz.ahk)     mit.push("AHK");
+    if(satz.monthPrice) mit.push("Monatsanker");
+    var kat = bestand(v.kat);
+    var katHatWE = false;
+    for(var q=0;q<kat.length;q++) if(kat[q].auto.weekend) katHatWE = true;
+    if(katHatWE && !satz.weekend){
+      h += '<div class="nf-warn">Die gewählte Vorlage hat kein Wochenendraster — '
+        +  'das neue Fahrzeug bekommt dann auch keins und rechnet am Wochenende '
+        +  'nach der Staffel. Andere Fahrzeuge dieser Kategorie haben eins.</div>';
+    }
+    var text;
+    if(mit.length){
+      text = "Aus der Vorlage übernommen: " + mit.join(", ") + ".";
+      if(satz.sb || satz.kaution) text += " Haftung und Kaution unverändert.";
+    } else if(v.vorlage){
+      text = "Die Vorlage steuert außer der Kurvenform nichts bei — dieses "
+           + "Fahrzeug bekommt Staffel, Frei-km und Mehrkilometer.";
+    } else {
+      text = "Ohne Vorlage: nur Staffel, Frei-km und Mehrkilometer, "
+           + "die Kurve kommt aus dem Mittel des Bestands.";
+    }
+    h += '<div class="nf-hint">' + text + '</div>';
+    vor.innerHTML = h;
+  }
+
+  function ampel(name, wert, k){
+    return '<div class="nf-ampel ' + k.stufe + '"><span class="n">' + name + '</span>'
+         + '<span class="w">' + wert + '</span><span class="t">' + k.text + '</span></div>';
+  }
+
+  function schluesselAus(name, vorhanden){
+    var s = name.toLowerCase()
+      .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+      .replace(/[^a-z0-9]+/g,"");
+    if(!s) s = "fahrzeug";
+    var basis = s, n = 2;
+    while(vorhanden[s]){ s = basis + n; n++; }
+    return s;
+  }
+
+  function anlegen(){
+    var v = eingaben();
+    if(!v.name){ alert("Bitte einen Namen eintragen."); return; }
+    if(!isFinite(v.tag) || !isFinite(v.woche) || !isFinite(v.freiKm) || !isFinite(v.mehrKm)){
+      alert("Tagespreis, Wochenpreis, Frei-km und Mehrkilometer werden gebraucht.");
+      return;
+    }
+    if(v.woche <= v.tag){ alert("Der Wochenpreis muss über dem Tagespreis liegen."); return; }
+
+    var ziel = v.ziel;
+    if(!ziel){ alert("Zu dieser Kategorie gibt es keinen Rechner."); return; }
+
+    var satz = baue(v);
+    var s = schluesselAus(v.name, ziel.vorlagen ? ziel.vorlagen() : {});
+    if(!ziel.anlegen || !ziel.anlegen(s, satz)){
+      alert("Das Fahrzeug konnte nicht angelegt werden.");
+      return;
+    }
+    schliesse();
+    try{
+      AVJ_EDITOR.zeichneWahl();
+      AVJ_EDITOR.waehle(ziel.schluessel, s);
+      AVJ_EDITOR.neuZeichnen();
+    }catch(e){}
+  }
+
+  return { zeige: zeichne };
 })();
 
 /* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
@@ -2154,7 +2405,9 @@ function avjBlitz(bodyId, vorher, dauer){
 
     var jetzt = parseFloat(String(els[i].value).replace(",", "."));
     var bw    = avjBasisWert(basis, els[i]);
-    var art   = "avj-blitz";
+    /* Ohne Kundenstand gibt es kein "teurer" oder "guenstiger" — das ist
+       bei einem frisch angelegten Fahrzeug der Normalfall. */
+    var art   = basis ? "avj-blitz" : "avj-blitz avj-neu";
     if(bw !== null && isFinite(jetzt)){
       if(jetzt > bw)      art = "avj-blitz avj-hoch";
       else if(jetzt < bw) art = "avj-blitz avj-runter";
@@ -2164,10 +2417,10 @@ function avjBlitz(bodyId, vorher, dauer){
     var ziel = els[i].parentNode;
     if(!ziel || !ziel.className || String(ziel.className).indexOf("scol") < 0) ziel = els[i];
     (function(el, klasse){
-      el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich)\b/g, "") + " " + klasse;
+      el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich|neu)\b/g, "") + " " + klasse;
       clearTimeout(el._blitzT);
       el._blitzT = setTimeout(function(){
-        el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich)\b/g, "");
+        el.className = el.className.replace(/\s*avj-(blitz|hoch|runter|gleich|neu)\b/g, "");
       }, dauer || 3200);
     })(ziel, art);
     anzahl++;
@@ -2194,19 +2447,46 @@ var AVJ_PREISE = (function(){
     if(!d || typeof d !== "object") return false;
     if(!d.neunsitzer || !d.transporter) return false;
     var ok = true;
-    ["neunsitzer","transporter"].forEach(function(g){
+
+    function zahlenreihe(a, laenge){
+      if(!a || a.length !== laenge) return false;
+      for(var i=0;i<a.length;i++){
+        if(typeof a[i] !== "number" || !isFinite(a[i]) || a[i] < 0) return false;
+      }
+      return true;
+    }
+    function paarliste(a){
+      if(!a || !a.length) return false;
+      for(var i=0;i<a.length;i++){
+        if(!a[i] || a[i].length !== 2) return false;
+        if(typeof a[i][0] !== "number" || typeof a[i][1] !== "number") return false;
+        if(!isFinite(a[i][0]) || !isFinite(a[i][1]) || a[i][0] < 0 || a[i][1] < 0) return false;
+      }
+      return true;
+    }
+
+    for(var g in d){
+      if(g === "version" || g === "stand" || g === "erzeugtVon") continue;
+      if(!d[g] || typeof d[g] !== "object") continue;
       for(var k in d[g]){
         var c = d[g][k];
         if(!c || typeof c !== "object"){ ok = false; continue; }
-        if(!c.tier   || c.tier.length   !== 7) ok = false;
-        if(!c.tierKm || c.tierKm.length !== 7) ok = false;
-        if(!c.dayMoDo || !c.dayFrSa || !c.weekend) ok = false;
-        if(!c.sb || !c.sb.length) ok = false;
-        for(var i=0;i<(c.tier||[]).length;i++){
-          if(typeof c.tier[i] !== "number" || !isFinite(c.tier[i]) || c.tier[i] < 0) ok = false;
+        /* Pflicht: die Staffel und die Frei-km. Damit rechnet jeder Rechner. */
+        if(!zahlenreihe(c.tier, 7))   ok = false;
+        if(!zahlenreihe(c.tierKm, 7)) ok = false;
+        /* Alles Weitere nur, wenn es da ist — ein Fahrzeug ohne
+           Wochenendraster ist erlaubt, ein kaputtes nicht. */
+        if(c.dayMoDo && !paarliste(c.dayMoDo)) ok = false;
+        if(c.dayFrSa && !paarliste(c.dayFrSa)) ok = false;
+        if(c.weekend && !paarliste(c.weekend)) ok = false;
+        if(c.sb){
+          if(!c.sb.length) ok = false;
+          for(var s=0;s<(c.sb||[]).length;s++){
+            if(!c.sb[s] || !zahlenreihe(c.sb[s].tier, 7)) ok = false;
+          }
         }
       }
-    });
+    }
     return ok;
   }
 
@@ -2401,12 +2681,15 @@ var AVJ_PREISE = (function(){
    keine Tagespakete, keine Haftungsstufen — dafuer ein Monatsanker. */
 AVJ_RECHNER({
   p:          "avjL",
+  k:          "avjt",
+  ziel:       "wrapLb",
+  frage:      "Was kostet dein Mietwagen?",
+  haftung:    false,
   kategorie:  "Low Budget",
   schluessel: "lb",
   titel:      "Low Budget",
   start:      "yaris",
   speicher:   "avjL_preise_v1",
-  autoKlasse: ".avjt-car",
   langzeit:   "monat",
   autos: {
     yaris: {
@@ -2425,19 +2708,39 @@ AVJ_RECHNER({
 });
 
 
+/* ═══ PKW ═══
+   Noch ohne Fahrzeuge. Die Kategorie ist damit eine reine Konfiguration —
+   der Beleg dafuer, dass eine neue Klasse kein HTML und keinen Code mehr
+   braucht. Fahrzeuge kommen ueber "Neues Fahrzeug" im Reiter Tarife. */
+AVJ_RECHNER({
+  p:          "avjP",
+  k:          "avjt",
+  ziel:       "wrapPkw",
+  frage:      "Was kostet dein PKW?",
+  kategorie:  "PKW",
+  schluessel: "pkw",
+  titel:      "PKW",
+  start:      "",
+  speicher:   "avjP_preise_v1",
+  autos: {}
+});
+
 /* ═══ 9-SITZER ═══
    Seit Build 33 über die gemeinsame Fabrik. */
 AVJ_RECHNER({
   p:          "avj",
+  k:          "avj",
+  ziel:       "wrapNeun",
+  frage:      "Was kostet dein 9-Sitzer?",
   kategorie:  "9-Sitzer",
   schluessel: "neunsitzer",
   titel:      "9-Sitzer",
   start:      "sprinter",
   speicher:   "avj_preise_v1",
-  autoKlasse: ".avj-car",
   autos: {
     sprinter: {
       name: "Sprinter Tourer",
+      example: "214 \u00B7 kurz \u00B7 Handschaltung",
       frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.18,   // vorab geplante Mehrkilometer
       overKm: 0.33,   // ungeplant bei R\u00FCckgabe
@@ -2460,6 +2763,7 @@ AVJ_RECHNER({
     },
     vito: {
       name: "Vito Tourer",
+      example: "119 \u00B7 extralang \u00B7 Automatik",
       frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.22,   // vorab geplante Mehrkilometer
       overKm: 0.37,   // ungeplant bei R\u00FCckgabe
@@ -2504,7 +2808,103 @@ AVJ_RECHNER({
 function AVJ_RECHNER(CFG){
   "use strict";
   var P = CFG.p;
+  var K = CFG.k || "avjt";        /* Vorsilbe der CSS-Klassen */
   var $ = function(s){ return document.getElementById(P + s); };
+
+  /* ─── Geruest ──────────────────────────────────────────────────
+     Zeitliste 07:00 bis 19:00 in halben Stunden, 09:00 vorausgewaehlt
+     — genau die Liste, die bis Build 33 dreimal im Dokument stand. */
+  function zeitliste(kennung, beschriftung){
+    var h = '<select id="' + P + kennung + '" aria-label="' + beschriftung + '">';
+    for(var st = 7; st <= 19; st++){
+      for(var m = 0; m < 60; m += 30){
+        if(st === 19 && m > 0) break;
+        var v = (st < 10 ? "0" + st : st) + ":" + (m === 0 ? "00" : "30");
+        h += '<option value="' + v + '"' + (v === "09:00" ? " selected" : "") + '>' + v + '</option>';
+      }
+    }
+    return h + '</select>';
+  }
+
+  function geruest(){
+    var h = '<div class="' + K + '-calc">'
+      + '<div class="' + K + '-head">'
+      +   '<div class="' + K + '-eyebrow">Preisrechner</div>'
+      +   '<h3>' + CFG.frage + '</h3>'
+      +   '<p>Dauer und geplante Kilometer eintragen \u2014 du siehst sofort einen Richtpreis.</p>'
+      + '</div>'
+
+      + '<div class="' + K + '-cars" id="' + P + 'Cars"></div>'
+
+      + '<div class="' + K + '-grid">'
+      +   '<label class="' + K + '-f">'
+      +     '<span class="l">Abholung<b class="wd" id="' + P + 'FromWd"></b></span>'
+      +     '<span class="dt"><input type="date" id="' + P + 'From">'
+      +       zeitliste("FromT", "Uhrzeit Abholung")
+      +     '</span>'
+      +     '<span class="h" id="' + P + 'FromHint"></span>'
+      +   '</label>'
+      +   '<label class="' + K + '-f">'
+      +     '<span class="l">R\u00FCckgabe<b class="wd" id="' + P + 'ToWd"></b></span>'
+      +     '<span class="dt"><input type="date" id="' + P + 'To">'
+      +       zeitliste("ToT", "Uhrzeit R\u00FCckgabe")
+      +     '</span>'
+      +     '<span class="h" id="' + P + 'ToHint"></span>'
+      +   '</label>'
+      + '</div>'
+
+      + '<div class="' + K + '-durline" id="' + P + 'Dur"></div>'
+
+      + '<label class="' + K + '-f ' + K + '-km">'
+      +   '<span class="l">Geplante Kilometer <em>Hin- und R\u00FCckfahrt zusammen</em></span>'
+      +   '<input type="number" id="' + P + 'Km" min="0" step="10" placeholder="z. B. 450" inputmode="numeric">'
+      +   '<span class="h" id="' + P + 'KmHint">Frei-Kilometer richten sich nach der Mietdauer.</span>'
+      + '</label>';
+
+    /* Haftungsstufen nur, wo es welche gibt — dieselbe Regel wie im Rechner */
+    if(CFG.haftung !== false){
+      h += '<fieldset class="' + K + '-sb">'
+        +   '<legend>Selbstbeteiligung je Schadenfall</legend>'
+        +   '<div class="' + K + '-sbrow" id="' + P + 'SbRow"></div>'
+        + '</fieldset>';
+    }
+
+    h += '<div class="' + K + '-extras">'
+      +   '<div class="' + K + '-extras-head">Zusatzposten</div>'
+      +   '<div id="' + P + 'ExtraRows"></div>'
+      + '</div>'
+
+      + '<div class="' + K + '-disc">'
+      +   '<div class="' + K + '-disc-head">Rabatt</div>'
+      +   '<div class="' + K + '-disc-row">'
+      +     '<label class="' + K + '-dfield"><span class="dl">Betrag</span>'
+      +       '<span class="du"><input type="text" id="' + P + 'DiscEur" inputmode="decimal" placeholder="0,00"><em>\u20AC</em></span>'
+      +     '</label>'
+      +     '<label class="' + K + '-dfield"><span class="dl">Prozent</span>'
+      +       '<span class="du"><input type="text" id="' + P + 'DiscPct" inputmode="decimal" placeholder="0"><em>%</em></span>'
+      +     '</label>'
+      +     '<button type="button" class="' + K + '-dclear" id="' + P + 'DiscClear" title="Rabatt entfernen">\u00D7</button>'
+      +   '</div>'
+      + '</div>'
+
+      + '<div class="' + K + '-out" id="' + P + 'Out">'
+      +   '<div class="' + K + '-out-top"><div>'
+      +     '<div class="' + K + '-out-label" id="' + P + 'TarifLabel">Richtpreis</div>'
+      +     '<div class="' + K + '-price"><span class="c">\u20AC</span><span id="' + P + 'Price">\u2014</span></div>'
+      +   '</div><div class="' + K + '-badge" id="' + P + 'Badge"></div></div>'
+      +   '<ul class="' + K + '-lines" id="' + P + 'Lines"></ul>'
+      + '</div>'
+
+      + '<div class="' + K + '-set-body" id="' + P + 'SetBody" hidden></div>'
+      + '</div>';
+    return h;
+  }
+
+  /* Behaelter fuellen, bevor irgendetwas auf die Felder zugreift */
+  (function(){
+    var ziel = document.getElementById(CFG.ziel);
+    if(ziel) ziel.innerHTML = geruest();
+  })();
 
   /* GA4-Ereignisse. Feuert nur, wenn Analytics geladen ist;
      ohne GA laeuft alles normal weiter. */
@@ -2531,7 +2931,7 @@ function AVJ_RECHNER(CFG){
     ov.hidden = false;
     track("rechner_geoeffnet");
     document.body.style.overflow = "hidden";
-    var first = ov.querySelector(CFG.autoKlasse);
+    var first = ov.querySelector("." + K + "-car");
     if(first) first.focus();
   }
   function hide(){
@@ -2558,6 +2958,11 @@ function AVJ_RECHNER(CFG){
 
   var _trackTimer = null, _lastSig = null;
   var carKey = CFG.start;
+  /* Steht das Startfahrzeug nicht (mehr) in den Daten, nimm das erste.
+     Ist die Kategorie leer, bleibt carKey ohne Fahrzeug — dann zeigt der
+     Rechner einen Hinweis statt zu rechnen. */
+  if(!CARS[carKey]){ carKey = null; for(var _erst in CARS){ carKey = _erst; break; } }
+  function hatAuto(){ return !!(carKey && CARS[carKey]); }
   var sbIdx  = 0;
 
   var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
@@ -2651,6 +3056,7 @@ function AVJ_RECHNER(CFG){
 
   /* ─── Preisberechnung ────────────────────────────────────── */
   function quote(){
+    if(!hatAuto()) return { ohneAuto:true };
     var car = CARS[carKey];
     var d   = duration();
     if(!d) return { empty:true };
@@ -2744,6 +3150,7 @@ function AVJ_RECHNER(CFG){
 
   /* ─── Rendering ──────────────────────────────────────────── */
   function renderSb(){
+    if(!hatAuto()) return;
     var car = CARS[carKey];
     if(!$("SbRow") || !car.sb || !car.sb.length) return;
     var html = "";
@@ -2781,6 +3188,17 @@ function AVJ_RECHNER(CFG){
     renderDur();
     var q = $("Out");
     var r = quote();
+
+    if(r.ohneAuto){
+      $("Price").textContent = "—";
+      syncDiscount(0);
+      $("TarifLabel").textContent = "Richtpreis";
+      $("Badge").textContent = "";
+      $("Lines").innerHTML = '<li class="hint">Noch kein Fahrzeug in dieser Kategorie '
+        + '— im Reiter <b>Tarife</b> anlegen.</li>';
+      $("KmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      return;
+    }
 
     if(r.empty || r.invalid){
       $("Price").textContent = "\u2014";
@@ -2876,21 +3294,40 @@ function AVJ_RECHNER(CFG){
     }, 1200);
   }
 
-  /* ─── Events ─────────────────────────────────────────────── */
-  var wurzel = $("Km") && $("Km").closest ? $("Km").closest('[class*="-calc"]') : null;
-  var cars = (wurzel || document).querySelectorAll("[data-car]");
-  for(var i=0;i<cars.length;i++){
-    cars[i].addEventListener("click", function(){
-      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
-      this.classList.add("is-active");
-      carKey = this.getAttribute("data-car");
-      sbIdx = 0;
-      track("fahrzeug_gewechselt", { fahrzeug: CARS[carKey].name });
-      renderSb();
-      renderSettings();
-      render();
-    });
+  /* ─── Fahrzeugknoepfe ────────────────────────────────────────
+     Werden aus den Tarifdaten gezeichnet. Nur so kann ein selbst
+     angelegtes Fahrzeug in der Auswahl auftauchen. */
+  function renderCars(){
+    var box = $("Cars");
+    if(!box) return;
+    var h = "", leer = true;
+    for(var k in CARS){
+      leer = false;
+      h += '<button type="button" class="' + K + '-car' + (k === carKey ? ' is-active' : '')
+        +  '" data-car="' + k + '">'
+        +    '<span class="n">' + (CARS[k].name || k) + '</span>'
+        +    '<span class="d">' + (CARS[k].example || "") + '</span>'
+        +  '</button>';
+    }
+    if(leer){
+      h = '<div class="' + K + '-leer">Noch keine Fahrzeuge in dieser Kategorie. '
+        + 'Im Reiter <b>Tarife</b> anlegen.</div>';
+    }
+    box.innerHTML = h;
   }
+  renderCars();
+
+  $("Cars") && $("Cars").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button[data-car]") : null;
+    if(!b) return;
+    carKey = b.getAttribute("data-car");
+    sbIdx = 0;
+    renderCars();
+    track("fahrzeug_gewechselt", { fahrzeug: CARS[carKey].name });
+    renderSb();
+    renderSettings();
+    render();
+  });
 
   if($("SbRow")) $("SbRow").addEventListener("click", function(e){
     var b = e.target.closest("button[data-sb]");
@@ -3289,7 +3726,24 @@ function AVJ_RECHNER(CFG){
       if(!CARS[k]) return;
       carKey = k; _gridCache = {};
       renderSettings(); renderSb(); render();
-    }
+    },
+    /* Neues Fahrzeug aufnehmen. Der Datensatz kommt fertig aus dem
+       Dialog — hier wird er nur eingehaengt, gespeichert und gezeigt. */
+    anlegen:    function(schluessel, satz){
+      if(!schluessel || CARS[schluessel]) return false;
+      CARS[schluessel] = satz;
+      carKey = schluessel;
+      _gridCache = {};
+      saveCfg();
+      renderCars(); renderSettings(); renderSb(); render();
+      try{ zeichneKundenstand(); }catch(e){}
+      return true;
+    },
+    vorlagen:   function(){ return CARS; },
+    /* Eigenschaften der Kategorie — der Dialog braucht sie, um aus einer
+       fremden Vorlage die Felder zu entfernen, die hier niemand nutzt. */
+    langzeit:   CFG.langzeit || "faktor",
+    haftung:    CFG.haftung !== false
   });
 
   AVJ_PREISE.melde({
@@ -3443,7 +3897,7 @@ function AVJ_RECHNER(CFG){
       if(a[i] === b[i]) continue;
       /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
          nicht gegen den Wert von eben. */
-      var kl = "pv";
+      var kl = bas ? "pv" : "pv neu";
       if(bas && typeof bas[i] === "number"){
         kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
       }
@@ -3477,6 +3931,12 @@ function AVJ_RECHNER(CFG){
   }
 
   function renderSettings(){
+    if(!hatAuto()){
+      var _b = $("SetBody");
+      if(_b) _b.innerHTML = '<div class="' + K + '-snote">In dieser Kategorie gibt es noch '
+        + 'kein Fahrzeug. \u00DCber <b>Neues Fahrzeug</b> im Reiter Tarife anlegen.</div>';
+      return;
+    }
     var car = CARS[carKey];
     var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
            + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
@@ -3714,6 +4174,10 @@ function AVJ_RECHNER(CFG){
   })();
 
   loadCfg();
+  /* Gespeicherte Fahrzeuge kommen erst hier dazu — deshalb Startfahrzeug
+     und Knopfreihe danach noch einmal aufstellen. */
+  if(!hatAuto()){ for(var _n in CARS){ carKey = _n; break; } }
+  renderCars();
   renderSettings();
 
   renderSb();
@@ -3723,12 +4187,14 @@ function AVJ_RECHNER(CFG){
 /* ═══ Transporter ═══ */
 AVJ_RECHNER({
   p:          "avjT",
+  k:          "avjt",
+  ziel:       "wrapTrans",
+  frage:      "Was kostet dein Transporter?",
   kategorie:  "Transporter",
   schluessel: "transporter",
   titel:      "Transporter",
   start:      "m",
   speicher:   "avjT_preise_v1",
-  autoKlasse: ".avjt-car",
   autos: {
     m: {
       name: "Transporter M",
@@ -4461,7 +4927,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 33;
+var AVJ_BUILD = 34;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
