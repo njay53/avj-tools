@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 35 · 18.08.2026**
+**Stand: Build 36 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1041,3 +1041,53 @@ abgrenzen.
   `pruefe()` dort noch streng. Ein PKW taucht für Kunden also nicht auf.
 - Einstellungsbereich als eigener Menüpunkt (Klassen, Korridore, Rundung)
 - Größenklasse × Bauform als Preislogik (bisher nur als Beschriftung)
+
+---
+
+## 22. Build 36 — Vorlagenauswahl im Dialog
+
+**Kern der Sache:** die PKW-Vorlage fehlte, weil die Kategorie leer war.
+Seit Build 35 stehen Golf und Golf Variant drin — damit man sie auch
+findet, ist die Liste jetzt nach Kategorien gruppiert.
+
+| | vorher | jetzt |
+|---|---|---|
+| Kategorie hat Fahrzeuge | **nur diese**, sonst nichts | eigene oben, andere darunter |
+| Kategorie ist leer | alle, ungruppiert | alle unter „andere Kategorien" |
+| ohne Vorlage | „nur Mittelwertkurve, sonst nichts" | eigene Gruppe, „nur Staffel und Frei-km" |
+
+Vorausgewählt ist das erste Fahrzeug der eigenen Kategorie. Beides vorher
+war zu starr: mit eigenen Fahrzeugen kam man gar nicht mehr an eine fremde
+Vorlage heran, und beim ersten Fahrzeug einer neuen Klasse gibt es nun mal
+nichts Eigenes.
+
+Kommt die Vorlage aus einer anderen Kategorie, steht das jetzt als Hinweis
+unter der Vorschau — keine Warnung, nur damit man es nicht übersieht.
+
+**Beschriftung.** „Vorlage für alles Übrige" heißt jetzt „Vorlage" mit dem
+Zusatz „liefert Stufen, Haftung und Kaution".
+
+**Anker folgen der Vorlage.** Sie waren mit den Werten der Vorlage
+vorbelegt — aber nur beim ersten Zeichnen. Wechselte man Kategorie oder
+Vorlage, blieben die alten Zahlen stehen (in der PKW-Kategorie standen die
+Werte des Transporters). Jetzt gehen sie mit, **ohne** zu überschreiben,
+was von Hand eingetippt wurde: gemerkt wird, was zuletzt vorbelegt war —
+steht das noch unverändert im Feld, darf es weichen.
+
+### Gegenprobe: Golf als Vorlage, Anker des Variant
+
+| | 1 T | 2 T | 3 T | 4 T | 5 T | 6 T | 7 T |
+|---|---|---|---|---|---|---|---|
+| echt | 100 | 180 | 255 | 320 | 375 | 420 | 455 |
+| erzeugt | 100 | 175 | 250 | 320 | 375 | 420 | 455 |
+
+Fünf Euro Abweichung an zwei Stufen, Frei-km exakt, Tagespakete,
+Wochenendstufen und alle drei Haftungsstufen aus der Vorlage. Alle drei
+Ampeln grün, weil sich die Korridore inzwischen aus den beiden echten
+PKW speisen.
+
+### Geprüft
+
+Goldstandard identisch, Golf gegen die Tarifliste (8 Tarif- und 6
+SB-Fälle), Bearbeiten/Archiv/Neuladen, Sichtprüfung in vier Breiten —
+keine Konsolenfehler.

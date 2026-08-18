@@ -1462,6 +1462,14 @@
 }
 .nf-bez .l{color:#8A96A3;font-size:11px;}
 @media(max-width:560px){ .nf-merk{grid-template-columns:1fr 1fr;} }
+/* ══════════════════════════════════════════════════════════════
+   Build 36 · gruppierte Vorlagenauswahl
+   ══════════════════════════════════════════════════════════════ */
+.nf-f select optgroup{
+  font-weight:700;font-size:11px;color:#8A96A3;
+  font-style:normal;letter-spacing:.04em;
+}
+.nf-f select option{font-weight:400;color:#111C2E;}
 </style>
 </head>
 <body>
@@ -2353,10 +2361,17 @@ var AVJ_NEUFZ = (function(){
     offen = null;
   }
 
+  /* Erst die Fahrzeuge der eigenen Kategorie, dann die uebrigen. Die
+     eigene Kategorie steht oben und ist vorausgewaehlt — dort passt der
+     Tarifaufbau am ehesten. Ein Griff in eine andere Kategorie bleibt
+     aber moeglich: beim ersten Fahrzeug einer neuen Klasse gibt es ja
+     noch nichts Eigenes. */
   function vorlagenListe(kat){
-    var l = bestand(kat);
-    if(!l.length) l = bestand(null);
-    return l;
+    var eigene = bestand(kat), andere = [], alle = bestand(null);
+    for(var i=0;i<alle.length;i++){
+      if(alle[i].kat !== kat) andere.push(alle[i]);
+    }
+    return { eigene: eigene, andere: andere, alle: eigene.concat(andere) };
   }
 
   function zeichne(){
@@ -2372,7 +2387,8 @@ var AVJ_NEUFZ = (function(){
       +   '<label class="nf-f"><span>Kategorie</span><select id="nfKat">';
     for(var i=0;i<kats.length;i++) h += '<option value="' + kats[i] + '">' + kats[i] + '</option>';
     h += '</select></label>'
-      +   '<label class="nf-f"><span>Vorlage für alles Übrige</span>'
+      +   '<label class="nf-f"><span>Vorlage '
+      +     '<em>liefert Stufen, Haftung und Kaution</em></span>'
       +     '<select id="nfVorlage"></select></label>'
       + '</div>'
 
@@ -2412,7 +2428,9 @@ var AVJ_NEUFZ = (function(){
     document.getElementById("nfKat").addEventListener("change", function(){
       fuelleVorlagen(); rechne();
     });
-    document.getElementById("nfVorlage").addEventListener("change", rechne);
+    document.getElementById("nfVorlage").addEventListener("change", function(){
+      vorbelegen(); rechne();
+    });
     ov.addEventListener("input", function(e){ if(e.target.tagName === "INPUT") zeigeBez(), rechne(); });
     ov.addEventListener("change", function(e){
       if(e.target.getAttribute && e.target.getAttribute("data-merkmal")){
@@ -2466,21 +2484,36 @@ var AVJ_NEUFZ = (function(){
 
   function fuelleVorlagen(){
     var kat = document.getElementById("nfKat").value;
-    var l = vorlagenListe(kat);
+    var g = vorlagenListe(kat);
+    var l = g.alle;
     var s = document.getElementById("nfVorlage");
     var h = "";
-    for(var i=0;i<l.length;i++){
-      h += '<option value="' + i + '">' + (l[i].auto.name || l[i].key)
-        +  (l[i].kat !== kat ? " (" + l[i].kat + ")" : "") + '</option>';
+    function eintraege(liste, ab){
+      var x = "";
+      for(var i=0;i<liste.length;i++){
+        x += '<option value="' + (ab + i) + '">' + (liste[i].auto.name || liste[i].key)
+          +  '</option>';
+      }
+      return x;
     }
-    h += '<option value="mittel">nur Mittelwertkurve, sonst nichts</option>';
+    if(g.eigene.length){
+      h += '<optgroup label="' + kat + '">' + eintraege(g.eigene, 0) + '</optgroup>';
+    }
+    if(g.andere.length){
+      h += '<optgroup label="andere Kategorien">'
+        +  eintraege(g.andere, g.eigene.length) + '</optgroup>';
+    }
+    h += '<optgroup label="ohne Vorlage">'
+      +  '<option value="mittel">nur Staffel und Frei-km</option></optgroup>';
     s.innerHTML = h;
     offen = l;
 
     /* Anker mit den Werten der Vorlage vorbelegen, damit man sieht,
        in welcher Groessenordnung man sich bewegt */
-    if(l.length){
-      var a = l[0].auto;
+    /* Vorbelegung immer aus der tatsaechlich gewaehlten Vorlage */
+    var gewaehlt = offen[s.value] || l[0];
+    if(gewaehlt){
+      var a = gewaehlt.auto;
       setzeWenn("nfTag",   a.tier ? a.tier[0] : "");
       setzeWenn("nfWoche", a.tier ? a.tier[6] : "");
       setzeWenn("nfWe",    a.weekend ? a.weekend[0][1] : "");
@@ -2488,9 +2521,32 @@ var AVJ_NEUFZ = (function(){
       setzeWenn("nfMehr",  a.overKm || "");
     }
   }
+  /* Die Anker sind mit den Werten der Vorlage vorbelegt, damit man sieht,
+     in welcher Groessenordnung man sich bewegt. Wechselt man Kategorie
+     oder Vorlage, sollen sie mitgehen — aber niemals ueberschreiben, was
+     schon von Hand eingetippt wurde. Dafuer wird gemerkt, was zuletzt
+     vorbelegt war: steht das noch unveraendert im Feld, darf es weichen. */
+  var vorbelegt = {};
   function setzeWenn(id, wert){
     var e = document.getElementById(id);
-    if(e && !e.value) e.value = wert;
+    if(!e) return;
+    var frei = !e.value || e.value === String(vorbelegt[id]);
+    if(!frei) return;
+    e.value = (wert === undefined || wert === null) ? "" : wert;
+    vorbelegt[id] = e.value;
+  }
+
+  /* Nur die Vorbelegung auffrischen, ohne die Liste neu zu bauen */
+  function vorbelegen(){
+    var s = document.getElementById("nfVorlage");
+    var g = offen && offen[s.value];
+    if(!g) return;
+    var a = g.auto;
+    setzeWenn("nfTag",   a.tier ? a.tier[0] : "");
+    setzeWenn("nfWoche", a.tier ? a.tier[6] : "");
+    setzeWenn("nfWe",    a.weekend ? a.weekend[0][1] : "");
+    setzeWenn("nfKm",    a.tierKm ? a.tierKm[0] : "");
+    setzeWenn("nfMehr",  a.overKm || "");
   }
 
   function eingaben(){
@@ -2563,6 +2619,14 @@ var AVJ_NEUFZ = (function(){
     if(satz.kurzzeit) mit.push("Kurzzeittarife");
     if(satz.ahk)     mit.push("AHK");
     if(satz.monthPrice) mit.push("Monatsanker");
+    /* Kommt die Vorlage aus einer anderen Kategorie, ist das keine
+       Warnung wert — aber ein Hinweis, damit man es nicht uebersieht. */
+    if(v.vorlageEintrag && v.vorlageEintrag.kat !== v.kat){
+      h += '<div class="nf-hint">Vorlage aus der Kategorie <b>'
+        +  v.vorlageEintrag.kat + '</b> — passt der Tarifaufbau dort nicht, '
+        +  'lieber ein Fahrzeug der eigenen Kategorie nehmen oder ohne Vorlage anlegen.</div>';
+    }
+
     var kat = bestand(v.kat);
     var katHatWE = false;
     for(var q=0;q<kat.length;q++) if(kat[q].auto.weekend) katHatWE = true;
@@ -5442,7 +5506,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 35;
+var AVJ_BUILD = 36;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
