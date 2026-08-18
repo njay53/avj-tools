@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 32 · 18.08.2026**
+**Stand: Build 33 · 18.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -695,3 +695,109 @@ Alle vier Fahrzeuge bestehen das, Vorschau und Felder stimmen überein.
   die Anleitung zum Einpflegen steht noch aus.
 - **Hash-Links für die Kundenrechner** (`#rechner=vito`), damit man einem Kunden
   direkt das richtige Fahrzeug schicken kann.
+
+---
+
+## 19. Build 33 — drei Rechner werden einer
+
+**Von außen ändert sich nichts.** Das ist der Zweck: Schritt 2 aus
+`PLAN-fahrzeuge.md`, die Voraussetzung dafür, dass PKW dazukommen können,
+ohne eine vierte Kopie anzulegen.
+
+### Vorher / nachher
+
+| | Build 32 | Build 33 |
+|---|---|---|
+| Zeilen im Dokument | 6.664 | 4.479 |
+| Dateigröße | 634 KB | 547 KB |
+| Rechnerlogik | 3× fast gleich | 1× `AVJ_RECHNER(CFG)` |
+
+Aus drei Blöcken von je rund 1.200 Zeilen (`avj-` 9-Sitzer, `avjt-`
+Transporter, `avjL-` Low Budget) wurde eine Fabrik plus drei
+Konfigurationen von je zwölf Zeilen. Ein Fehler ist ab jetzt einmal zu
+beheben, nicht dreimal.
+
+### Wie die Fabrik aufgebaut ist
+
+```js
+AVJ_RECHNER({
+  p:          "avjT",          // Vorsilbe der Element-Kennungen im HTML
+  kategorie:  "Transporter",   // Anzeigename, geht auch in die GA4-Ereignisse
+  schluessel: "transporter",   // Abschnitt in preise.json
+  titel:      "Transporter",   // Überschrift im Freigabe-Dialog
+  start:      "m",             // Fahrzeug, das beim Öffnen ausgewählt ist
+  speicher:   "avjT_preise_v1",// Schlüssel im localStorage
+  autoKlasse: ".avjt-car",     // Fahrzeugknöpfe im festen HTML
+  langzeit:   "monat",         // nur Low Budget: ab Tag 8 zum Monatsanker
+  autos: { … }                 // die Tarifdaten
+});
+```
+
+> **Wichtigste Regel innerhalb der Fabrik:** `$("Km")` heißt „das Element
+> mit der Kennung P + Km". Kennungen werden dort **immer ohne Vorsilbe**
+> geschrieben. Wer das vergisst, spricht das Feld eines anderen Rechners an.
+
+**Tarifarten hängen an den Daten, nicht am Code.** Kein `weekend` im
+Datensatz → kein Wochenendtarif. Kein `dayMoDo` → keine Tagespakete. Keine
+`sb`-Liste → keine Haftungsstufen, weder im Rechner noch in den
+Einstellungen. Genau darüber kommt später PKW dazu: neue Kategorie =
+Konfiguration plus Daten, kein neuer Code.
+
+Einzige Ausnahme ist `langzeit`. Über sieben Tage rechnet der Standard mit
+`Wochenpreis / 7 × 0,92` weiter; Low Budget interpoliert stattdessen zum
+Monatsanker. Das ließe sich auch aus `monthPrice` ableiten — bleibt aber
+bewusst eine bewusste Entscheidung je Kategorie und keine Nebenwirkung
+eines gesetzten Feldes.
+
+### Nebenbei gefundener Fehler
+
+`document.querySelectorAll(".avjt-car")` suchte **dokumentweit**.
+Transporter und Low Budget teilen sich diese Klasse — ein Klick auf ein
+Low-Budget-Fahrzeug hat also auch den Transporter umgeschaltet, auf einen
+Schlüssel, den er nicht kennt. Sichtbar war das nie, weil nie beide Rechner
+gleichzeitig offen sind; in der Konsole standen dafür Fehler. Jetzt sucht
+jeder Rechner nur in seinem eigenen Container
+(`$("Km").closest('[class*="-calc"]')`) und über `[data-car]` statt über die
+Klasse.
+
+Zweite Kleinigkeit: der Kasten „Deine Preise stimmen mit dem Kundenstand
+überein" wurde nach einer Eingabe nicht neu gezeichnet — er behauptete
+weiter, alles sei in Ordnung, bis irgendetwas anderes ein Neuzeichnen
+auslöste. Der Freigabe-Dialog hat die Abweichung immer richtig erkannt, es
+war nur die Anzeige. Besteht seit Build 26.
+
+### Sichtbare Änderung im Quelltext
+
+Die Einstellungsfelder des 9-Sitzers tragen jetzt die Klassen `avjt-*`
+statt `avj-*`. Beide Sätze sind im Stylesheet gleich definiert — der
+Transporter nutzt sie seit jeher. Nachgemessen: die Darstellung ist
+pixelgleich.
+
+### Der Goldstandard
+
+Für diesen Umbau ist ein Prüfstand entstanden (`/tmp/gold.js`), der vor dem
+Eingriff einmal läuft und danach noch einmal:
+
+- 3 Rechner × alle Fahrzeuge × alle SB-Stufen × 13 Zeiträume × 4 km-Werte
+- 13 Zeiträume decken ab: 1/2/3/7/10/30/44 Tage, Wochenende Fr 12→Mo 10,
+  Fr→Sa, Sa→Mo, 3 und 6 Stunden, krumme 5,5 Tage
+- aufgezeichnet werden Preis, Tariflabel, Badge, Dauerzeile und die
+  komplette Aufstellung als HTML
+- macht **676 Fälle**, rund 500 KB Vergleichstext
+
+Der Umbau lief in drei Schritten, nach jedem musste der Goldstandard
+**Zeile für Zeile identisch** sein: erst Transporter auf die Fabrik, dann
+Low Budget, dann 9-Sitzer. Ergebnis: identisch, und die Konsole ist jetzt
+fehlerfrei (vorher drei Fehler durch die Fahrzeugknopf-Sache).
+
+> **Für den nächsten Umbau:** `gold.js` vor dem ersten Eingriff laufen
+> lassen und die Ausgabe aufheben. Ohne diesen Vergleich ist ein Eingriff
+> dieser Größe in der Rechenlogik nicht verantwortbar.
+
+### Was als Nächstes ansteht
+
+Schritte 3 bis 7 aus `PLAN-fahrzeuge.md`: Einstellungsbereich als eigener
+Menüpunkt, Fahrzeugliste dynamisch zeichnen (steht intern **und** auf der
+Website noch als festes HTML da), Speicherformat und `preise.json` für neue
+Fahrzeuge öffnen, dann der Dialog „Neues Fahrzeug" mit Klassen, Ankern und
+Ampel.

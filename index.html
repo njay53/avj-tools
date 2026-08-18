@@ -2395,65 +2395,20 @@ var AVJ_PREISE = (function(){
   };
 })();
 
-/* ═══ LOW BUDGET ═══ */
-/* ─── GA4-Events ─────────────────────────────────────────────
-   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
-function avjlTrack(name, params){
-  try{
-    if(typeof window.gtag === "function"){
-      window.gtag("event", name, params || {});
-    }
-  }catch(e){}
-}
-
-/* Popup-Steuerung */
-(function(){
-  "use strict";
-  var ov    = document.getElementById("avjLOverlay");
-  var open  = document.getElementById("avjLOpen");
-  var close = document.getElementById("avjLClose");
-  if(!ov || !open) return;
-  var lastFocus = null;
-
-  if(ov.parentNode !== document.body){ document.body.appendChild(ov); }
-
-  function show(){
-    lastFocus = document.activeElement;
-    ov.hidden = false;
-    avjlTrack("rechner_geoeffnet", { kategorie: "Low-Budget" });
-    document.body.style.overflow = "hidden";
-    var first = ov.querySelector(".avjt-car");
-    if(first) first.focus();
-  }
-  function hide(){
-    ov.hidden = true;
-    document.body.style.overflow = "";
-    if(lastFocus) lastFocus.focus();
-  }
-  open.addEventListener("click", show);
-  if(close) close.addEventListener("click", hide);
-  ov.addEventListener("click", function(e){ if(e.target.hasAttribute("data-close")) hide(); });
-  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !ov.hidden) hide(); });
-  ov.addEventListener("keydown", function(e){
-    if(e.key !== "Tab") return;
-    var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
-    if(!f.length) return;
-    var first = f[0], last = f[f.length-1];
-    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
-    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
-  });
-})();
-
-
-(function(){
-  "use strict";
-
-  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
-  /* Genau die Preise, die es im bisherigen LB-Rechner schon gab:
-     Tagespreise 1–7, Frei-km, Mehrkilometer, Monatsanker.
-     Bewusst kein Wochenendtarif, keine Tagespakete, kein Fr/Sa-Zuschlag
-     und keine Haftungsstufen — dafuer gibt es hier keine Preise. */
-  var CARS = {
+/* ═══ LOW BUDGET ═══
+   Laeuft seit Build 33 durch dieselbe Fabrik wie die anderen Rechner.
+   Der Unterschied steckt allein in den Daten: keine Wochenendstufen,
+   keine Tagespakete, keine Haftungsstufen — dafuer ein Monatsanker. */
+AVJ_RECHNER({
+  p:          "avjL",
+  kategorie:  "Low Budget",
+  schluessel: "lb",
+  titel:      "Low Budget",
+  start:      "yaris",
+  speicher:   "avjL_preise_v1",
+  autoKlasse: ".avjt-car",
+  langzeit:   "monat",
+  autos: {
     yaris: {
       name: "Low-Budget",
       example: "z.\u202FB. Toyota Yaris",
@@ -2466,1145 +2421,21 @@ function avjlTrack(name, params){
       monthKm: 3500,
       kaution: { stunden:0, tag:300 }
     }
-  };
-
-  var _trackTimer = null, _lastSig = null;
-  var carKey = "yaris";
-  var sbIdx  = 0;
-
-  var $ = function(id){ return document.getElementById(id); };
-  var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
-  var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
-
-  /* ─── Datum / Dauer ──────────────────────────────────────── */
-  function parseDT(dEl, tEl){
-    var d = $(dEl).value, t = $(tEl).value || "09:00";
-    if(!d) return null;
-    return new Date(d + "T" + t + ":00");
   }
-
-  function duration(){
-    var a = parseDT("avjLFrom","avjLFromT");
-    var b = parseDT("avjLTo","avjLToT");
-    if(!a || !b) return null;
-    var ms = b - a;
-    if(ms <= 0) return { invalid:true };
-    var hours = ms / 3600000;
-    return {
-      from: a, to: b, hours: hours,
-      days: Math.max(1, Math.ceil(hours / 24)),
-      fullDays: Math.floor(hours / 24),
-      restHours: Math.round(hours - Math.floor(hours/24)*24)
-    };
-  }
-
-  // Wochenendtarif: Abholung Fr ab 12:00 oder Sa, Rückgabe bis Mo 10:00
-  function isWeekend(d){
-    if(!d || d.invalid) return false;
-    var wdA = d.from.getDay();           // 5 = Fr, 6 = Sa
-    var wdB = d.to.getDay();             // 0 = So, 1 = Mo
-    var hA  = d.from.getHours() + d.from.getMinutes()/60;
-    var hB  = d.to.getHours()   + d.to.getMinutes()/60;
-    if(d.hours > 96) return false;       // l\u00E4nger als Fr\u2013Di \u2192 normale Staffel
-    var startOk = (wdA === 5 && hA >= 11) || wdA === 6;
-    /* Rueckgabe Montag frueh -> Wochenende.
-       Rueckgabe Sonntag nur, wenn die Miete wirklich ueber das Wochenende laeuft;
-       eine reine 24-Stunden-Miete Sa->So ist eine Tagesmiete. */
-    var endOk   = (wdB === 1 && hB <= 11) || (wdB === 0 && d.hours > 30);
-    return startOk && endOk;
-  }
-
-  /* ─── km-Stufe wählen ────────────────────────────────────── */
-  /* Zwischen je zwei Paketstufen die Mitte einziehen:
-     aus 100/75 und 400/115 wird zusaetzlich 250/95.
-     Entspricht der bisherigen Handrechnung (beide Pakete addieren, halbieren). */
-  function expand(steps){
-    var out = [];
-    for(var i=0;i<steps.length;i++){
-      out.push(steps[i]);
-      if(i+1 < steps.length){
-        out.push([
-          Math.round((steps[i][0] + steps[i+1][0]) / 2),
-          Math.round((steps[i][1] + steps[i+1][1]) / 2)
-        ]);
-      }
-    }
-    return out;
-  }
-
-  var _gridCache = {};
-  function gridFor(car, key){
-    var id = car.name + "|" + key;
-    if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
-    return _gridCache[id];
-  }
-
-  /* Guenstigste Variante fuer den Kunden waehlen: entweder das naechstgroessere
-     Paket, oder ein kleineres Paket plus vorab geplante Mehrkilometer.
-     Ohne km-Angabe wird die kleinste Stufe gezeigt. */
-  function pickStep(steps, km, rate){
-    if(km === null) return { idx:0, km:steps[0][0], price:steps[0][1] };
-    if(!rate){
-      for(var i=0;i<steps.length;i++){
-        if(km <= steps[i][0]) return { idx:i, km:steps[i][0], price:steps[i][1] };
-      }
-      var last = steps[steps.length-1];
-      return { idx:steps.length-1, km:last[0], price:last[1] };
-    }
-    var best = null;
-    for(var j=0;j<steps.length;j++){
-      var over = Math.max(0, km - steps[j][0]);
-      var cost = steps[j][1] + over * rate;
-      if(best === null || cost < best.cost - 0.001){
-        best = { idx:j, km:steps[j][0], price:steps[j][1], cost:cost };
-      }
-    }
-    return best;
-  }
-
-  /* ─── Preisberechnung ────────────────────────────────────── */
-  function quote(){
-    var car = CARS[carKey];
-    var d   = duration();
-    if(!d) return { empty:true };
-    if(d.invalid) return { invalid:true };
-
-    var kmRaw = $("avjLKm").value.trim();
-    var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
-
-    var mode, base, freeKm, sbCost, tarifLabel, badge = "";
-
-    /* Beim Low-Budget gibt es nur eine Preisreihe: Tag 1 bis 7, danach
-       Richtung Monatspreis. Kein Wochenendtarif, keine Tagespakete. */
-    {
-      mode = "tier";
-      sbCost = 0;
-      var i = Math.min(d.days, 7) - 1;
-      base   = car.tier[i];
-      freeKm = car.tierKm[i];
-      if(d.days > 7){
-        /* Beim Low-Budget sind Monatsmieten ein realistischer Fall: zwischen
-           Wochen- und Monatspreis wird interpoliert statt fortgeschrieben. */
-        var mp = car.monthPrice || Math.round(car.tier[6]   * 30/7 * 0.92);
-        var mk = car.monthKm    || Math.round(car.tierKm[6] * 30/7);
-        if(d.days <= 30){
-          var t30 = (d.days - 7) / 23;
-          base   = Math.round(car.tier[6]   + t30 * (mp - car.tier[6]));
-          freeKm = Math.round((car.tierKm[6] + t30 * (mk - car.tierKm[6])) / 50) * 50;
-        } else {
-          var ueber = d.days - 30;
-          base   = Math.round(mp + ueber * (mp / 30));
-          freeKm = Math.round((mk + ueber * (mk / 30)) / 50) * 50;
-        }
-      }
-      tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
-      if(d.days === 7)  badge = "Wochentarif";
-      if(d.days === 30) badge = "Monatstarif";
-    }
-
-    var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
-    var overCost = overKm * car.planKm;
-    var total    = base + sbCost + overCost;
-
-    return {
-      car: car, d: d, mode: mode, km: km,
-      base: base, freeKm: freeKm, sbCost: sbCost,
-      overKm: overKm, overCost: overCost, total: total,
-      tarifLabel: tarifLabel, badge: badge
-    };
-  }
-
-  /* ─── Rendering ──────────────────────────────────────────── */
-  function renderSb(){
-    if(!$("avjLSbRow")) return;   /* Low-Budget hat keine Haftungsstufen */
-    var car = CARS[carKey];
-    var html = "";
-    for(var i=0;i<car.sb.length;i++){
-      var s = car.sb[i];
-      var p = s.tier[0] === 0 ? "inklusive" : "ab " + s.tier[0] + " \u20AC/Tag";
-      html += '<button type="button" data-sb="'+i+'"'+(i===sbIdx?' class="is-active"':'')+'>'
-            +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
-            + '</button>';
-    }
-    $("avjLSbRow").innerHTML = html;
-  }
-
-  function renderDur(){
-    var d = duration();
-    var el = $("avjLDur");
-    if(!d){ el.textContent = ""; return; }
-    if(d.invalid){
-      el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
-      return;
-    }
-    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
-    var p  = function(n){ return ("0"+n).slice(-2); };
-    var f  = function(x){
-      return wd[x.getDay()]+" "+p(x.getDate())+"."+p(x.getMonth()+1)+". "+p(x.getHours())+":"+p(x.getMinutes());
-    };
-    var lbl = d.days + (d.days === 1 ? " Tag" : " Tage");
-    if(d.fullDays > 0 && d.restHours > 0){
-      lbl = d.fullDays + (d.fullDays === 1 ? " Tag" : " Tage") + " und " + d.restHours + " Std.";
-    }
-    el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
-  }
-
-  function render(){
-    renderDur();
-    var q = $("avjLOut");
-    var r = quote();
-
-    if(r.empty || r.invalid){
-      $("avjLPrice").textContent = "\u2014";
-      syncDiscount(0);
-      $("avjLTarifLabel").textContent = "Richtpreis";
-      $("avjLBadge").textContent = "";
-      $("avjLLines").innerHTML =
-        '<li class="hint">'+(r.invalid
-          ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
-          : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
-      $("avjLKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
-      return;
-    }
-
-    var _brutto = r.total + extrasSum();
-    syncDiscount(_brutto);
-    $("avjLPrice").textContent = eur(_brutto - discountOn(_brutto));
-    $("avjLTarifLabel").textContent = r.tarifLabel;
-    $("avjLBadge").textContent = r.badge;
-
-    var L = "";
-    L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
-    L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
-
-    if(r.km !== null){
-      L += '<li><span class="k">Geplante Fahrleistung</span><span class="v">'+num(r.km)+' km</span></li>';
-      if(r.overKm > 0){
-        L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
-          +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
-        $("avjLKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
-      } else {
-        $("avjLKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
-      }
-    } else {
-      $("avjLKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
-    }
-
-    /* Zusatzposten */
-    var _xsum = 0;
-    for(var xi=0; xi<_extras.length; xi++){
-      var xa = parseFloat(String(_extras[xi].amount).replace(",", "."));
-      if(isNaN(xa) || xa === 0) continue;
-      _xsum += xa;
-      var xl = _extras[xi].label || "Zusatzposten";
-      L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
-    }
-
-    var _gesamt = r.total + _xsum;
-    var _rab    = discountOn(_gesamt);
-    if(_rab > 0){
-      L += '<li><span class="k">Zwischensumme</span><span class="v">'+eur(_gesamt)+' \u20AC</span></li>';
-      L += '<li class="disc"><span class="k">Rabatt '
-        +  fmtNum(_rab / _gesamt * 100, 1) + ' %</span>'
-        +  '<span class="v">\u2212 '+fmtNum(_rab, 2)+' \u20AC</span></li>';
-    }
-    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(_gesamt - _rab)+' \u20AC</span></li>';
-
-    L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
-      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
-
-    if(r.mode === "tier" && r.d.days > 7){
-      L += '<li class="hint">\u00DCber sieben Tage wird zwischen Wochen- und Monatspreis interpoliert \u2014 Richtwert.</li>';
-    }
-
-    $("avjLLines").innerHTML = L;
-
-    /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
-    clearTimeout(_trackTimer);
-    _trackTimer = setTimeout(function(){
-      var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
-      if(sig === _lastSig) return;
-      _lastSig = sig;
-      avjlTrack("preis_berechnet", {
-        kategorie: "Low-Budget",
-        fahrzeug:  r.car.name,
-        tage:      r.d.days,
-        tarif:     r.mode,
-        kilometer: r.km === null ? 0 : r.km,
-        preis:     Math.round(r.total)
-      });
-    }, 1200);
-  }
-
-  /* ─── Events ─────────────────────────────────────────────── */
-  var cars = document.querySelectorAll(".avjt-car");
-  for(var i=0;i<cars.length;i++){
-    cars[i].addEventListener("click", function(){
-      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
-      this.classList.add("is-active");
-      carKey = this.getAttribute("data-car");
-      sbIdx = 0;
-      avjlTrack("fahrzeug_gewechselt", { kategorie: "Low-Budget", fahrzeug: CARS[carKey].name });
-      renderSb();
-      renderSettings();
-      render();
-    });
-  }
-
-  if($("avjLSbRow")) $("avjLSbRow").addEventListener("click", function(e){
-    var b = e.target.closest("button[data-sb]");
-    if(!b) return;
-    sbIdx = parseInt(b.getAttribute("data-sb"),10);
-    renderSb();
-    render();
-  });
-
-  ["avjLFrom","avjLTo"].forEach(function(id){
-    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
-  });
-  ["avjLFromT","avjLToT"].forEach(function(id){
-    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
-  });
-  $("avjLKm").addEventListener("input", render);
-
-
-  /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
-  /* Abholung nur zu Geschaeftszeiten, Rueckgabe rund um die Uhr
-     ueber den Schluesseltresor. */
-
-  /* ── Feiertage Niedersachsen ────────────────────────────────
-     Ostersonntag nach Gauss/Meeus, die beweglichen Tage davon abgeleitet. */
-  function osterSonntag(y){
-    var a=y%19, b=Math.floor(y/100), cc=y%100;
-    var dd=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
-    var g=Math.floor((b-f+1)/3), h=(19*a+b-dd-g+15)%30;
-    var i=Math.floor(cc/4), k=cc%4, l=(32+2*e+2*i-h-k)%7;
-    var m=Math.floor((a+11*h+22*l)/451);
-    var mon=Math.floor((h+l-7*m+114)/31), day=((h+l-7*m+114)%31)+1;
-    return new Date(y, mon-1, day);
-  }
-  var _feierCache = {};
-  function feiertage(y){
-    if(_feierCache[y]) return _feierCache[y];
-    var p2 = function(n){ return ("0"+n).slice(-2); };
-    var key = function(d){ return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); };
-    var o = osterSonntag(y);
-    var add = function(n){ var x = new Date(o.getTime()); x.setDate(x.getDate()+n); return key(x); };
-    var m = {};
-    m[y+"-01-01"]            = "Neujahr";
-    m[add(-2)]               = "Karfreitag";
-    m[add(1)]                = "Ostermontag";
-    m[y+"-05-01"]            = "Tag der Arbeit";
-    m[add(39)]               = "Christi Himmelfahrt";
-    m[add(50)]               = "Pfingstmontag";
-    m[y+"-10-03"]            = "Tag der Deutschen Einheit";
-    m[y+"-10-31"]            = "Reformationstag";
-    m[y+"-12-25"]            = "1. Weihnachtstag";
-    m[y+"-12-26"]            = "2. Weihnachtstag";
-    _feierCache[y] = m;
-    return m;
-  }
-  function feiertagName(ds){
-    if(!ds || ds.length < 10) return null;
-    var y = parseInt(ds.slice(0,4), 10);
-    if(!y) return null;
-    return feiertage(y)[ds] || null;
-  }
-
-  /* Heiligabend und Silvester: keine Feiertage, aber verkuerzt geoeffnet */
-  function kurztagName(ds){
-    if(!ds || ds.length < 10) return null;
-    var md = ds.slice(5);
-    if(md === "12-24") return "Heiligabend";
-    if(md === "12-31") return "Silvester";
-    return null;
-  }
-
-  var WOCHENTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
-
-  var HOURS = {
-    1:[8,18], 2:[8,18], 3:[8,18], 4:[8,18], 5:[8,18],   /* Mo-Fr */
-    6:[8,13],                                            /* Sa    */
-    0:null                                               /* So    */
-  };
-
-  function hoursFor(dateStr){
-    if(!dateStr) return HOURS[1];
-    if(feiertagName(dateStr)) return null;      /* Feiertag: geschlossen */
-    var wd = new Date(dateStr + "T12:00:00").getDay();
-    var base = HOURS[wd];
-    if(!base) return null;                      /* Sonntag bleibt zu */
-    if(kurztagName(dateStr)) return [8, 13];    /* verkuerzt wie samstags */
-    return base;
-  }
-
-  function minutesOf(hhmm){
-    var p = hhmm.split(":");
-    return parseInt(p[0],10)*60 + parseInt(p[1],10);
-  }
-
-  function pad2(n){ return ("0"+n).slice(-2); }
-
-  /* Liste aufbauen. mode "start": nur Oeffnungszeiten.
-     mode "end": voller Tag, ausserhalb der Zeiten als Tresor markiert. */
-  function fillTimes(sel, dateStr, mode){
-    var h = hoursFor(dateStr);
-    var keep = sel.value;
-    var html = "", first = null;
-
-    if(mode === "start"){
-      for(var m = 0; m < 24*60; m += 30){
-        var v = pad2(Math.floor(m/60)) + ":" + pad2(m%60);
-        var inOpen = h && m >= h[0]*60 && m <= h[1]*60;
-        if(first === null && inOpen) first = v;
-        html += '<option value="'+v+'"'+(inOpen?"":' class="offhours"')+'>'
-             +  v + (inOpen ? "" : " \u00B7 ausserhalb") + '</option>';
-      }
-      if(first === null) first = "10:00";
-    } else {
-      for(var t = 0; t < 24*60; t += 30){
-        var v2 = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
-        var inside = h && t >= h[0]*60 && t <= h[1]*60;
-        if(first === null) first = v2;
-        html += '<option value="'+v2+'"'+(inside?"":' class="tresor"')+'>'
-             +  v2 + (inside ? "" : " \u00B7 Tresor") + '</option>';
-      }
-    }
-    sel.innerHTML = html;
-    /* bisherige Auswahl halten, sonst erste gueltige Zeit */
-    var ok = false;
-    for(var i=0;i<sel.options.length;i++) if(sel.options[i].value === keep) ok = true;
-    sel.value = ok ? keep : (mode === "start" ? (first || "") : (keep || "10:00"));
-    if(!sel.value && sel.options.length) sel.value = sel.options[0].value;
-  }
-
-
-  function setWd(id, dateStr){
-    var el = $(id);
-    if(!el) return;
-    if(!dateStr || dateStr.length < 10){ el.textContent = ""; el.className = "wd"; return; }
-    var d = new Date(dateStr + "T12:00:00");
-    var f = feiertagName(dateStr);
-    el.textContent = WOCHENTAG[d.getDay()];
-    el.className = "wd" + ((f || d.getDay() === 0) ? " zu" : "");
-    el.title = f || "";
-  }
-
-  function refreshTimes(){
-    var fromEl = $("avjLFromT"), toEl = $("avjLToT");
-    fillTimes(fromEl, $("avjLFrom").value, "start");
-    fillTimes(toEl,   $("avjLTo").value,   "end");
-    setWd("avjLFromWd", $("avjLFrom").value);
-    setWd("avjLToWd",   $("avjLTo").value);
-
-    /* Hinweis Abholung */
-    var hF = hoursFor($("avjLFrom").value);
-    var eF = $("avjLFromHint");
-    var mF = minutesOf(fromEl.value || "10:00");
-    var insideF = hF && mF >= hF[0]*60 && mF <= hF[1]*60;
-    if(insideF){
-      var ktF = kurztagName($("avjLFrom").value);
-      eF.textContent = (ktF ? ktF + " \u00B7 " : "") +
-                       "\u00D6ffnungszeit " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
-      eF.className = "h";
-    } else if(hF){
-      eF.textContent = "Ausserhalb der \u00D6ffnungszeit (" + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00) \u2013 Sonderabsprache";
-      eF.className = "h offhint";
-    } else {
-      var fnF = feiertagName($("avjLFrom").value);
-      eF.textContent = (fnF ? fnF : "Sonntag") + " \u2013 regul\u00E4r geschlossen, Sonderabsprache";
-      eF.className = "h offhint";
-    }
-
-    /* Hinweis Rueckgabe */
-    var hT = hoursFor($("avjLTo").value);
-    var eT = $("avjLToHint");
-    var mT = minutesOf(toEl.value || "10:00");
-    var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
-    if(insideT){
-      eT.textContent = "R\u00FCckgabe pers\u00F6nlich m\u00F6glich";
-      eT.className = "h";
-    } else {
-      eT.textContent = "Ausserhalb der \u00D6ffnungszeiten \u2013 R\u00FCckgabe \u00FCber Schl\u00FCsseltresor";
-      eT.className = "h tresor";
-    }
-  }
-
-  /* Startwert: heute */
-  (function(){
-    var d = new Date();
-    $("avjLFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
-  })();
-  refreshTimes();
-
-
-
-  /* ═══ Rabatt: Euro und Prozent halten sich gegenseitig aktuell ═══ */
-  var _discEur = null, _discPct = null, _discLead = null;   /* Lead: welches Feld fuehrt */
-
-  function parseNum(s){
-    s = String(s == null ? "" : s).trim().replace(",", ".");
-    if(s === "") return null;
-    var v = parseFloat(s);
-    return isNaN(v) ? null : v;
-  }
-  function fmtNum(v, dec){
-    return v.toLocaleString("de-DE", { minimumFractionDigits:dec, maximumFractionDigits:dec });
-  }
-
-  /* Rabattbetrag zum aktuellen Zwischenpreis */
-  function discountOn(brutto){
-    if(!brutto || brutto <= 0) return 0;
-    var d = 0;
-    if(_discLead === "pct" && _discPct !== null) d = brutto * _discPct / 100;
-    else if(_discEur !== null)                   d = _discEur;
-    if(d < 0) d = 0;
-    if(d > brutto) d = brutto;
-    return d;
-  }
-
-  /* Das jeweils andere Feld nachziehen, ohne den Cursor zu stoeren */
-  function syncDiscount(brutto){
-    var eEur = $("avjLDiscEur"), ePct = $("avjLDiscPct");
-    if(!eEur || !ePct) return;
-    if(!brutto || brutto <= 0){
-      if(_discLead !== "eur") eEur.value = "";
-      if(_discLead !== "pct") ePct.value = "";
-      return;
-    }
-    var d = discountOn(brutto);
-    if(_discLead === "pct"){
-      eEur.value = (_discPct === null) ? "" : fmtNum(d, 2);
-    } else if(_discLead === "eur"){
-      ePct.value = (_discEur === null) ? "" : fmtNum(d / brutto * 100, 2);
-    } else {
-      eEur.value = ""; ePct.value = "";
-    }
-  }
-
-  $("avjLDiscEur").addEventListener("input", function(){
-    _discEur = parseNum(this.value);
-    _discLead = (_discEur === null) ? null : "eur";
-    if(_discLead === null) _discPct = null;
-    render();
-  });
-  $("avjLDiscPct").addEventListener("input", function(){
-    _discPct = parseNum(this.value);
-    _discLead = (_discPct === null) ? null : "pct";
-    if(_discLead === null) _discEur = null;
-    render();
-  });
-  $("avjLDiscClear").addEventListener("click", function(){
-    _discEur = _discPct = _discLead = null;
-    $("avjLDiscEur").value = ""; $("avjLDiscPct").value = "";
-    render();
-  });
-
-  /* ═══ Zusatzposten ═══════════════════════════════════════ */
-  var _extras = [{ label:"", amount:"" }];
-
-  function extrasSum(){
-    var s = 0;
-    for(var i=0;i<_extras.length;i++){
-      var v = parseFloat(String(_extras[i].amount).replace(",", "."));
-      if(!isNaN(v)) s += v;
-    }
-    return s;
-  }
-
-  function renderExtras(){
-    var box = $("avjLExtraRows");
-    var html = "";
-    for(var i=0;i<_extras.length;i++){
-      var e = _extras[i];
-      var last = (i === _extras.length - 1);
-      html += '<div class="avjt-xrow">'
-           +  '<input type="text" data-x="'+i+'" data-f="label" placeholder="z.\u202FB. Zusatzfahrer" value="'+
-              String(e.label).replace(/"/g,"&quot;")+'">'
-           +  '<input type="text" class="amt" inputmode="decimal" data-x="'+i+'" data-f="amount" placeholder="0,00 \u20AC" value="'+
-              String(e.amount).replace(/"/g,"&quot;")+'">'
-           +  '<button type="button" class="avjt-xdel" data-del="'+i+'" title="Zeile entfernen"'+
-              (last && !e.label && !e.amount ? " hidden" : "")+'>&times;</button>'
-           +  '</div>';
-    }
-    box.innerHTML = html;
-  }
-
-  function onExtraInput(e){
-    var el = e.target;
-    var i  = el.getAttribute("data-x");
-    if(i === null) return;
-    i = parseInt(i,10);
-    _extras[i][el.getAttribute("data-f")] = el.value;
-
-    /* Ist die letzte Zeile befuellt? Dann eine neue anhaengen. */
-    var last = _extras[_extras.length-1];
-    if(last.label || last.amount){
-      _extras.push({ label:"", amount:"" });
-      var pos = el.selectionStart;
-      renderExtras();
-      var again = $("avjLExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
-      if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(err){} }
-    } else {
-      var btn = $("avjLExtraRows").querySelector('[data-del="'+i+'"]');
-      if(btn) btn.hidden = (i === _extras.length-1 && !last.label && !last.amount);
-    }
-    render();
-  }
-
-  function onExtraClick(e){
-    var b = e.target.closest("button[data-del]");
-    if(!b) return;
-    var i = parseInt(b.getAttribute("data-del"),10);
-    _extras.splice(i,1);
-    if(!_extras.length) _extras.push({ label:"", amount:"" });
-    renderExtras();
-    render();
-  }
-
-  $("avjLExtraRows").addEventListener("input", onExtraInput);
-  $("avjLExtraRows").addEventListener("click", onExtraClick);
-  renderExtras();
-
-  /* ═══ Einstellungen ══════════════════════════════════════ */
-  var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
-  var _kundenstand = JSON.parse(JSON.stringify(CARS));   /* Basis: Server oder eingebaut */
-  var _defaults    = _kundenstand;                       /* "Auf Kundenstand zurueck" */
-  var _storeKey    = "avjL_preise_v1";
-
-  /* Es wird nur noch gemerkt, was vom Kundenstand abweicht. Fruehere
-     Fassungen haben den kompletten Satz gespeichert — der wird beim
-     Laden gegen die eingebauten Werte verrechnet und dabei umgestellt. */
-  function diffGegen(basis, ist){
-    var out = {};
-    for(var k in ist){
-      if(!basis[k]){ out[k] = JSON.parse(JSON.stringify(ist[k])); continue; }
-      var f = {}, hat = false;
-      for(var feld in ist[k]){
-        if(JSON.stringify(ist[k][feld]) !== JSON.stringify(basis[k][feld])){
-          f[feld] = JSON.parse(JSON.stringify(ist[k][feld])); hat = true;
-        }
-      }
-      if(hat) out[k] = f;
-    }
-    return out;
-  }
-  function legeAuf(basis, diff){
-    var out = JSON.parse(JSON.stringify(basis));
-    for(var k in diff){
-      if(!out[k]) out[k] = {};
-      for(var feld in diff[k]) out[k][feld] = JSON.parse(JSON.stringify(diff[k][feld]));
-    }
-    return out;
-  }
-  function holeDiff(){
-    try{
-      var raw = window.localStorage.getItem(_storeKey);
-      if(!raw) return {};
-      var saved = JSON.parse(raw);
-      if(saved && saved.__diff) return saved.aenderungen || {};
-      return diffGegen(_eingebaut, saved);        /* alte Fassung umstellen */
-    }catch(e){ return {}; }
-  }
-  function loadCfg(){
-    var neu = legeAuf(_kundenstand, holeDiff());
-    for(var k in neu) CARS[k] = neu[k];
-  }
-  function saveCfg(){
-    try{
-      var diff = diffGegen(_kundenstand, CARS), leer = true;
-      for(var k in diff){ leer = false; break; }
-      if(leer) window.localStorage.removeItem(_storeKey);
-      else window.localStorage.setItem(_storeKey,
-             JSON.stringify({ __diff: 1, aenderungen: diff }));
-    }catch(e){}
-  }
-  function abweichungen(){
-    var liste = [], diff = diffGegen(_kundenstand, CARS);
-    for(var k in diff){
-      for(var feld in diff[k]){
-        liste.push({
-          auto: (CARS[k] && CARS[k].name) || k,
-          feld: feld,
-          alt:  _kundenstand[k] ? _kundenstand[k][feld] : null,
-          neu:  diff[k][feld]
-        });
-      }
-    }
-    return liste;
-  }
-
-  AVJ_EDITOR.melde({
-    schluessel: "lb",
-    kategorie:  "Low Budget",
-    bodyId:     "avjLSetBody",
-    daten:      function(){ return CARS; },
-    fahrzeuge:  function(){
-      var l = [];
-      for(var k in CARS) l.push({ key:k, name:CARS[k].name || k });
-      return l;
-    },
-    waehle:     function(k){
-      if(!CARS[k]) return;
-      carKey = k; _gridCache = {};
-      renderSettings(); renderSb(); render();
-    }
-  });
-
-  AVJ_PREISE.melde({
-    schluessel:   "lb",
-    titel:        "Low-Budget",
-    daten:        function(){ return CARS; },
-    abweichungen: abweichungen
-  });
-
-  /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
-     erneut daraufsetzen, neu zeichnen. */
-  AVJ_PREISE.bereit(function(d){
-    if(d && d.lb){
-      var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
-      _kundenstand = JSON.parse(JSON.stringify(d.lb));
-      _defaults    = _kundenstand;
-      var neu = legeAuf(_kundenstand, diff);
-      for(var k in neu) CARS[k] = neu[k];
-      _gridCache = {};
-      saveCfg();          /* stellt alte Speicherfassung gleich um */
-    }
-    try{ renderSettings(); renderSb(); render(); }catch(e){}
-  });
-
-  /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
-  function zeichneKundenstand(){
-    var el = document.getElementById("avjLKStand");
-    if(!el) return;
-    var abw = abweichungen();
-    if(!abw.length){
-      el.className = "avj-kstand gleich";
-      el.innerHTML = "<b>Deine Preise stimmen mit dem Kundenstand \u00FCberein.</b> "
-        + "Es gibt nichts freizugeben."
-        + '<div class="avj-khinweis">\u201EPreisdatei erzeugen\u201C l\u00E4dt die '
-        + '<b>preise.json</b> mit dem aktuellen Stand herunter \u2014 genau die Datei, '
-        + 'aus der der Kundenrechner auf der Website seine Preise liest. Hier brauchst '
-        + 'du sie nur als Sicherung oder wenn die Datei auf dem Server fehlt. Zum '
-        + 'Ver\u00F6ffentlichen kommt sie in den Ordner <b>avj-tools</b>, danach '
-        + '<b>Kundenpreise aktualisieren.command</b> starten.</div>'
-        + '<button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
-      return;
-    }
-    var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
-          + " vom Kundenstand ab.</b> Kunden sehen weiter die alten Preise."
-          + '<ul class="avj-kliste">';
-    for(var i=0;i<abw.length && i<8;i++){
-      h += "<li>" + abw[i].auto + " \u00B7 " + abw[i].feld + "</li>";
-    }
-    if(abw.length > 8) h += "<li>\u2026 und " + (abw.length-8) + " weitere</li>";
-    h += "</ul>"
-      +  '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
-    el.className = "avj-kstand";
-    el.innerHTML = h;
-  }
-
-  (function(){
-    var body = document.getElementById("avjLSetBody");
-    if(!body) return;
-    body.addEventListener("click", function(e){
-      var t = e.target;
-      if(!t || !t.getAttribute) return;
-      if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
-      if(t.getAttribute("data-kzurueck")){
-        takeSnapshot();
-        for(var k in _kundenstand) CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
-        _gridCache = {};
-        try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-        renderSettings(); renderSb(); render();
-        flashSaved("Kundenstand geladen");
-      }
-    });
-  })();
-
-  function numRow(cls, label, arr, key, sub, step){
-    var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'" data-deltas="1">';
-    for(var i=0;i<arr.length;i++){
-      var val = (sub === null) ? arr[i] : arr[i][sub];
-      h += '<div class="avjt-scol"><div class="d">'+
-           (sub === null ? (i+1)+"T" :
-            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))+'</div>'
-        +  '<input type="number" step="'+(step||1)+'" data-set="'+key+'" data-i="'+i+'"'+
-           (sub === null ? "" : ' data-sub="'+sub+'"')+' value="'+val+'">'
-        +  '<div class="avjt-dlt"></div></div>';
-    }
-    return h + '</div>';
-  }
-
-  /* Differenz zum jeweils vorherigen Feld anzeigen */
-  function fmtDelta(n){
-    if(!isFinite(n)) return "";
-    var r = Math.round(n*100)/100;
-    var s = (r < 0 ? "\u2212" : "+") + String(Math.abs(r)).replace(".", ",");
-    return s;
-  }
-  function updateDeltas(){
-    var grids = $("avjLSetBody").querySelectorAll('[data-deltas]');
-    for(var g=0; g<grids.length; g++){
-      var cols = grids[g].querySelectorAll(".avjt-scol");
-      var prev = null;
-      for(var i=0; i<cols.length; i++){
-        var inp = cols[i].querySelector("input");
-        var out = cols[i].querySelector(".avjt-dlt");
-        var v   = parseFloat(inp.value);
-        if(!out){ prev = v; continue; }
-        if(i === 0 || prev === null || isNaN(v) || isNaN(prev)){
-          out.textContent = "";
-        } else {
-          var d = v - prev;
-          out.textContent = fmtDelta(d);
-          out.className = "avjt-dlt" + (d < 0 ? " neg" : "");
-        }
-        prev = v;
-      }
-    }
-  }
-
-  /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
-     Betroffen: Staffel, Tagespakete, Wochenende, Fr/Sa-Zuschlag.
-     Unveraendert: Frei-km, Mehrkilometer-Saetze, Haftungsreduzierung. */
-  function scalePrices(cfg, pct){
-    var f  = 1 + pct/100;
-    var r5 = function(n){ return Math.max(5, Math.round(n*f/5)*5); };
-
-    cfg.tier = cfg.tier.map(r5);
-    for(var i=1;i<cfg.tier.length;i++){
-      if(cfg.tier[i] <= cfg.tier[i-1]) cfg.tier[i] = cfg.tier[i-1] + 5;
-    }
-    if(cfg.monthPrice){
-      cfg.monthPrice = Math.max(cfg.tier[6] + 5, r5(cfg.monthPrice));
-    }
-  }
-
-  function scalePreview(pct){
-    var el = $("avjLScalePrev");
-    if(!el) return;
-    if(!pct){ el.textContent = ""; return; }
-    var probe = JSON.parse(JSON.stringify(CARS[carKey]));
-    scalePrices(probe, pct);
-    var a = CARS[carKey].tier, b = probe.tier;
-    var bas = (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey].tier : null;
-    var parts = [];
-    for(var i=0;i<a.length;i++){
-      if(a[i] === b[i]) continue;
-      /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
-         nicht gegen den Wert von eben. */
-      var kl = "pv";
-      if(bas && typeof bas[i] === "number"){
-        kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
-      }
-      parts.push('<span class="' + kl + '"><i>' + a[i] + '</i>\u2192<u>' + b[i] + '</u></span>');
-    }
-    el.innerHTML = parts.length
-      ? "<b>Staffelpreis</b>" + parts.join("")
-      : '<b>ohne Wirkung</b> keine \u00C4nderung bei dieser Prozentzahl';
-  }
-
-  var _snapshot = null;
-  function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
-  function restoreSnapshot(){
-    if(!_snapshot) return false;
-    try{
-      var s = JSON.parse(_snapshot);
-      for(var k in s) CARS[k] = s[k];
-    }catch(e){ return false; }
-    _gridCache = {}; saveCfg();
-    renderSettings(); renderSb(); render();
-    return true;
-  }
-
-  function flashSaved(txt){
-    var el = $("avjLSaveState");
-    if(!el) return;
-    el.textContent = txt || "Gespeichert";
-    el.className = "avjt-sstate on";
-    clearTimeout(el._t);
-    el._t = setTimeout(function(){ el.className = "avjt-sstate"; }, 1600);
-  }
-
-  function renderSettings(){
-    var car = CARS[carKey];
-    var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
-           + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
-           + '<span class="avjt-sstate" id="avjLSaveState"></span>'
-           + '<span class="avj-quelle">Preise: \u2026</span></div>'
-           + '<div class="avj-kstand" id="avjLKStand"></div>';
-
-    h += '<div class="avjt-scale">'
-      +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
-      +    '<div class="avjt-scale-row">'
-      +      '<span class="avjt-pct"><input type="number" step="0.5" id="avjLScalePct" '
-      +        'placeholder="0" inputmode="decimal"><em>%</em></span>'
-      +      '<select id="avjLScaleWhich">'
-      +        '<option value="one">nur '+car.name+'</option>'
-      +        '<option value="all">alle Fahrzeuge</option>'
-      +      '</select>'
-      +      '<button type="button" class="avjt-scale-go" id="avjLScaleGo">Anwenden</button>'
-      +    '</div>'
-      +    '<div class="avjt-scale-prev" id="avjLScalePrev"></div>'
-      +    '<div class="avjt-scale-note">Verschiebt die Tagespreise und den Monatsanker; '
-      +      'gerundet auf 5\u202F\u20AC. Frei-km und Mehrkilometer-S\u00E4tze bleiben '
-      +      'unver\u00E4ndert. Minuswert senkt die Preise.</div>'
-      +  '</div>';
-
-    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
-    h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
-
-    h += '<div class="avjt-slabel">Mehrkilometer (\u20AC/km)</div><div class="avjt-sgrid r3">'
-      +  '<div class="avjt-scol"><div class="d">geplant</div>'
-      +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
-      +  '<div class="avjt-scol"><div class="d">ungeplant</div>'
-      +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
-      +  '</div>';
-
-    h += '<div class="avjt-slabel">Monatsanker \u2013 gilt ab Tag 8 als Zielwert</div>'
-      +  '<div class="avjt-sgrid r3">'
-      +  '<div class="avjt-scol"><div class="d">Preis 30 T</div>'
-      +  '<input type="number" step="5" data-rate="monthPrice" value="'+(car.monthPrice||0)+'"></div>'
-      +  '<div class="avjt-scol"><div class="d">Frei-km 30 T</div>'
-      +  '<input type="number" step="50" data-rate="monthKm" value="'+(car.monthKm||0)+'"></div>'
-      +  '</div>';
-
-
-    /* Werte, die nur die Preistabelle auf der Website braucht */
-    if(car.kurzzeit){
-      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
-        +  '<div class="avjt-sgrid p4">'
-        +  '<div class="avjt-scol"><div class="d">Frei-km</div>'
-        +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">3 Std. Mo\u2013Do</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">6 Std. Mo\u2013Do</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
-        +  '</div>'
-        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
-        +  '</div>';
-    }
-    if(car.ahk){
-      h += '<div class="avjt-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
-        +  '<div class="avjt-sgrid p4">'
-        +  '<div class="avjt-scol"><div class="d">Kurzzeit</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Tag</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Wochenende</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Woche</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
-        +  '</div>';
-    }
-    if(car.kaution){
-      h += '<div class="avjt-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
-        +  '<div class="avjt-sgrid r3">'
-        +  '<div class="avjt-scol"><div class="d">Kurzzeittarife</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Tag / Wochenende</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
-        +  '</div>';
-    }
-    h += '<div class="avjt-sactions">'
-      +    '<button type="button" class="avjt-sundo" id="avjLSUndo">\u00C4nderungen verwerfen</button>'
-      +    '<button type="button" class="avjt-sreset" id="avjLSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
-      +  '</div>';
-    $("avjLSetBody").innerHTML = h;
-    updateDeltas();
-    try{ AVJ_EDITOR.bloecke("avjLSetBody"); }catch(e){}
-    zeichneKundenstand();
-    AVJ_PREISE.zeigeQuelle();
-  }
-
-  function onSettingInput(e){
-    var el = e.target, car = CARS[carKey];
-    var v  = parseFloat(el.value);
-    if(isNaN(v)) return;
-
-    var key = el.getAttribute("data-set");
-    if(key){
-      var i = parseInt(el.getAttribute("data-i"),10);
-      var sub = el.getAttribute("data-sub");
-      if(key.indexOf("sb") === 0 && key.length > 2){
-        car.sb[parseInt(key.slice(2),10)].tier[i] = v;
-      } else if(sub === null){
-        car[key][i] = v;
-      } else {
-        car[key][i][parseInt(sub,10)] = v;
-      }
-    }
-    var rate = el.getAttribute("data-rate");
-    if(rate) car[rate] = v;
-
-    var sbwe = el.getAttribute("data-sbwe");
-    if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
-
-    /* verschachtelte Werte wie kurzzeit.moDo.0 */
-    var pfad = el.getAttribute("data-pfad");
-    if(pfad){
-      var teile = pfad.split("."), ziel = car;
-      for(var pi=0; pi<teile.length-1; pi++){
-        if(ziel[teile[pi]] === undefined || ziel[teile[pi]] === null) ziel[teile[pi]] = {};
-        ziel = ziel[teile[pi]];
-      }
-      ziel[teile[teile.length-1]] = v;
-    }
-
-    _gridCache = {};      /* Paketraster neu berechnen */
-    saveCfg();
-    try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
-    flashSaved();
-    updateDeltas();
-    renderSb();
-    render();
-  }
-
-  $("avjLSetBody").addEventListener("input", onSettingInput);
-  /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
-     Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
-     nachtraeglich eintreffender Serverstand mitzaehlt. */
-  AVJ_BASIS["avjLSetBody"] = function(){
-    return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
-  };
-  $("avjLSetBody").addEventListener("click", function(e){
-    var id = e.target.id;
-
-    if(id === "avjLSReset"){
-      takeSnapshot();                      /* auch das laesst sich verwerfen */
-      var _vorRs = avjWerte("avjLSetBody");
-      for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
-      _gridCache = {};
-      try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-      renderSettings(); renderSb(); render();
-      var _nRs = avjBlitz("avjLSetBody", _vorRs);
-      flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
-                      : "Kundenstand geladen");
-      return;
-    }
-
-    if(id === "avjLSUndo"){
-      var _vorUn = avjWerte("avjLSetBody");
-      if(restoreSnapshot()){
-        var _nUn = avjBlitz("avjLSetBody", _vorUn);
-        flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
-                        : "Nichts ge\u00E4ndert");
-      } else {
-        flashSaved("Nichts zu verwerfen");
-      }
-      return;
-    }
-
-    if(id === "avjLScaleGo"){
-      var f = $("avjLScalePct");
-      var pct = parseFloat(String(f.value).replace(",", "."));
-      if(isNaN(pct) || pct === 0){ f.focus(); return; }
-      if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
-      takeSnapshot();
-      var _vorSk = avjWerte("avjLSetBody");
-      var which = $("avjLScaleWhich").value;
-      if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
-      else scalePrices(CARS[carKey], pct);
-      _gridCache = {}; saveCfg();
-      renderSettings(); renderSb(); render();
-      var _nSk = avjBlitz("avjLSetBody", _vorSk);
-      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
-                 + (_nSk === 1 ? " Wert" : " Werte"));
-      return;
-    }
-  });
-
-  /* Vorschau der Preisverschiebung */
-  $("avjLSetBody").addEventListener("input", function(e){
-    if(e.target.id !== "avjLScalePct") return;
-    var v = parseFloat(String(e.target.value).replace(",", "."));
-    scalePreview(isNaN(v) ? 0 : v);
-  });
-
-  /* Sicherungspunkt beim Aufklappen der Einstellungen */
-  (function(){
-    var det = $("avjLSetBody") ? $("avjLSetBody").closest("details") : null;
-    if(det) det.addEventListener("toggle", function(){ if(det.open) takeSnapshot(); });
-  })();
-
-  loadCfg();
-  renderSettings();
-
-  renderSb();
-  render();
-})();
-
-
-/* ═══ 9-SITZER ═══ */
-/* ─── GA4-Events ─────────────────────────────────────────────
-   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
-function avjTrack(name, params){
-  try{
-    if(typeof window.gtag === "function"){
-      window.gtag("event", name, params || {});
-    }
-  }catch(e){}
-}
-
-/* ═══ Popup-Steuerung ═══ */
-(function(){
-  "use strict";
-  var ov    = document.getElementById("avjOverlay");
-  var open  = document.getElementById("avjOpen");
-  var close = document.getElementById("avjClose");
-  if(!ov || !open) return;
-  var lastFocus = null;
-
-  /* Overlay aus dem Onepage-Abschnitt herausl\u00F6sen und direkt an <body> h\u00E4ngen.
-     Sonst kann ein transform/z-index auf dem Elternabschnitt das Popup einsperren. */
-  if(ov.parentNode !== document.body){
-    document.body.appendChild(ov);
-  }
-
-  function show(){
-    lastFocus = document.activeElement;
-    ov.hidden = false;
-    avjTrack("rechner_geoeffnet", { kategorie: "9-Sitzer" });
-    document.body.style.overflow = "hidden";
-    var first = ov.querySelector(".avj-car");
-    if(first) first.focus();
-  }
-  function hide(){
-    ov.hidden = true;
-    document.body.style.overflow = "";
-    if(lastFocus) lastFocus.focus();
-  }
-
-  open.addEventListener("click", show);
-  if(close) close.addEventListener("click", hide);
-  ov.addEventListener("click", function(e){
-    if(e.target.hasAttribute("data-close")) hide();
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape" && !ov.hidden) hide();
-  });
-
-  /* Fokus im Dialog halten */
-  ov.addEventListener("keydown", function(e){
-    if(e.key !== "Tab") return;
-    var f = ov.querySelectorAll('button, input, a[href], select, [tabindex]:not([tabindex="-1"])');
-    if(!f.length) return;
-    var first = f[0], last = f[f.length-1];
-    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
-    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
-  });
-})();
-
-
-(function(){
-  "use strict";
-
-  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
-  var CARS = {
+});
+
+
+/* ═══ 9-SITZER ═══
+   Seit Build 33 über die gemeinsame Fabrik. */
+AVJ_RECHNER({
+  p:          "avj",
+  kategorie:  "9-Sitzer",
+  schluessel: "neunsitzer",
+  titel:      "9-Sitzer",
+  start:      "sprinter",
+  speicher:   "avj_preise_v1",
+  autoKlasse: ".avj-car",
+  autos: {
     sprinter: {
       name: "Sprinter Tourer",
       frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
@@ -3646,1132 +2477,50 @@ function avjTrack(name, params){
         { label:"500 \u20AC",   we:75, tier:[35,68,95,118,134,144,150] }
       ]
     }
-  };
-
-  var _trackTimer = null, _lastSig = null;
-  var carKey = "sprinter";
-  var sbIdx  = 0;
-
-  var $ = function(id){ return document.getElementById(id); };
-  var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
-  var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
-
-  /* ─── Datum / Dauer ──────────────────────────────────────── */
-  function parseDT(dEl, tEl){
-    var d = $(dEl).value, t = $(tEl).value || "09:00";
-    if(!d) return null;
-    return new Date(d + "T" + t + ":00");
   }
-
-  function duration(){
-    var a = parseDT("avjFrom","avjFromT");
-    var b = parseDT("avjTo","avjToT");
-    if(!a || !b) return null;
-    var ms = b - a;
-    if(ms <= 0) return { invalid:true };
-    var hours = ms / 3600000;
-    return {
-      from: a, to: b, hours: hours,
-      days: Math.max(1, Math.ceil(hours / 24)),
-      fullDays: Math.floor(hours / 24),
-      restHours: Math.round(hours - Math.floor(hours/24)*24)
-    };
-  }
-
-  // Wochenendtarif: Abholung Fr ab 12:00 oder Sa, Rückgabe bis Mo 10:00
-  function isWeekend(d){
-    if(!d || d.invalid) return false;
-    var wdA = d.from.getDay();           // 5 = Fr, 6 = Sa
-    var wdB = d.to.getDay();             // 0 = So, 1 = Mo
-    var hA  = d.from.getHours() + d.from.getMinutes()/60;
-    var hB  = d.to.getHours()   + d.to.getMinutes()/60;
-    if(d.hours > 96) return false;       // l\u00E4nger als Fr\u2013Di \u2192 normale Staffel
-    var startOk = (wdA === 5 && hA >= 11) || wdA === 6;
-    /* Rueckgabe Montag frueh -> Wochenende.
-       Rueckgabe Sonntag nur, wenn die Miete wirklich ueber das Wochenende laeuft;
-       eine reine 24-Stunden-Miete Sa->So ist eine Tagesmiete. */
-    var endOk   = (wdB === 1 && hB <= 11) || (wdB === 0 && d.hours > 30);
-    return startOk && endOk;
-  }
-
-  /* ─── km-Stufe wählen ────────────────────────────────────── */
-  /* Zwischen je zwei Paketstufen die Mitte einziehen:
-     aus 100/75 und 400/115 wird zusaetzlich 250/95.
-     Entspricht der bisherigen Handrechnung (beide Pakete addieren, halbieren). */
-  function expand(steps){
-    var out = [];
-    for(var i=0;i<steps.length;i++){
-      out.push(steps[i]);
-      if(i+1 < steps.length){
-        out.push([
-          Math.round((steps[i][0] + steps[i+1][0]) / 2),
-          Math.round((steps[i][1] + steps[i+1][1]) / 2)
-        ]);
-      }
-    }
-    return out;
-  }
-
-  var _gridCache = {};
-  function gridFor(car, key){
-    var id = car.name + "|" + key;
-    if(!_gridCache[id]) _gridCache[id] = expand(car[key]);
-    return _gridCache[id];
-  }
-
-  /* Guenstigste Variante fuer den Kunden waehlen: entweder das naechstgroessere
-     Paket, oder ein kleineres Paket plus vorab geplante Mehrkilometer.
-     Ohne km-Angabe wird die kleinste Stufe gezeigt. */
-  function pickStep(steps, km, rate){
-    if(km === null) return { idx:0, km:steps[0][0], price:steps[0][1] };
-    if(!rate){
-      for(var i=0;i<steps.length;i++){
-        if(km <= steps[i][0]) return { idx:i, km:steps[i][0], price:steps[i][1] };
-      }
-      var last = steps[steps.length-1];
-      return { idx:steps.length-1, km:last[0], price:last[1] };
-    }
-    var best = null;
-    for(var j=0;j<steps.length;j++){
-      var over = Math.max(0, km - steps[j][0]);
-      var cost = steps[j][1] + over * rate;
-      if(best === null || cost < best.cost - 0.001){
-        best = { idx:j, km:steps[j][0], price:steps[j][1], cost:cost };
-      }
-    }
-    return best;
-  }
-
-  /* ─── Preisberechnung ────────────────────────────────────── */
-  function quote(){
-    var car = CARS[carKey];
-    var d   = duration();
-    if(!d) return { empty:true };
-    if(d.invalid) return { invalid:true };
-
-    var kmRaw = $("avjKm").value.trim();
-    var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
-
-    var mode, base, freeKm, sbCost, tarifLabel, badge = "";
-
-    var wd   = d.from.getDay();
-    var frSa = (wd === 5 || wd === 6);
-
-    if(isWeekend(d)){
-      /* Wochenendtarif: eigenes Paketraster */
-      mode = "we";
-      var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
-      base = stW.price; freeKm = stW.km;
-      sbCost = car.sb[sbIdx].we;
-      tarifLabel = "Wochenendtarif";
-      badge = "Fr-Mo";
-
-    } else if(d.days <= 2){
-      /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
-      mode = "pkg";
-      var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
-      var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
-      base   = stD.price * d.days;
-      freeKm = stD.km    * d.days;
-      sbCost = car.sb[sbIdx].tier[d.days - 1];
-      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
-      badge = frSa ? "Fr/Sa" : "Mo-Do";
-
-    } else {
-      /* ab 3 Tagen: Staffel Richtung Wochentarif */
-      mode = "tier";
-      var i = Math.min(d.days, 7) - 1;
-      base   = car.tier[i];
-      freeKm = car.tierKm[i];
-      if(d.days > 7){
-        var extra = d.days - 7;
-        base   += extra * (car.tier[6] / 7) * 0.92;
-        freeKm += Math.round(extra * car.tierKm[6] / 7);
-      }
-      var sbTier = car.sb[sbIdx].tier;
-      sbCost = sbTier[Math.min(d.days, 7) - 1];
-      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
-      tarifLabel = d.days + " Tage";
-      if(d.days === 7) badge = "Wochentarif";
-    }
-
-    var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
-    var overCost = overKm * car.planKm;
-    var total    = base + sbCost + overCost;
-
-    return {
-      car: car, d: d, mode: mode, km: km,
-      base: base, freeKm: freeKm, sbCost: sbCost,
-      overKm: overKm, overCost: overCost, total: total,
-      tarifLabel: tarifLabel, badge: badge
-    };
-  }
-
-  /* ─── Rendering ──────────────────────────────────────────── */
-  function renderSb(){
-    var car = CARS[carKey];
-    var html = "";
-    for(var i=0;i<car.sb.length;i++){
-      var s = car.sb[i];
-      var p = s.tier[0] === 0 ? "inklusive" : "ab " + s.tier[0] + " \u20AC/Tag";
-      html += '<button type="button" data-sb="'+i+'"'+(i===sbIdx?' class="is-active"':'')+'>'
-            +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
-            + '</button>';
-    }
-    $("avjSbRow").innerHTML = html;
-  }
-
-  function renderDur(){
-    var d = duration();
-    var el = $("avjDur");
-    if(!d){ el.textContent = ""; return; }
-    if(d.invalid){
-      el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
-      return;
-    }
-    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
-    var p  = function(n){ return ("0"+n).slice(-2); };
-    var f  = function(x){
-      return wd[x.getDay()]+" "+p(x.getDate())+"."+p(x.getMonth()+1)+". "+p(x.getHours())+":"+p(x.getMinutes());
-    };
-    var lbl = d.days + (d.days === 1 ? " Tag" : " Tage");
-    if(d.fullDays > 0 && d.restHours > 0){
-      lbl = d.fullDays + (d.fullDays === 1 ? " Tag" : " Tage") + " und " + d.restHours + " Std.";
-    }
-    el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
-  }
-
-  function render(){
-    renderDur();
-    var q = $("avjOut");
-    var r = quote();
-
-    if(r.empty || r.invalid){
-      $("avjPrice").textContent = "\u2014";
-      syncDiscount(0);
-      $("avjTarifLabel").textContent = "Richtpreis";
-      $("avjBadge").textContent = "";
-      $("avjLines").innerHTML =
-        '<li class="hint">'+(r.invalid
-          ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
-          : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
-      $("avjKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
-      return;
-    }
-
-    var _brutto = r.total + extrasSum();
-    syncDiscount(_brutto);
-    $("avjPrice").textContent = eur(_brutto - discountOn(_brutto));
-    $("avjTarifLabel").textContent = r.tarifLabel;
-    $("avjBadge").textContent = r.badge;
-
-    var L = "";
-    L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
-    L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
-
-    if(r.km !== null){
-      L += '<li><span class="k">Geplante Fahrleistung</span><span class="v">'+num(r.km)+' km</span></li>';
-      if(r.overKm > 0){
-        L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
-          +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
-        $("avjKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
-      } else {
-        $("avjKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
-      }
-    } else {
-      $("avjKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
-    }
-
-    if(r.sbCost > 0){
-      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
-    } else {
-      L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
-    }
-
-    /* Zusatzposten */
-    var _xsum = 0;
-    for(var xi=0; xi<_extras.length; xi++){
-      var xa = parseFloat(String(_extras[xi].amount).replace(",", "."));
-      if(isNaN(xa) || xa === 0) continue;
-      _xsum += xa;
-      var xl = _extras[xi].label || "Zusatzposten";
-      L += '<li><span class="k">'+xl.replace(/</g,"&lt;")+'</span><span class="v">'+eur(xa)+' \u20AC</span></li>';
-    }
-
-    var _gesamt = r.total + _xsum;
-    var _rab    = discountOn(_gesamt);
-    if(_rab > 0){
-      L += '<li><span class="k">Zwischensumme</span><span class="v">'+eur(_gesamt)+' \u20AC</span></li>';
-      L += '<li class="disc"><span class="k">Rabatt '
-        +  fmtNum(_rab / _gesamt * 100, 1) + ' %</span>'
-        +  '<span class="v">\u2212 '+fmtNum(_rab, 2)+' \u20AC</span></li>';
-    }
-    L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(_gesamt - _rab)+' \u20AC</span></li>';
-
-    L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
-      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
-
-    if(r.mode === "tier" && r.d.days > 7){
-      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
-    }
-    if(r.mode === "we"){
-      L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
-    }
-
-    $("avjLines").innerHTML = L;
-
-    /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
-    clearTimeout(_trackTimer);
-    _trackTimer = setTimeout(function(){
-      var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
-      if(sig === _lastSig) return;
-      _lastSig = sig;
-      avjTrack("preis_berechnet", {
-        kategorie: "9-Sitzer",
-        fahrzeug:  r.car.name,
-        tage:      r.d.days,
-        tarif:     r.mode,
-        kilometer: r.km === null ? 0 : r.km,
-        preis:     Math.round(r.total)
-      });
-    }, 1200);
-  }
-
-  /* ─── Events ─────────────────────────────────────────────── */
-  var cars = document.querySelectorAll(".avj-car");
-  for(var i=0;i<cars.length;i++){
-    cars[i].addEventListener("click", function(){
-      for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
-      this.classList.add("is-active");
-      carKey = this.getAttribute("data-car");
-      sbIdx = 0;
-      avjTrack("fahrzeug_gewechselt", { kategorie: "9-Sitzer", fahrzeug: CARS[carKey].name });
-      renderSb();
-      renderSettings();
-      render();
-    });
-  }
-
-  $("avjSbRow").addEventListener("click", function(e){
-    var b = e.target.closest("button[data-sb]");
-    if(!b) return;
-    sbIdx = parseInt(b.getAttribute("data-sb"),10);
-    renderSb();
-    render();
-  });
-
-  ["avjFrom","avjTo"].forEach(function(id){
-    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
-  });
-  ["avjFromT","avjToT"].forEach(function(id){
-    $(id).addEventListener("change", function(){ refreshTimes(); render(); });
-  });
-  $("avjKm").addEventListener("input", render);
-
-
-  /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
-  /* Abholung nur zu Geschaeftszeiten, Rueckgabe rund um die Uhr
-     ueber den Schluesseltresor. */
-
-  /* ── Feiertage Niedersachsen ────────────────────────────────
-     Ostersonntag nach Gauss/Meeus, die beweglichen Tage davon abgeleitet. */
-  function osterSonntag(y){
-    var a=y%19, b=Math.floor(y/100), cc=y%100;
-    var dd=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
-    var g=Math.floor((b-f+1)/3), h=(19*a+b-dd-g+15)%30;
-    var i=Math.floor(cc/4), k=cc%4, l=(32+2*e+2*i-h-k)%7;
-    var m=Math.floor((a+11*h+22*l)/451);
-    var mon=Math.floor((h+l-7*m+114)/31), day=((h+l-7*m+114)%31)+1;
-    return new Date(y, mon-1, day);
-  }
-  var _feierCache = {};
-  function feiertage(y){
-    if(_feierCache[y]) return _feierCache[y];
-    var p2 = function(n){ return ("0"+n).slice(-2); };
-    var key = function(d){ return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); };
-    var o = osterSonntag(y);
-    var add = function(n){ var x = new Date(o.getTime()); x.setDate(x.getDate()+n); return key(x); };
-    var m = {};
-    m[y+"-01-01"]            = "Neujahr";
-    m[add(-2)]               = "Karfreitag";
-    m[add(1)]                = "Ostermontag";
-    m[y+"-05-01"]            = "Tag der Arbeit";
-    m[add(39)]               = "Christi Himmelfahrt";
-    m[add(50)]               = "Pfingstmontag";
-    m[y+"-10-03"]            = "Tag der Deutschen Einheit";
-    m[y+"-10-31"]            = "Reformationstag";
-    m[y+"-12-25"]            = "1. Weihnachtstag";
-    m[y+"-12-26"]            = "2. Weihnachtstag";
-    _feierCache[y] = m;
-    return m;
-  }
-  function feiertagName(ds){
-    if(!ds || ds.length < 10) return null;
-    var y = parseInt(ds.slice(0,4), 10);
-    if(!y) return null;
-    return feiertage(y)[ds] || null;
-  }
-
-  /* Heiligabend und Silvester: keine Feiertage, aber verkuerzt geoeffnet */
-  function kurztagName(ds){
-    if(!ds || ds.length < 10) return null;
-    var md = ds.slice(5);
-    if(md === "12-24") return "Heiligabend";
-    if(md === "12-31") return "Silvester";
-    return null;
-  }
-
-  var WOCHENTAG = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
-
-  var HOURS = {
-    1:[8,18], 2:[8,18], 3:[8,18], 4:[8,18], 5:[8,18],   /* Mo-Fr */
-    6:[8,13],                                            /* Sa    */
-    0:null                                               /* So    */
-  };
-
-  function hoursFor(dateStr){
-    if(!dateStr) return HOURS[1];
-    if(feiertagName(dateStr)) return null;      /* Feiertag: geschlossen */
-    var wd = new Date(dateStr + "T12:00:00").getDay();
-    var base = HOURS[wd];
-    if(!base) return null;                      /* Sonntag bleibt zu */
-    if(kurztagName(dateStr)) return [8, 13];    /* verkuerzt wie samstags */
-    return base;
-  }
-
-  function minutesOf(hhmm){
-    var p = hhmm.split(":");
-    return parseInt(p[0],10)*60 + parseInt(p[1],10);
-  }
-
-  function pad2(n){ return ("0"+n).slice(-2); }
-
-  /* Liste aufbauen. mode "start": nur Oeffnungszeiten.
-     mode "end": voller Tag, ausserhalb der Zeiten als Tresor markiert. */
-  function fillTimes(sel, dateStr, mode){
-    var h = hoursFor(dateStr);
-    var keep = sel.value;
-    var html = "", first = null;
-
-    if(mode === "start"){
-      for(var m = 0; m < 24*60; m += 30){
-        var v = pad2(Math.floor(m/60)) + ":" + pad2(m%60);
-        var inOpen = h && m >= h[0]*60 && m <= h[1]*60;
-        if(first === null && inOpen) first = v;
-        html += '<option value="'+v+'"'+(inOpen?"":' class="offhours"')+'>'
-             +  v + (inOpen ? "" : " \u00B7 ausserhalb") + '</option>';
-      }
-      if(first === null) first = "10:00";
-    } else {
-      for(var t = 0; t < 24*60; t += 30){
-        var v2 = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
-        var inside = h && t >= h[0]*60 && t <= h[1]*60;
-        if(first === null) first = v2;
-        html += '<option value="'+v2+'"'+(inside?"":' class="tresor"')+'>'
-             +  v2 + (inside ? "" : " \u00B7 Tresor") + '</option>';
-      }
-    }
-    sel.innerHTML = html;
-    /* bisherige Auswahl halten, sonst erste gueltige Zeit */
-    var ok = false;
-    for(var i=0;i<sel.options.length;i++) if(sel.options[i].value === keep) ok = true;
-    sel.value = ok ? keep : (mode === "start" ? (first || "") : (keep || "10:00"));
-    if(!sel.value && sel.options.length) sel.value = sel.options[0].value;
-  }
-
-
-  function setWd(id, dateStr){
-    var el = $(id);
-    if(!el) return;
-    if(!dateStr || dateStr.length < 10){ el.textContent = ""; el.className = "wd"; return; }
-    var d = new Date(dateStr + "T12:00:00");
-    var f = feiertagName(dateStr);
-    el.textContent = WOCHENTAG[d.getDay()];
-    el.className = "wd" + ((f || d.getDay() === 0) ? " zu" : "");
-    el.title = f || "";
-  }
-
-  function refreshTimes(){
-    var fromEl = $("avjFromT"), toEl = $("avjToT");
-    fillTimes(fromEl, $("avjFrom").value, "start");
-    fillTimes(toEl,   $("avjTo").value,   "end");
-    setWd("avjFromWd", $("avjFrom").value);
-    setWd("avjToWd",   $("avjTo").value);
-
-    /* Hinweis Abholung */
-    var hF = hoursFor($("avjFrom").value);
-    var eF = $("avjFromHint");
-    var mF = minutesOf(fromEl.value || "10:00");
-    var insideF = hF && mF >= hF[0]*60 && mF <= hF[1]*60;
-    if(insideF){
-      var ktF = kurztagName($("avjFrom").value);
-      eF.textContent = (ktF ? ktF + " \u00B7 " : "") +
-                       "\u00D6ffnungszeit " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
-      eF.className = "h";
-    } else if(hF){
-      eF.textContent = "Ausserhalb der \u00D6ffnungszeit (" + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00) \u2013 Sonderabsprache";
-      eF.className = "h offhint";
-    } else {
-      var fnF = feiertagName($("avjFrom").value);
-      eF.textContent = (fnF ? fnF : "Sonntag") + " \u2013 regul\u00E4r geschlossen, Sonderabsprache";
-      eF.className = "h offhint";
-    }
-
-    /* Hinweis Rueckgabe */
-    var hT = hoursFor($("avjTo").value);
-    var eT = $("avjToHint");
-    var mT = minutesOf(toEl.value || "10:00");
-    var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
-    if(insideT){
-      eT.textContent = "R\u00FCckgabe pers\u00F6nlich m\u00F6glich";
-      eT.className = "h";
-    } else {
-      eT.textContent = "Ausserhalb der \u00D6ffnungszeiten \u2013 R\u00FCckgabe \u00FCber Schl\u00FCsseltresor";
-      eT.className = "h tresor";
-    }
-  }
-
-  /* Startwert: heute */
-  (function(){
-    var d = new Date();
-    $("avjFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
-  })();
-  refreshTimes();
-
-
-
-  /* ═══ Rabatt: Euro und Prozent halten sich gegenseitig aktuell ═══ */
-  var _discEur = null, _discPct = null, _discLead = null;   /* Lead: welches Feld fuehrt */
-
-  function parseNum(s){
-    s = String(s == null ? "" : s).trim().replace(",", ".");
-    if(s === "") return null;
-    var v = parseFloat(s);
-    return isNaN(v) ? null : v;
-  }
-  function fmtNum(v, dec){
-    return v.toLocaleString("de-DE", { minimumFractionDigits:dec, maximumFractionDigits:dec });
-  }
-
-  /* Rabattbetrag zum aktuellen Zwischenpreis */
-  function discountOn(brutto){
-    if(!brutto || brutto <= 0) return 0;
-    var d = 0;
-    if(_discLead === "pct" && _discPct !== null) d = brutto * _discPct / 100;
-    else if(_discEur !== null)                   d = _discEur;
-    if(d < 0) d = 0;
-    if(d > brutto) d = brutto;
-    return d;
-  }
-
-  /* Das jeweils andere Feld nachziehen, ohne den Cursor zu stoeren */
-  function syncDiscount(brutto){
-    var eEur = $("avjDiscEur"), ePct = $("avjDiscPct");
-    if(!eEur || !ePct) return;
-    if(!brutto || brutto <= 0){
-      if(_discLead !== "eur") eEur.value = "";
-      if(_discLead !== "pct") ePct.value = "";
-      return;
-    }
-    var d = discountOn(brutto);
-    if(_discLead === "pct"){
-      eEur.value = (_discPct === null) ? "" : fmtNum(d, 2);
-    } else if(_discLead === "eur"){
-      ePct.value = (_discEur === null) ? "" : fmtNum(d / brutto * 100, 2);
-    } else {
-      eEur.value = ""; ePct.value = "";
-    }
-  }
-
-  $("avjDiscEur").addEventListener("input", function(){
-    _discEur = parseNum(this.value);
-    _discLead = (_discEur === null) ? null : "eur";
-    if(_discLead === null) _discPct = null;
-    render();
-  });
-  $("avjDiscPct").addEventListener("input", function(){
-    _discPct = parseNum(this.value);
-    _discLead = (_discPct === null) ? null : "pct";
-    if(_discLead === null) _discEur = null;
-    render();
-  });
-  $("avjDiscClear").addEventListener("click", function(){
-    _discEur = _discPct = _discLead = null;
-    $("avjDiscEur").value = ""; $("avjDiscPct").value = "";
-    render();
-  });
-
-  /* ═══ Zusatzposten ═══════════════════════════════════════ */
-  var _extras = [{ label:"", amount:"" }];
-
-  function extrasSum(){
-    var s = 0;
-    for(var i=0;i<_extras.length;i++){
-      var v = parseFloat(String(_extras[i].amount).replace(",", "."));
-      if(!isNaN(v)) s += v;
-    }
-    return s;
-  }
-
-  function renderExtras(){
-    var box = $("avjExtraRows");
-    var html = "";
-    for(var i=0;i<_extras.length;i++){
-      var e = _extras[i];
-      var last = (i === _extras.length - 1);
-      html += '<div class="avj-xrow">'
-           +  '<input type="text" data-x="'+i+'" data-f="label" placeholder="z.\u202FB. Zusatzfahrer" value="'+
-              String(e.label).replace(/"/g,"&quot;")+'">'
-           +  '<input type="text" class="amt" inputmode="decimal" data-x="'+i+'" data-f="amount" placeholder="0,00 \u20AC" value="'+
-              String(e.amount).replace(/"/g,"&quot;")+'">'
-           +  '<button type="button" class="avj-xdel" data-del="'+i+'" title="Zeile entfernen"'+
-              (last && !e.label && !e.amount ? " hidden" : "")+'>&times;</button>'
-           +  '</div>';
-    }
-    box.innerHTML = html;
-  }
-
-  function onExtraInput(e){
-    var el = e.target;
-    var i  = el.getAttribute("data-x");
-    if(i === null) return;
-    i = parseInt(i,10);
-    _extras[i][el.getAttribute("data-f")] = el.value;
-
-    /* Ist die letzte Zeile befuellt? Dann eine neue anhaengen. */
-    var last = _extras[_extras.length-1];
-    if(last.label || last.amount){
-      _extras.push({ label:"", amount:"" });
-      var pos = el.selectionStart;
-      renderExtras();
-      var again = $("avjExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
-      if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(err){} }
-    } else {
-      var btn = $("avjExtraRows").querySelector('[data-del="'+i+'"]');
-      if(btn) btn.hidden = (i === _extras.length-1 && !last.label && !last.amount);
-    }
-    render();
-  }
-
-  function onExtraClick(e){
-    var b = e.target.closest("button[data-del]");
-    if(!b) return;
-    var i = parseInt(b.getAttribute("data-del"),10);
-    _extras.splice(i,1);
-    if(!_extras.length) _extras.push({ label:"", amount:"" });
-    renderExtras();
-    render();
-  }
-
-  $("avjExtraRows").addEventListener("input", onExtraInput);
-  $("avjExtraRows").addEventListener("click", onExtraClick);
-  renderExtras();
-
-  /* ═══ Einstellungen ══════════════════════════════════════ */
-  var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
-  var _kundenstand = JSON.parse(JSON.stringify(CARS));   /* Basis: Server oder eingebaut */
-  var _defaults    = _kundenstand;                       /* "Auf Kundenstand zurueck" */
-  var _storeKey    = "avj_preise_v1";
-
-  /* Es wird nur noch gemerkt, was vom Kundenstand abweicht. Fruehere
-     Fassungen haben den kompletten Satz gespeichert — der wird beim
-     Laden gegen die eingebauten Werte verrechnet und dabei umgestellt. */
-  function diffGegen(basis, ist){
-    var out = {};
-    for(var k in ist){
-      if(!basis[k]){ out[k] = JSON.parse(JSON.stringify(ist[k])); continue; }
-      var f = {}, hat = false;
-      for(var feld in ist[k]){
-        if(JSON.stringify(ist[k][feld]) !== JSON.stringify(basis[k][feld])){
-          f[feld] = JSON.parse(JSON.stringify(ist[k][feld])); hat = true;
-        }
-      }
-      if(hat) out[k] = f;
-    }
-    return out;
-  }
-  function legeAuf(basis, diff){
-    var out = JSON.parse(JSON.stringify(basis));
-    for(var k in diff){
-      if(!out[k]) out[k] = {};
-      for(var feld in diff[k]) out[k][feld] = JSON.parse(JSON.stringify(diff[k][feld]));
-    }
-    return out;
-  }
-  function holeDiff(){
+});
+
+
+/* ═══ RECHNER-FABRIK ═══════════════════════════════════════════
+   Eine Bauanleitung fuer alle Preisrechner. Bis Build 32 stand dieser
+   Code dreimal fast gleich im Dokument — einmal je Kategorie. Wer einen
+   Fehler beheben wollte, musste ihn dreimal beheben, und eine vierte
+   Kategorie (PKW) haette eine vierte Kopie bedeutet.
+
+   Jetzt gibt es ihn einmal. Was sich je Kategorie unterscheidet, steht
+   in der Konfiguration am Ende der Datei:
+
+     p          Vorsilbe der Element-Kennungen im HTML, z. B. "avjT"
+     kategorie  Anzeigename, geht auch in die GA4-Ereignisse
+     schluessel Abschnitt in preise.json, z. B. "transporter"
+     titel      Ueberschrift im Freigabe-Dialog
+     start      Fahrzeug, das beim Oeffnen ausgewaehlt ist
+     speicher   Schluessel im localStorage
+     autoKlasse CSS-Klasse der Fahrzeugknoepfe im festen HTML
+     autos      die Tarifdaten
+
+   WICHTIG: $("Km") heisst hier "das Element mit der Kennung P + Km".
+   Innerhalb der Fabrik werden Kennungen immer ohne Vorsilbe geschrieben. */
+function AVJ_RECHNER(CFG){
+  "use strict";
+  var P = CFG.p;
+  var $ = function(s){ return document.getElementById(P + s); };
+
+  /* GA4-Ereignisse. Feuert nur, wenn Analytics geladen ist;
+     ohne GA laeuft alles normal weiter. */
+  function track(name, params){
+    var p = params || {};
+    if(p.kategorie === undefined) p.kategorie = CFG.kategorie;
     try{
-      var raw = window.localStorage.getItem(_storeKey);
-      if(!raw) return {};
-      var saved = JSON.parse(raw);
-      if(saved && saved.__diff) return saved.aenderungen || {};
-      return diffGegen(_eingebaut, saved);        /* alte Fassung umstellen */
-    }catch(e){ return {}; }
-  }
-  function loadCfg(){
-    var neu = legeAuf(_kundenstand, holeDiff());
-    for(var k in neu) CARS[k] = neu[k];
-  }
-  function saveCfg(){
-    try{
-      var diff = diffGegen(_kundenstand, CARS), leer = true;
-      for(var k in diff){ leer = false; break; }
-      if(leer) window.localStorage.removeItem(_storeKey);
-      else window.localStorage.setItem(_storeKey,
-             JSON.stringify({ __diff: 1, aenderungen: diff }));
+      if(typeof window.gtag === "function") window.gtag("event", name, p);
     }catch(e){}
   }
-  function abweichungen(){
-    var liste = [], diff = diffGegen(_kundenstand, CARS);
-    for(var k in diff){
-      for(var feld in diff[k]){
-        liste.push({
-          auto: (CARS[k] && CARS[k].name) || k,
-          feld: feld,
-          alt:  _kundenstand[k] ? _kundenstand[k][feld] : null,
-          neu:  diff[k][feld]
-        });
-      }
-    }
-    return liste;
-  }
-
-  AVJ_EDITOR.melde({
-    schluessel: "neunsitzer",
-    kategorie:  "9-Sitzer",
-    bodyId:     "avjSetBody",
-    daten:      function(){ return CARS; },
-    fahrzeuge:  function(){
-      var l = [];
-      for(var k in CARS) l.push({ key:k, name:CARS[k].name || k });
-      return l;
-    },
-    waehle:     function(k){
-      if(!CARS[k]) return;
-      carKey = k; _gridCache = {};
-      renderSettings(); renderSb(); render();
-    }
-  });
-
-  AVJ_PREISE.melde({
-    schluessel:   "neunsitzer",
-    titel:        "9-Sitzer",
-    daten:        function(){ return CARS; },
-    abweichungen: abweichungen
-  });
-
-  /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
-     erneut daraufsetzen, neu zeichnen. */
-  AVJ_PREISE.bereit(function(d){
-    if(d && d.neunsitzer){
-      var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
-      _kundenstand = JSON.parse(JSON.stringify(d.neunsitzer));
-      _defaults    = _kundenstand;
-      var neu = legeAuf(_kundenstand, diff);
-      for(var k in neu) CARS[k] = neu[k];
-      _gridCache = {};
-      saveCfg();          /* stellt alte Speicherfassung gleich um */
-    }
-    try{ renderSettings(); renderSb(); render(); }catch(e){}
-  });
-
-  /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
-  function zeichneKundenstand(){
-    var el = document.getElementById("avjKStand");
-    if(!el) return;
-    var abw = abweichungen();
-    if(!abw.length){
-      el.className = "avj-kstand gleich";
-      el.innerHTML = "<b>Deine Preise stimmen mit dem Kundenstand \u00FCberein.</b> "
-        + "Es gibt nichts freizugeben."
-        + '<div class="avj-khinweis">\u201EPreisdatei erzeugen\u201C l\u00E4dt die '
-        + '<b>preise.json</b> mit dem aktuellen Stand herunter \u2014 genau die Datei, '
-        + 'aus der der Kundenrechner auf der Website seine Preise liest. Hier brauchst '
-        + 'du sie nur als Sicherung oder wenn die Datei auf dem Server fehlt. Zum '
-        + 'Ver\u00F6ffentlichen kommt sie in den Ordner <b>avj-tools</b>, danach '
-        + '<b>Kundenpreise aktualisieren.command</b> starten.</div>'
-        + '<button type="button" class="avj-kbtn" data-frei="1">Preisdatei erzeugen</button>';
-      return;
-    }
-    var h = "<b>" + abw.length + (abw.length === 1 ? " Wert weicht" : " Werte weichen")
-          + " vom Kundenstand ab.</b> Kunden sehen weiter die alten Preise."
-          + '<ul class="avj-kliste">';
-    for(var i=0;i<abw.length && i<8;i++){
-      h += "<li>" + abw[i].auto + " \u00B7 " + abw[i].feld + "</li>";
-    }
-    if(abw.length > 8) h += "<li>\u2026 und " + (abw.length-8) + " weitere</li>";
-    h += "</ul>"
-      +  '<button type="button" class="avj-kbtn" data-frei="1">F\u00FCr Kunden freigeben</button>';
-    el.className = "avj-kstand";
-    el.innerHTML = h;
-  }
-
-  (function(){
-    var body = document.getElementById("avjSetBody");
-    if(!body) return;
-    body.addEventListener("click", function(e){
-      var t = e.target;
-      if(!t || !t.getAttribute) return;
-      if(t.getAttribute("data-frei")){ AVJ_PREISE.freigabe(); return; }
-      if(t.getAttribute("data-kzurueck")){
-        takeSnapshot();
-        for(var k in _kundenstand) CARS[k] = JSON.parse(JSON.stringify(_kundenstand[k]));
-        _gridCache = {};
-        try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-        renderSettings(); renderSb(); render();
-        flashSaved("Kundenstand geladen");
-      }
-    });
-  })();
-
-  function numRow(cls, label, arr, key, sub, step){
-    var h = '<div class="avj-slabel">'+label+'</div><div class="avj-sgrid '+cls+'" data-deltas="1">';
-    for(var i=0;i<arr.length;i++){
-      var val = (sub === null) ? arr[i] : arr[i][sub];
-      h += '<div class="avj-scol"><div class="d">'+
-           (sub === null ? (i+1)+"T" :
-            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))+'</div>'
-        +  '<input type="number" step="'+(step||1)+'" data-set="'+key+'" data-i="'+i+'"'+
-           (sub === null ? "" : ' data-sub="'+sub+'"')+' value="'+val+'">'
-        +  '<div class="avj-dlt"></div></div>';
-    }
-    return h + '</div>';
-  }
-
-  /* Differenz zum jeweils vorherigen Feld anzeigen */
-  function fmtDelta(n){
-    if(!isFinite(n)) return "";
-    var r = Math.round(n*100)/100;
-    var s = (r < 0 ? "\u2212" : "+") + String(Math.abs(r)).replace(".", ",");
-    return s;
-  }
-  function updateDeltas(){
-    var grids = $("avjSetBody").querySelectorAll('[data-deltas]');
-    for(var g=0; g<grids.length; g++){
-      var cols = grids[g].querySelectorAll(".avj-scol");
-      var prev = null;
-      for(var i=0; i<cols.length; i++){
-        var inp = cols[i].querySelector("input");
-        var out = cols[i].querySelector(".avj-dlt");
-        var v   = parseFloat(inp.value);
-        if(!out){ prev = v; continue; }
-        if(i === 0 || prev === null || isNaN(v) || isNaN(prev)){
-          out.textContent = "";
-        } else {
-          var d = v - prev;
-          out.textContent = fmtDelta(d);
-          out.className = "avj-dlt" + (d < 0 ? " neg" : "");
-        }
-        prev = v;
-      }
-    }
-  }
-
-  /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
-     Betroffen: Staffel, Tagespakete, Wochenende, Fr/Sa-Zuschlag.
-     Unveraendert: Frei-km, Mehrkilometer-Saetze, Haftungsreduzierung. */
-  function scalePrices(cfg, pct){
-    var f  = 1 + pct/100;
-    var r5 = function(n){ return Math.max(5, Math.round(n*f/5)*5); };
-
-    cfg.tier = cfg.tier.map(r5);
-    for(var i=1;i<cfg.tier.length;i++){
-      if(cfg.tier[i] <= cfg.tier[i-1]) cfg.tier[i] = cfg.tier[i-1] + 5;
-    }
-    ["dayMoDo","dayFrSa","weekend"].forEach(function(k){
-      if(!cfg[k]) return;
-      cfg[k] = cfg[k].map(function(p){ return [p[0], r5(p[1])]; });
-      for(var j=1;j<cfg[k].length;j++){
-        if(cfg[k][j][1] <= cfg[k][j-1][1]) cfg[k][j][1] = cfg[k][j-1][1] + 5;
-      }
-    });
-    if(cfg.frSaPlus) cfg.frSaPlus = Math.max(1, Math.round(cfg.frSaPlus*f));
-  }
-
-  function scalePreview(pct){
-    var el = $("avjScalePrev");
-    if(!el) return;
-    if(!pct){ el.textContent = ""; return; }
-    var probe = JSON.parse(JSON.stringify(CARS[carKey]));
-    scalePrices(probe, pct);
-    var a = CARS[carKey].tier, b = probe.tier;
-    var bas = (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey].tier : null;
-    var parts = [];
-    for(var i=0;i<a.length;i++){
-      if(a[i] === b[i]) continue;
-      /* Farbe wie bei den Feldern: gegen den Kundenstand gerechnet,
-         nicht gegen den Wert von eben. */
-      var kl = "pv";
-      if(bas && typeof bas[i] === "number"){
-        kl = (b[i] > bas[i]) ? "pv auf" : (b[i] < bas[i] ? "pv ab" : "pv gleich");
-      }
-      parts.push('<span class="' + kl + '"><i>' + a[i] + '</i>\u2192<u>' + b[i] + '</u></span>');
-    }
-    el.innerHTML = parts.length
-      ? "<b>Staffelpreis</b>" + parts.join("")
-      : '<b>ohne Wirkung</b> keine \u00C4nderung bei dieser Prozentzahl';
-  }
-
-  var _snapshot = null;
-  function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
-  function restoreSnapshot(){
-    if(!_snapshot) return false;
-    try{
-      var s = JSON.parse(_snapshot);
-      for(var k in s) CARS[k] = s[k];
-    }catch(e){ return false; }
-    _gridCache = {}; saveCfg();
-    renderSettings(); renderSb(); render();
-    return true;
-  }
-
-  function flashSaved(txt){
-    var el = $("avjSaveState");
-    if(!el) return;
-    el.textContent = txt || "Gespeichert";
-    el.className = "avj-sstate on";
-    clearTimeout(el._t);
-    el._t = setTimeout(function(){ el.className = "avj-sstate"; }, 1600);
-  }
-
-  function renderSettings(){
-    var car = CARS[carKey];
-    var h = '<div class="avj-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
-           + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
-           + '<span class="avj-sstate" id="avjSaveState"></span>'
-           + '<span class="avj-quelle">Preise: \u2026</span></div>'
-           + '<div class="avj-kstand" id="avjKStand"></div>';
-
-    h += '<div class="avj-scale">'
-      +    '<div class="avj-slabel" style="margin-top:0">Alle Preise verschieben</div>'
-      +    '<div class="avj-scale-row">'
-      +      '<span class="avj-pct"><input type="number" step="0.5" id="avjScalePct" '
-      +        'placeholder="0" inputmode="decimal"><em>%</em></span>'
-      +      '<select id="avjScaleWhich">'
-      +        '<option value="one">nur '+car.name+'</option>'
-      +        '<option value="all">alle Fahrzeuge</option>'
-      +      '</select>'
-      +      '<button type="button" class="avj-scale-go" id="avjScaleGo">Anwenden</button>'
-      +    '</div>'
-      +    '<div class="avj-scale-prev" id="avjScalePrev"></div>'
-      +    '<div class="avj-scale-note">Verschiebt Staffel, Tagespakete, Wochenende und '
-      +      'den Fr/Sa-Zuschlag; gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze '
-      +      'und Haftungsreduzierung bleiben unver\u00E4ndert. Minuswert senkt die Preise.</div>'
-      +  '</div>';
-
-    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
-    h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
-
-    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
-    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
-    h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
-    h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
-
-    var wcls = car.weekend.length === 3 ? "p3" : "p4";
-    h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
-    h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
-
-    h += '<div class="avj-slabel">Mehrkilometer (\u20AC/km)</div><div class="avj-sgrid r3">'
-      +  '<div class="avj-scol"><div class="d">geplant</div>'
-      +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
-      +  '<div class="avj-scol"><div class="d">ungeplant</div>'
-      +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
-      +  '<div class="avj-scol"><div class="d">Fr/Sa-Zuschlag</div>'
-      +  '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
-      +  '</div>';
-
-    for(var s=1;s<car.sb.length;s++){
-      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
-      h += '<div class="avj-slabel">SB '+car.sb[s].label+" \u2013 Wochenende (\u20AC)</div>"
-        +  '<div class="avj-sgrid r3"><div class="avj-scol"><div class="d">WE</div>'
-        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
-    }
-
-
-    /* Werte, die nur die Preistabelle auf der Website braucht */
-    if(car.kurzzeit){
-      h += '<div class="avj-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
-        +  '<div class="avj-sgrid p4">'
-        +  '<div class="avj-scol"><div class="d">Frei-km</div>'
-        +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
-        +  '<div class="avj-scol"><div class="d">3 Std. Mo\u2013Do</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
-        +  '<div class="avj-scol"><div class="d">6 Std. Mo\u2013Do</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
-        +  '<div class="avj-scol"><div class="d">3 Std. Fr/Sa</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
-        +  '</div>'
-        +  '<div class="avj-sgrid r3"><div class="avj-scol"><div class="d">6 Std. Fr/Sa</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
-        +  '</div>';
-    }
-    if(car.ahk){
-      h += '<div class="avj-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
-        +  '<div class="avj-sgrid p4">'
-        +  '<div class="avj-scol"><div class="d">Kurzzeit</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
-        +  '<div class="avj-scol"><div class="d">Tag</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
-        +  '<div class="avj-scol"><div class="d">Wochenende</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
-        +  '<div class="avj-scol"><div class="d">Woche</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
-        +  '</div>';
-    }
-    if(car.kaution){
-      h += '<div class="avj-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
-        +  '<div class="avj-sgrid r3">'
-        +  '<div class="avj-scol"><div class="d">Kurzzeittarife</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
-        +  '<div class="avj-scol"><div class="d">Tag / Wochenende</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
-        +  '</div>';
-    }
-    h += '<div class="avj-sactions">'
-      +    '<button type="button" class="avj-sundo" id="avjSUndo">\u00C4nderungen verwerfen</button>'
-      +    '<button type="button" class="avj-sreset" id="avjSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
-      +  '</div>';
-    $("avjSetBody").innerHTML = h;
-    updateDeltas();
-    try{ AVJ_EDITOR.bloecke("avjSetBody"); }catch(e){}
-    zeichneKundenstand();
-    AVJ_PREISE.zeigeQuelle();
-  }
-
-  function onSettingInput(e){
-    var el = e.target, car = CARS[carKey];
-    var v  = parseFloat(el.value);
-    if(isNaN(v)) return;
-
-    var key = el.getAttribute("data-set");
-    if(key){
-      var i = parseInt(el.getAttribute("data-i"),10);
-      var sub = el.getAttribute("data-sub");
-      if(key.indexOf("sb") === 0 && key.length > 2){
-        car.sb[parseInt(key.slice(2),10)].tier[i] = v;
-      } else if(sub === null){
-        car[key][i] = v;
-      } else {
-        car[key][i][parseInt(sub,10)] = v;
-      }
-    }
-    var rate = el.getAttribute("data-rate");
-    if(rate) car[rate] = v;
-
-    var sbwe = el.getAttribute("data-sbwe");
-    if(sbwe) car.sb[parseInt(sbwe,10)].we = v;
-
-    /* verschachtelte Werte wie kurzzeit.moDo.0 */
-    var pfad = el.getAttribute("data-pfad");
-    if(pfad){
-      var teile = pfad.split("."), ziel = car;
-      for(var pi=0; pi<teile.length-1; pi++){
-        if(ziel[teile[pi]] === undefined || ziel[teile[pi]] === null) ziel[teile[pi]] = {};
-        ziel = ziel[teile[pi]];
-      }
-      ziel[teile[teile.length-1]] = v;
-    }
-
-    _gridCache = {};      /* Paketraster neu berechnen */
-    saveCfg();
-    try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
-    flashSaved();
-    updateDeltas();
-    renderSb();
-    render();
-  }
-
-  $("avjSetBody").addEventListener("input", onSettingInput);
-  /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
-     Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
-     nachtraeglich eintreffender Serverstand mitzaehlt. */
-  AVJ_BASIS["avjSetBody"] = function(){
-    return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
-  };
-  $("avjSetBody").addEventListener("click", function(e){
-    var id = e.target.id;
-
-    if(id === "avjSReset"){
-      takeSnapshot();                      /* auch das laesst sich verwerfen */
-      var _vorRs = avjWerte("avjSetBody");
-      for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
-      _gridCache = {};
-      try{ window.localStorage.removeItem(_storeKey); }catch(err){}
-      renderSettings(); renderSb(); render();
-      var _nRs = avjBlitz("avjSetBody", _vorRs);
-      flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
-                      : "Kundenstand geladen");
-      return;
-    }
-
-    if(id === "avjSUndo"){
-      var _vorUn = avjWerte("avjSetBody");
-      if(restoreSnapshot()){
-        var _nUn = avjBlitz("avjSetBody", _vorUn);
-        flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
-                        : "Nichts ge\u00E4ndert");
-      } else {
-        flashSaved("Nichts zu verwerfen");
-      }
-      return;
-    }
-
-    if(id === "avjScaleGo"){
-      var f = $("avjScalePct");
-      var pct = parseFloat(String(f.value).replace(",", "."));
-      if(isNaN(pct) || pct === 0){ f.focus(); return; }
-      if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
-      takeSnapshot();
-      var _vorSk = avjWerte("avjSetBody");
-      var which = $("avjScaleWhich").value;
-      if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
-      else scalePrices(CARS[carKey], pct);
-      _gridCache = {}; saveCfg();
-      renderSettings(); renderSb(); render();
-      var _nSk = avjBlitz("avjSetBody", _vorSk);
-      flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
-                 + (_nSk === 1 ? " Wert" : " Werte"));
-      return;
-    }
-  });
-
-  /* Vorschau der Preisverschiebung */
-  $("avjSetBody").addEventListener("input", function(e){
-    if(e.target.id !== "avjScalePct") return;
-    var v = parseFloat(String(e.target.value).replace(",", "."));
-    scalePreview(isNaN(v) ? 0 : v);
-  });
-
-  /* Sicherungspunkt beim Aufklappen der Einstellungen */
-  (function(){
-    var det = $("avjSetBody") ? $("avjSetBody").closest("details") : null;
-    if(det) det.addEventListener("toggle", function(){ if(det.open) takeSnapshot(); });
-  })();
-
-  loadCfg();
-  renderSettings();
-
-  renderSb();
-  render();
-})();
-
-
-/* ═══ TRANSPORTER ═══ */
-/* ─── GA4-Events ─────────────────────────────────────────────
-   Feuert nur, wenn Analytics geladen ist. Ohne GA laeuft alles normal. */
-function avjtTrack(name, params){
-  try{
-    if(typeof window.gtag === "function"){
-      window.gtag("event", name, params || {});
-    }
-  }catch(e){}
-}
 
 /* Popup-Steuerung */
 (function(){
-  "use strict";
-  var ov    = document.getElementById("avjTOverlay");
-  var open  = document.getElementById("avjTOpen");
-  var close = document.getElementById("avjTClose");
+  var ov    = $("Overlay");
+  var open  = $("Open");
+  var close = $("Close");
   if(!ov || !open) return;
   var lastFocus = null;
 
@@ -4780,9 +2529,9 @@ function avjtTrack(name, params){
   function show(){
     lastFocus = document.activeElement;
     ov.hidden = false;
-    avjtTrack("rechner_geoeffnet", { kategorie: "Transporter" });
+    track("rechner_geoeffnet");
     document.body.style.overflow = "hidden";
-    var first = ov.querySelector(".avjt-car");
+    var first = ov.querySelector(CFG.autoKlasse);
     if(first) first.focus();
   }
   function hide(){
@@ -4804,61 +2553,13 @@ function avjtTrack(name, params){
   });
 })();
 
-
-(function(){
-  "use strict";
-
-  /* ─── Tarifdaten (Stand 04.2026) ─────────────────────────── */
-  var CARS = {
-    m: {
-      name: "Transporter M",
-      frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Renault Trafic L2H1",
-      planKm: 0.20,   // vorab geplante Mehrkilometer
-      overKm: 0.30,   // ungeplant bei R\u00FCckgabe
-      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
-      dayMoDo: [ [100,75],  [400,115], [800,155], [1200,200] ],
-      dayFrSa: [ [100,80],  [400,125], [800,165], [1200,220] ],
-      weekend: [ [200,175], [600,225], [1200,325] ],
-      tier:   [75, 150, 225, 290, 350, 395, 425],
-      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
-      kurzzeit: { km:100, moDo:[50,65], frSa:[55,70] },
-      ahk:      { kurz:15, tag:15, we:35, woche:95 },
-      kaution:  { stunden:150, tag:300 },
-      sb: [
-        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]         },
-        { label:"1.000 \u20AC", we:35, tier:[15,30,42,52,62,70,75]  },
-        { label:"500 \u20AC",   we:60, tier:[25,50,75,98,118,133,145] }
-      ]
-    },
-    xl: {
-      name: "Transporter XL",
-      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
-      example: "z.\u202FB. Mercedes Sprinter L3",
-      planKm: 0.26,
-      overKm: 0.37,
-      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
-      dayMoDo: [ [100,110], [400,155], [800,199], [1200,249] ],
-      dayFrSa: [ [100,120], [400,165], [800,210], [1200,270] ],
-      weekend: [ [200,225], [600,355], [1200,465] ],
-      tier:   [110, 220, 330, 430, 520, 595, 645],
-      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
-      kurzzeit: { km:100, moDo:[55,75], frSa:[60,80] },
-      ahk:      { kurz:20, tag:20, we:45, woche:95 },
-      kaution:  { stunden:150, tag:300 },
-      sb: [
-        { label:"2.000 \u20AC", we:0,   tier:[0,0,0,0,0,0,0]           },
-        { label:"1.000 \u20AC", we:65,  tier:[25,50,72,95,115,133,150] },
-        { label:"500 \u20AC",   we:120, tier:[45,90,132,175,212,255,295] }
-      ]
-    }
-  };
+  /* ─── Tarifdaten: kommen aus der Konfiguration ────────────── */
+  var CARS = CFG.autos;
 
   var _trackTimer = null, _lastSig = null;
-  var carKey = "m";
+  var carKey = CFG.start;
   var sbIdx  = 0;
 
-  var $ = function(id){ return document.getElementById(id); };
   var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
   var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
 
@@ -4870,8 +2571,8 @@ function avjtTrack(name, params){
   }
 
   function duration(){
-    var a = parseDT("avjTFrom","avjTFromT");
-    var b = parseDT("avjTTo","avjTToT");
+    var a = parseDT("From","FromT");
+    var b = parseDT("To","ToT");
     if(!a || !b) return null;
     var ms = b - a;
     if(ms <= 0) return { invalid:true };
@@ -4955,7 +2656,7 @@ function avjtTrack(name, params){
     if(!d) return { empty:true };
     if(d.invalid) return { invalid:true };
 
-    var kmRaw = $("avjTKm").value.trim();
+    var kmRaw = $("Km").value.trim();
     var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
 
     var mode, base, freeKm, sbCost, tarifLabel, badge = "";
@@ -4963,42 +2664,70 @@ function avjtTrack(name, params){
     var wd   = d.from.getDay();
     var frSa = (wd === 5 || wd === 6);
 
-    if(isWeekend(d)){
+    /* Welche Tarifarten es gibt, steht in den Daten des Fahrzeugs.
+       Ein Low-Budget-Wagen hat kein Wochenendraster und keine
+       Tagespakete; ein PKW hat spaeter vielleicht beides. */
+    var hatWE  = !!(car.weekend && car.weekend.length);
+    var hatPkt = !!(car.dayMoDo && car.dayMoDo.length);
+    var hatSb  = !!(car.sb && car.sb.length);
+
+    if(hatWE && isWeekend(d)){
       /* Wochenendtarif: eigenes Paketraster */
       mode = "we";
       var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
       base = stW.price; freeKm = stW.km;
-      sbCost = car.sb[sbIdx].we;
+      sbCost = hatSb ? car.sb[sbIdx].we : 0;
       tarifLabel = "Wochenendtarif";
       badge = "Fr-Mo";
 
-    } else if(d.days <= 2){
+    } else if(hatPkt && d.days <= 2){
       /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
       mode = "pkg";
       var perDayKm = (km === null) ? null : Math.ceil(km / d.days);
       var stD = pickStep(gridFor(car, frSa ? "dayFrSa" : "dayMoDo"), perDayKm, car.planKm);
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
-      sbCost = car.sb[sbIdx].tier[d.days - 1];
+      sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
       tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
       badge = frSa ? "Fr/Sa" : "Mo-Do";
 
     } else {
-      /* ab 3 Tagen: Staffel Richtung Wochentarif */
+      /* Staffel Richtung Wochentarif */
       mode = "tier";
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
       if(d.days > 7){
-        var extra = d.days - 7;
-        base   += extra * (car.tier[6] / 7) * 0.92;
-        freeKm += Math.round(extra * car.tierKm[6] / 7);
+        if(CFG.langzeit === "monat"){
+          /* Wo Monatsmieten ein realistischer Fall sind, wird zwischen
+             Wochen- und Monatspreis interpoliert statt fortgeschrieben. */
+          var mp = car.monthPrice || Math.round(car.tier[6]   * 30/7 * 0.92);
+          var mk = car.monthKm    || Math.round(car.tierKm[6] * 30/7);
+          if(d.days <= 30){
+            var t30 = (d.days - 7) / 23;
+            base   = Math.round(car.tier[6]    + t30 * (mp - car.tier[6]));
+            freeKm = Math.round((car.tierKm[6] + t30 * (mk - car.tierKm[6])) / 50) * 50;
+          } else {
+            var ueber = d.days - 30;
+            base   = Math.round(mp + ueber * (mp / 30));
+            freeKm = Math.round((mk + ueber * (mk / 30)) / 50) * 50;
+          }
+        } else {
+          var extra = d.days - 7;
+          base   += extra * (car.tier[6] / 7) * 0.92;
+          freeKm += Math.round(extra * car.tierKm[6] / 7);
+        }
       }
-      var sbTier = car.sb[sbIdx].tier;
-      sbCost = sbTier[Math.min(d.days, 7) - 1];
-      if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
-      tarifLabel = d.days + " Tage";
-      if(d.days === 7) badge = "Wochentarif";
+      if(hatSb){
+        var sbTier = car.sb[sbIdx].tier;
+        sbCost = sbTier[Math.min(d.days, 7) - 1];
+        if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+      } else {
+        sbCost = 0;
+      }
+      tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
+      if(d.days === 7)  badge = "Wochentarif";
+      if(d.days === 30 && CFG.langzeit === "monat") badge = "Monatstarif";
     }
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
@@ -5016,6 +2745,7 @@ function avjtTrack(name, params){
   /* ─── Rendering ──────────────────────────────────────────── */
   function renderSb(){
     var car = CARS[carKey];
+    if(!$("SbRow") || !car.sb || !car.sb.length) return;
     var html = "";
     for(var i=0;i<car.sb.length;i++){
       var s = car.sb[i];
@@ -5024,12 +2754,12 @@ function avjtTrack(name, params){
             +   '<span class="v">'+s.label+'</span><span class="p">'+p+'</span>'
             + '</button>';
     }
-    $("avjTSbRow").innerHTML = html;
+    $("SbRow").innerHTML = html;
   }
 
   function renderDur(){
     var d = duration();
-    var el = $("avjTDur");
+    var el = $("Dur");
     if(!d){ el.textContent = ""; return; }
     if(d.invalid){
       el.innerHTML = '<span class="warn">Die R\u00FCckgabe liegt vor der Abholung.</span>';
@@ -5049,27 +2779,27 @@ function avjtTrack(name, params){
 
   function render(){
     renderDur();
-    var q = $("avjTOut");
+    var q = $("Out");
     var r = quote();
 
     if(r.empty || r.invalid){
-      $("avjTPrice").textContent = "\u2014";
+      $("Price").textContent = "\u2014";
       syncDiscount(0);
-      $("avjTTarifLabel").textContent = "Richtpreis";
-      $("avjTBadge").textContent = "";
-      $("avjTLines").innerHTML =
+      $("TarifLabel").textContent = "Richtpreis";
+      $("Badge").textContent = "";
+      $("Lines").innerHTML =
         '<li class="hint">'+(r.invalid
           ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
           : "Abholung und R\u00FCckgabe eintragen, um den Preis zu sehen.")+'</li>';
-      $("avjTKmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      $("KmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
       return;
     }
 
     var _brutto = r.total + extrasSum();
     syncDiscount(_brutto);
-    $("avjTPrice").textContent = eur(_brutto - discountOn(_brutto));
-    $("avjTTarifLabel").textContent = r.tarifLabel;
-    $("avjTBadge").textContent = r.badge;
+    $("Price").textContent = eur(_brutto - discountOn(_brutto));
+    $("TarifLabel").textContent = r.tarifLabel;
+    $("Badge").textContent = r.badge;
 
     var L = "";
     L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
@@ -5080,18 +2810,20 @@ function avjtTrack(name, params){
       if(r.overKm > 0){
         L += '<li class="km"><span class="k">Mehrkilometer</span><span class="v">'
           +  num(r.overKm)+' km \u00D7 '+r.car.planKm.toFixed(2).replace(".",",")+' \u20AC = '+eur(r.overCost)+' \u20AC</span></li>';
-        $("avjTKmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
+        $("KmHint").textContent = num(r.overKm) + " km \u00FCber der Freigrenze";
       } else {
-        $("avjTKmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
+        $("KmHint").textContent = num(r.freeKm - r.km) + " km Reserve bis zur Freigrenze";
       }
     } else {
-      $("avjTKmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
+      $("KmHint").textContent = num(r.freeKm) + " km sind bei dieser Dauer inklusive";
     }
 
-    if(r.sbCost > 0){
-      L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
-    } else {
-      L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
+    if(r.car.sb && r.car.sb.length){
+      if(r.sbCost > 0){
+        L += '<li><span class="k">Haftungsreduzierung auf '+r.car.sb[sbIdx].label+'</span><span class="v">'+eur(r.sbCost)+' \u20AC</span></li>';
+      } else {
+        L += '<li><span class="k">Selbstbeteiligung '+r.car.sb[sbIdx].label+'</span><span class="v">inklusive</span></li>';
+      }
     }
 
     /* Zusatzposten */
@@ -5118,13 +2850,15 @@ function avjtTrack(name, params){
       +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
 
     if(r.mode === "tier" && r.d.days > 7){
-      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
+      L += CFG.langzeit === "monat"
+         ? '<li class="hint">\u00DCber sieben Tage wird zwischen Wochen- und Monatspreis interpoliert \u2014 Richtwert.</li>'
+         : '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
     }
     if(r.mode === "we"){
       L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';
     }
 
-    $("avjTLines").innerHTML = L;
+    $("Lines").innerHTML = L;
 
     /* "Preis berechnet" gebuendelt melden, nicht bei jedem Tastendruck */
     clearTimeout(_trackTimer);
@@ -5132,9 +2866,8 @@ function avjtTrack(name, params){
       var sig = carKey + "|" + r.d.days + "|" + (r.km === null ? "-" : r.km) + "|" + sbIdx;
       if(sig === _lastSig) return;
       _lastSig = sig;
-      avjtTrack("preis_berechnet", {
-        kategorie: "Transporter",
-        fahrzeug:  r.car.name,
+      track("preis_berechnet", {
+          fahrzeug:  r.car.name,
         tage:      r.d.days,
         tarif:     r.mode,
         kilometer: r.km === null ? 0 : r.km,
@@ -5144,21 +2877,22 @@ function avjtTrack(name, params){
   }
 
   /* ─── Events ─────────────────────────────────────────────── */
-  var cars = document.querySelectorAll(".avjt-car");
+  var wurzel = $("Km") && $("Km").closest ? $("Km").closest('[class*="-calc"]') : null;
+  var cars = (wurzel || document).querySelectorAll("[data-car]");
   for(var i=0;i<cars.length;i++){
     cars[i].addEventListener("click", function(){
       for(var j=0;j<cars.length;j++) cars[j].classList.remove("is-active");
       this.classList.add("is-active");
       carKey = this.getAttribute("data-car");
       sbIdx = 0;
-      avjtTrack("fahrzeug_gewechselt", { kategorie: "Transporter", fahrzeug: CARS[carKey].name });
+      track("fahrzeug_gewechselt", { fahrzeug: CARS[carKey].name });
       renderSb();
       renderSettings();
       render();
     });
   }
 
-  $("avjTSbRow").addEventListener("click", function(e){
+  if($("SbRow")) $("SbRow").addEventListener("click", function(e){
     var b = e.target.closest("button[data-sb]");
     if(!b) return;
     sbIdx = parseInt(b.getAttribute("data-sb"),10);
@@ -5166,13 +2900,13 @@ function avjtTrack(name, params){
     render();
   });
 
-  ["avjTFrom","avjTTo"].forEach(function(id){
+  ["From","To"].forEach(function(id){
     $(id).addEventListener("change", function(){ refreshTimes(); render(); });
   });
-  ["avjTFromT","avjTToT"].forEach(function(id){
+  ["FromT","ToT"].forEach(function(id){
     $(id).addEventListener("change", function(){ refreshTimes(); render(); });
   });
-  $("avjTKm").addEventListener("input", render);
+  $("Km").addEventListener("input", render);
 
 
   /* ─── Oeffnungszeiten & Zeitlisten ───────────────────────── */
@@ -5298,19 +3032,19 @@ function avjtTrack(name, params){
   }
 
   function refreshTimes(){
-    var fromEl = $("avjTFromT"), toEl = $("avjTToT");
-    fillTimes(fromEl, $("avjTFrom").value, "start");
-    fillTimes(toEl,   $("avjTTo").value,   "end");
-    setWd("avjTFromWd", $("avjTFrom").value);
-    setWd("avjTToWd",   $("avjTTo").value);
+    var fromEl = $("FromT"), toEl = $("ToT");
+    fillTimes(fromEl, $("From").value, "start");
+    fillTimes(toEl,   $("To").value,   "end");
+    setWd("FromWd", $("From").value);
+    setWd("ToWd",   $("To").value);
 
     /* Hinweis Abholung */
-    var hF = hoursFor($("avjTFrom").value);
-    var eF = $("avjTFromHint");
+    var hF = hoursFor($("From").value);
+    var eF = $("FromHint");
     var mF = minutesOf(fromEl.value || "10:00");
     var insideF = hF && mF >= hF[0]*60 && mF <= hF[1]*60;
     if(insideF){
-      var ktF = kurztagName($("avjTFrom").value);
+      var ktF = kurztagName($("From").value);
       eF.textContent = (ktF ? ktF + " \u00B7 " : "") +
                        "\u00D6ffnungszeit " + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00 Uhr";
       eF.className = "h";
@@ -5318,14 +3052,14 @@ function avjtTrack(name, params){
       eF.textContent = "Ausserhalb der \u00D6ffnungszeit (" + pad2(hF[0]) + ":00\u2013" + pad2(hF[1]) + ":00) \u2013 Sonderabsprache";
       eF.className = "h offhint";
     } else {
-      var fnF = feiertagName($("avjTFrom").value);
+      var fnF = feiertagName($("From").value);
       eF.textContent = (fnF ? fnF : "Sonntag") + " \u2013 regul\u00E4r geschlossen, Sonderabsprache";
       eF.className = "h offhint";
     }
 
     /* Hinweis Rueckgabe */
-    var hT = hoursFor($("avjTTo").value);
-    var eT = $("avjTToHint");
+    var hT = hoursFor($("To").value);
+    var eT = $("ToHint");
     var mT = minutesOf(toEl.value || "10:00");
     var insideT = hT && mT >= hT[0]*60 && mT <= hT[1]*60;
     if(insideT){
@@ -5340,7 +3074,7 @@ function avjtTrack(name, params){
   /* Startwert: heute */
   (function(){
     var d = new Date();
-    $("avjTFrom").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+    $("From").value = d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
   })();
   refreshTimes();
 
@@ -5372,7 +3106,7 @@ function avjtTrack(name, params){
 
   /* Das jeweils andere Feld nachziehen, ohne den Cursor zu stoeren */
   function syncDiscount(brutto){
-    var eEur = $("avjTDiscEur"), ePct = $("avjTDiscPct");
+    var eEur = $("DiscEur"), ePct = $("DiscPct");
     if(!eEur || !ePct) return;
     if(!brutto || brutto <= 0){
       if(_discLead !== "eur") eEur.value = "";
@@ -5389,21 +3123,21 @@ function avjtTrack(name, params){
     }
   }
 
-  $("avjTDiscEur").addEventListener("input", function(){
+  $("DiscEur").addEventListener("input", function(){
     _discEur = parseNum(this.value);
     _discLead = (_discEur === null) ? null : "eur";
     if(_discLead === null) _discPct = null;
     render();
   });
-  $("avjTDiscPct").addEventListener("input", function(){
+  $("DiscPct").addEventListener("input", function(){
     _discPct = parseNum(this.value);
     _discLead = (_discPct === null) ? null : "pct";
     if(_discLead === null) _discEur = null;
     render();
   });
-  $("avjTDiscClear").addEventListener("click", function(){
+  $("DiscClear").addEventListener("click", function(){
     _discEur = _discPct = _discLead = null;
-    $("avjTDiscEur").value = ""; $("avjTDiscPct").value = "";
+    $("DiscEur").value = ""; $("DiscPct").value = "";
     render();
   });
 
@@ -5420,7 +3154,7 @@ function avjtTrack(name, params){
   }
 
   function renderExtras(){
-    var box = $("avjTExtraRows");
+    var box = $("ExtraRows");
     var html = "";
     for(var i=0;i<_extras.length;i++){
       var e = _extras[i];
@@ -5450,10 +3184,10 @@ function avjtTrack(name, params){
       _extras.push({ label:"", amount:"" });
       var pos = el.selectionStart;
       renderExtras();
-      var again = $("avjTExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
+      var again = $("ExtraRows").querySelector('[data-x="'+i+'"][data-f="'+el.getAttribute("data-f")+'"]');
       if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(err){} }
     } else {
-      var btn = $("avjTExtraRows").querySelector('[data-del="'+i+'"]');
+      var btn = $("ExtraRows").querySelector('[data-del="'+i+'"]');
       if(btn) btn.hidden = (i === _extras.length-1 && !last.label && !last.amount);
     }
     render();
@@ -5469,15 +3203,15 @@ function avjtTrack(name, params){
     render();
   }
 
-  $("avjTExtraRows").addEventListener("input", onExtraInput);
-  $("avjTExtraRows").addEventListener("click", onExtraClick);
+  $("ExtraRows").addEventListener("input", onExtraInput);
+  $("ExtraRows").addEventListener("click", onExtraClick);
   renderExtras();
 
   /* ═══ Einstellungen ══════════════════════════════════════ */
   var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
   var _kundenstand = JSON.parse(JSON.stringify(CARS));   /* Basis: Server oder eingebaut */
   var _defaults    = _kundenstand;                       /* "Auf Kundenstand zurueck" */
-  var _storeKey    = "avjT_preise_v1";
+  var _storeKey    = CFG.speicher;
 
   /* Es wird nur noch gemerkt, was vom Kundenstand abweicht. Fruehere
      Fassungen haben den kompletten Satz gespeichert — der wird beim
@@ -5542,9 +3276,9 @@ function avjtTrack(name, params){
   }
 
   AVJ_EDITOR.melde({
-    schluessel: "transporter",
-    kategorie:  "Transporter",
-    bodyId:     "avjTSetBody",
+    schluessel: CFG.schluessel,
+    kategorie:  CFG.kategorie,
+    bodyId:     P + "SetBody",
     daten:      function(){ return CARS; },
     fahrzeuge:  function(){
       var l = [];
@@ -5559,8 +3293,8 @@ function avjtTrack(name, params){
   });
 
   AVJ_PREISE.melde({
-    schluessel:   "transporter",
-    titel:        "Transporter",
+    schluessel:   CFG.schluessel,
+    titel:        CFG.titel,
     daten:        function(){ return CARS; },
     abweichungen: abweichungen
   });
@@ -5568,9 +3302,9 @@ function avjtTrack(name, params){
   /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
      erneut daraufsetzen, neu zeichnen. */
   AVJ_PREISE.bereit(function(d){
-    if(d && d.transporter){
+    if(d && d[CFG.schluessel]){
       var diff = diffGegen(_kundenstand, CARS);   /* was ich geaendert habe */
-      _kundenstand = JSON.parse(JSON.stringify(d.transporter));
+      _kundenstand = JSON.parse(JSON.stringify(d[CFG.schluessel]));
       _defaults    = _kundenstand;
       var neu = legeAuf(_kundenstand, diff);
       for(var k in neu) CARS[k] = neu[k];
@@ -5582,7 +3316,7 @@ function avjtTrack(name, params){
 
   /* Hinweis, wenn eigene Preise vom Kundenstand abweichen */
   function zeichneKundenstand(){
-    var el = document.getElementById("avjTKStand");
+    var el = $("KStand");
     if(!el) return;
     var abw = abweichungen();
     if(!abw.length){
@@ -5612,7 +3346,7 @@ function avjtTrack(name, params){
   }
 
   (function(){
-    var body = document.getElementById("avjTSetBody");
+    var body = $("SetBody");
     if(!body) return;
     body.addEventListener("click", function(e){
       var t = e.target;
@@ -5651,7 +3385,7 @@ function avjtTrack(name, params){
     return s;
   }
   function updateDeltas(){
-    var grids = $("avjTSetBody").querySelectorAll('[data-deltas]');
+    var grids = $("SetBody").querySelectorAll('[data-deltas]');
     for(var g=0; g<grids.length; g++){
       var cols = grids[g].querySelectorAll(".avjt-scol");
       var prev = null;
@@ -5691,10 +3425,13 @@ function avjtTrack(name, params){
       }
     });
     if(cfg.frSaPlus) cfg.frSaPlus = Math.max(1, Math.round(cfg.frSaPlus*f));
+    /* Der Monatsanker muss ueber dem Wochenpreis bleiben, sonst kippt
+       die Interpolation ab Tag 8 ins Negative. */
+    if(cfg.monthPrice) cfg.monthPrice = Math.max(cfg.tier[6] + 5, r5(cfg.monthPrice));
   }
 
   function scalePreview(pct){
-    var el = $("avjTScalePrev");
+    var el = $("ScalePrev");
     if(!el) return;
     if(!pct){ el.textContent = ""; return; }
     var probe = JSON.parse(JSON.stringify(CARS[carKey]));
@@ -5731,7 +3468,7 @@ function avjtTrack(name, params){
   }
 
   function flashSaved(txt){
-    var el = $("avjTSaveState");
+    var el = $("SaveState");
     if(!el) return;
     el.textContent = txt || "Gespeichert";
     el.className = "avjt-sstate on";
@@ -5743,49 +3480,71 @@ function avjtTrack(name, params){
     var car = CARS[carKey];
     var h = '<div class="avjt-snote">Gilt f\u00FCr <b>'+car.name+'</b>. '
            + '\u00C4nderungen werden sofort gespeichert und bleiben auf diesem Ger\u00E4t.'
-           + '<span class="avjt-sstate" id="avjTSaveState"></span>'
+           + '<span class="avjt-sstate" id="' + P + 'SaveState"></span>'
            + '<span class="avj-quelle">Preise: \u2026</span></div>'
-           + '<div class="avj-kstand" id="avjTKStand"></div>';
+           + '<div class="avj-kstand" id="' + P + 'KStand"></div>';
 
     h += '<div class="avjt-scale">'
       +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
       +    '<div class="avjt-scale-row">'
-      +      '<span class="avjt-pct"><input type="number" step="0.5" id="avjTScalePct" '
+      +      '<span class="avjt-pct"><input type="number" step="0.5" id="' + P + 'ScalePct" '
       +        'placeholder="0" inputmode="decimal"><em>%</em></span>'
-      +      '<select id="avjTScaleWhich">'
+      +      '<select id="' + P + 'ScaleWhich">'
       +        '<option value="one">nur '+car.name+'</option>'
       +        '<option value="all">alle Fahrzeuge</option>'
       +      '</select>'
-      +      '<button type="button" class="avjt-scale-go" id="avjTScaleGo">Anwenden</button>'
+      +      '<button type="button" class="avjt-scale-go" id="' + P + 'ScaleGo">Anwenden</button>'
       +    '</div>'
-      +    '<div class="avjt-scale-prev" id="avjTScalePrev"></div>'
-      +    '<div class="avjt-scale-note">Verschiebt Staffel, Tagespakete, Wochenende und '
-      +      'den Fr/Sa-Zuschlag; gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze '
-      +      'und Haftungsreduzierung bleiben unver\u00E4ndert. Minuswert senkt die Preise.</div>'
+      +    '<div class="avjt-scale-prev" id="' + P + 'ScalePrev"></div>'
+      +    '<div class="avjt-scale-note">' + (car.weekend
+      ?      'Verschiebt Staffel, Tagespakete, Wochenende und den Fr/Sa-Zuschlag; '
+      +      'gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze und '
+      +      'Haftungsreduzierung bleiben unver\u00E4ndert.'
+      :      'Verschiebt die Tagespreise und den Monatsanker; gerundet auf '
+      +      '5\u202F\u20AC. Frei-km und Mehrkilometer-S\u00E4tze bleiben unver\u00E4ndert.')
+      +      ' Minuswert senkt die Preise.</div>'
       +  '</div>';
 
     h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
     h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
 
-    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
-    h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
-    h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
-    h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
-
-    var wcls = car.weekend.length === 3 ? "p3" : "p4";
-    h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
-    h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
+    if(car.dayMoDo){
+      h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
+      h += numRow("p4", "Tagespaket Mo\u2013Do \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
+    }
+    if(car.dayFrSa){
+      h += numRow("p4", "Tagespaket Fr/Sa \u2013 km",         car.dayFrSa, "dayFrSa", 0, 50);
+      h += numRow("p4", "Tagespaket Fr/Sa \u2013 Preis",      car.dayFrSa, "dayFrSa", 1, 5);
+    }
+    if(car.weekend){
+      var wcls = car.weekend.length === 3 ? "p3" : "p4";
+      h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
+      h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
+    }
 
     h += '<div class="avjt-slabel">Mehrkilometer (\u20AC/km)</div><div class="avjt-sgrid r3">'
       +  '<div class="avjt-scol"><div class="d">geplant</div>'
       +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
       +  '<div class="avjt-scol"><div class="d">ungeplant</div>'
       +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
-      +  '<div class="avjt-scol"><div class="d">Fr/Sa-Zuschlag</div>'
-      +  '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
+      +  (car.weekend
+        ? '<div class="avjt-scol"><div class="d">Fr/Sa-Zuschlag</div>'
+        + '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
+        : '')
       +  '</div>';
 
-    for(var s=1;s<car.sb.length;s++){
+    /* Monatsanker: nur dort, wo ab Tag 8 dorthin interpoliert wird */
+    if(CFG.langzeit === "monat"){
+      h += '<div class="avjt-slabel">Monatsanker \u2013 gilt ab Tag 8 als Zielwert</div>'
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">Preis 30 T</div>'
+        +  '<input type="number" step="5" data-rate="monthPrice" value="'+(car.monthPrice||0)+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Frei-km 30 T</div>'
+        +  '<input type="number" step="50" data-rate="monthKm" value="'+(car.monthKm||0)+'"></div>'
+        +  '</div>';
+    }
+
+    for(var s=1;car.sb && s<car.sb.length;s++){
       h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
       h += '<div class="avjt-slabel">SB '+car.sb[s].label+" \u2013 Wochenende (\u20AC)</div>"
         +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">WE</div>'
@@ -5833,12 +3592,12 @@ function avjtTrack(name, params){
         +  '</div>';
     }
     h += '<div class="avjt-sactions">'
-      +    '<button type="button" class="avjt-sundo" id="avjTSUndo">\u00C4nderungen verwerfen</button>'
-      +    '<button type="button" class="avjt-sreset" id="avjTSReset">Auf Kundenstand zur\u00FCcksetzen</button>'
+      +    '<button type="button" class="avjt-sundo" id="' + P + 'SUndo">\u00C4nderungen verwerfen</button>'
+      +    '<button type="button" class="avjt-sreset" id="' + P + 'SReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
-    $("avjTSetBody").innerHTML = h;
+    $("SetBody").innerHTML = h;
     updateDeltas();
-    try{ AVJ_EDITOR.bloecke("avjTSetBody"); }catch(e){}
+    try{ AVJ_EDITOR.bloecke(P + "SetBody"); }catch(e){}
     zeichneKundenstand();
     AVJ_PREISE.zeigeQuelle();
   }
@@ -5882,37 +3641,38 @@ function avjtTrack(name, params){
     try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
     flashSaved();
     updateDeltas();
+    zeichneKundenstand();  /* sonst behauptet der Kasten weiter "alles gleich" */
     renderSb();
     render();
   }
 
-  $("avjTSetBody").addEventListener("input", onSettingInput);
+  $("SetBody").addEventListener("input", onSettingInput);
   /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
      Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
      nachtraeglich eintreffender Serverstand mitzaehlt. */
-  AVJ_BASIS["avjTSetBody"] = function(){
+  AVJ_BASIS[P + "SetBody"] = function(){
     return (_kundenstand && _kundenstand[carKey]) ? _kundenstand[carKey] : null;
   };
-  $("avjTSetBody").addEventListener("click", function(e){
+  $("SetBody").addEventListener("click", function(e){
     var id = e.target.id;
 
-    if(id === "avjTSReset"){
+    if(id === P + "SReset"){
       takeSnapshot();                      /* auch das laesst sich verwerfen */
-      var _vorRs = avjWerte("avjTSetBody");
+      var _vorRs = avjWerte(P + "SetBody");
       for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
       _gridCache = {};
       try{ window.localStorage.removeItem(_storeKey); }catch(err){}
       renderSettings(); renderSb(); render();
-      var _nRs = avjBlitz("avjTSetBody", _vorRs);
+      var _nRs = avjBlitz(P + "SetBody", _vorRs);
       flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
                       : "Kundenstand geladen");
       return;
     }
 
-    if(id === "avjTSUndo"){
-      var _vorUn = avjWerte("avjTSetBody");
+    if(id === P + "SUndo"){
+      var _vorUn = avjWerte(P + "SetBody");
       if(restoreSnapshot()){
-        var _nUn = avjBlitz("avjTSetBody", _vorUn);
+        var _nUn = avjBlitz(P + "SetBody", _vorUn);
         flashSaved(_nUn ? "Verworfen \u00B7 " + _nUn + (_nUn === 1 ? " Wert" : " Werte")
                         : "Nichts ge\u00E4ndert");
       } else {
@@ -5921,19 +3681,19 @@ function avjtTrack(name, params){
       return;
     }
 
-    if(id === "avjTScaleGo"){
-      var f = $("avjTScalePct");
+    if(id === P + "ScaleGo"){
+      var f = $("ScalePct");
       var pct = parseFloat(String(f.value).replace(",", "."));
       if(isNaN(pct) || pct === 0){ f.focus(); return; }
       if(pct < -90 || pct > 200){ flashSaved("Wert zu gro\u00DF"); return; }
       takeSnapshot();
-      var _vorSk = avjWerte("avjTSetBody");
-      var which = $("avjTScaleWhich").value;
+      var _vorSk = avjWerte(P + "SetBody");
+      var which = $("ScaleWhich").value;
       if(which === "all"){ for(var kk in CARS) scalePrices(CARS[kk], pct); }
       else scalePrices(CARS[carKey], pct);
       _gridCache = {}; saveCfg();
       renderSettings(); renderSb(); render();
-      var _nSk = avjBlitz("avjTSetBody", _vorSk);
+      var _nSk = avjBlitz(P + "SetBody", _vorSk);
       flashSaved((pct > 0 ? "+" : "") + pct + " % \u00B7 " + _nSk
                  + (_nSk === 1 ? " Wert" : " Werte"));
       return;
@@ -5941,15 +3701,15 @@ function avjtTrack(name, params){
   });
 
   /* Vorschau der Preisverschiebung */
-  $("avjTSetBody").addEventListener("input", function(e){
-    if(e.target.id !== "avjTScalePct") return;
+  $("SetBody").addEventListener("input", function(e){
+    if(e.target.id !== P + "ScalePct") return;
     var v = parseFloat(String(e.target.value).replace(",", "."));
     scalePreview(isNaN(v) ? 0 : v);
   });
 
   /* Sicherungspunkt beim Aufklappen der Einstellungen */
   (function(){
-    var det = $("avjTSetBody") ? $("avjTSetBody").closest("details") : null;
+    var det = $("SetBody") ? $("SetBody").closest("details") : null;
     if(det) det.addEventListener("toggle", function(){ if(det.open) takeSnapshot(); });
   })();
 
@@ -5958,7 +3718,62 @@ function avjtTrack(name, params){
 
   renderSb();
   render();
-})();
+}   /* Ende AVJ_RECHNER */
+
+/* ═══ Transporter ═══ */
+AVJ_RECHNER({
+  p:          "avjT",
+  kategorie:  "Transporter",
+  schluessel: "transporter",
+  titel:      "Transporter",
+  start:      "m",
+  speicher:   "avjT_preise_v1",
+  autoKlasse: ".avjt-car",
+  autos: {
+    m: {
+      name: "Transporter M",
+      frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Renault Trafic L2H1",
+      planKm: 0.20,   // vorab geplante Mehrkilometer
+      overKm: 0.30,   // ungeplant bei R\u00FCckgabe
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,75],  [400,115], [800,155], [1200,200] ],
+      dayFrSa: [ [100,80],  [400,125], [800,165], [1200,220] ],
+      weekend: [ [200,175], [600,225], [1200,325] ],
+      tier:   [75, 150, 225, 290, 350, 395, 425],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kurzzeit: { km:100, moDo:[50,65], frSa:[55,70] },
+      ahk:      { kurz:15, tag:15, we:35, woche:95 },
+      kaution:  { stunden:150, tag:300 },
+      sb: [
+        { label:"1.500 \u20AC", we:0,  tier:[0,0,0,0,0,0,0]         },
+        { label:"1.000 \u20AC", we:35, tier:[15,30,42,52,62,70,75]  },
+        { label:"500 \u20AC",   we:60, tier:[25,50,75,98,118,133,145] }
+      ]
+    },
+    xl: {
+      name: "Transporter XL",
+      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
+      example: "z.\u202FB. Mercedes Sprinter L3",
+      planKm: 0.26,
+      overKm: 0.37,
+      // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
+      dayMoDo: [ [100,110], [400,155], [800,199], [1200,249] ],
+      dayFrSa: [ [100,120], [400,165], [800,210], [1200,270] ],
+      weekend: [ [200,225], [600,355], [1200,465] ],
+      tier:   [110, 220, 330, 430, 520, 595, 645],
+      tierKm: [100, 250, 450, 650, 900, 1200, 1500],
+      kurzzeit: { km:100, moDo:[55,75], frSa:[60,80] },
+      ahk:      { kurz:20, tag:20, we:45, woche:95 },
+      kaution:  { stunden:150, tag:300 },
+      sb: [
+        { label:"2.000 \u20AC", we:0,   tier:[0,0,0,0,0,0,0]           },
+        { label:"1.000 \u20AC", we:65,  tier:[25,50,72,95,115,133,150] },
+        { label:"500 \u20AC",   we:120, tier:[45,90,132,175,212,255,295] }
+      ]
+    }
+  }
+});
 
 
 
@@ -6646,7 +4461,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 32;
+var AVJ_BUILD = 33;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
