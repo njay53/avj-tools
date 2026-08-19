@@ -734,7 +734,8 @@
         "kraftstoff": "Diesel",
         "getriebe": "Automatik",
         "zusatz": "119 extralang"
-      }
+      },
+      "lzAnfrage": true
     }
   },
   "transporter": {
