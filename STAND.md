@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 44 · Onepage v44 · 19.08.2026**
+**Stand: Build 45 · Onepage v44 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1916,3 +1916,80 @@ Tabelle kann drei Stufen längst darstellen, aber im Tool lässt sich
 bei den Tagespaketen. Das wäre ein eigener kleiner Umbau im Reiter
 *Tarif Config.*: je Raster ein „+ Stufe" und ein „−" an der letzten.
 Noch nicht gebaut.
+
+---
+
+## 34. Build 45 — „hängt einen hinterher"
+
+Niran: *„Ich habe Build 43 hochgeladen, er zeigt mir 42. Jetzt 44
+hochgeladen, jetzt zeigt er 43."*
+
+### Erst nachgesehen, dann gebaut
+
+Im Repository auf seinem Mac geprüft — nicht geraten:
+
+```
+Arbeitsdatei      var AVJ_BUILD = 44;
+HEAD              var AVJ_BUILD = 44;
+git status        sauber
+HEAD == origin    12a221d == 12a221d
+```
+
+**Der Upload ist einwandfrei.** Es liegt am Ausliefern, und dort kommen
+zwei Schichten zusammen:
+
+- GitHub Pages baut nach dem Push **ein bis zwei Minuten**.
+- Safari behält `index.html` laut Kopfzeile **bis zu zehn Minuten**
+  (`Cache-Control: max-age=600`, von GitHub gesetzt, nicht änderbar).
+
+Wer direkt nach dem Skript nachsieht, bekommt zwangsläufig die vorherige
+Fassung. Beides ist harmlos — aber man sieht es nicht, man rät. Genau
+einmal zu früh geschaut und man hält den Upload für kaputt.
+
+### version.json
+
+`hochladen.command` legt vor dem Commit eine winzige Datei an:
+
+```json
+{"build":45,"stand":"19.08.2026 12:04"}
+```
+
+Damit lässt sich die Frage beantworten, statt sie zu vertagen — an
+beiden Enden:
+
+**Im Skript.** Nach dem Push fragt es alle vier Sekunden bei GitHub
+nach, bis dort wirklich die neue Nummer steht, höchstens zwei Minuten.
+Danach steht schwarz auf weiß `✓ Build 45 ist online.` Zeigt der Browser
+dann etwas anderes, ist es sein Zwischenspeicher — und das sagt der Text
+jetzt auch so.
+
+**In der App.** Beim Start holt sie `version.json` mit Zeitstempel in
+der Adresse und vergleicht mit der eigenen Nummer. Ist die online-Nummer
+höher, erscheint unten ein Streifen:
+
+> **Du siehst Build 45 — online steht Build 99.** Dein Browser zeigt eine
+> gemerkte Fassung (hochgeladen 19.08.2026 12:04). **[Neu laden]**
+
+Der Knopf lädt mit `?v=<build>-<zeitstempel>` — ein bloßes Neuladen holt
+in Safari häufig wieder die gemerkte Fassung.
+
+Bewusst leise: kein Sperrbildschirm, wegklickbar, und **nur** wenn die
+Datei erreichbar ist und eine höhere Nummer nennt. Beim Öffnen per
+Doppelklick aus dem Finder passiert gar nichts (`location.protocol`).
+
+### Geprüft
+
+`pruefversion.js`, neun Proben: höhere Nummer → Streifen mit beiden
+Nummern und Zeitpunkt; Knopf führt auf eine Adresse mit Zeitstempel;
+gleiche Nummer, ältere Nummer, fehlende Datei und kaputtes JSON → jeweils
+kein Streifen und **kein Skriptfehler**.
+
+`version.json` ist nicht von `.gitignore` erfasst — geprüft mit
+`git check-ignore`.
+
+Goldstandard: identisch mit Build 44.
+
+### Beim ersten Mal
+
+`version.json` entsteht erst beim nächsten `hochladen.command`. Bis
+dahin bekommt die App eine 404 und schweigt — genau wie vorgesehen.

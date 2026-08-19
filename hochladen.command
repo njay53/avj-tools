@@ -15,17 +15,47 @@ ende() {
   exit "${1:-0}"
 }
 
+# Wartet, bis GitHub Pages die neue Fassung wirklich ausliefert.
+# Gefragt wird version.json — dreissig Bytes statt 600 KB, und mit
+# Zeitstempel in der Adresse, damit kein Zwischenspeicher antwortet.
+online_pruefen() {
+  local ZIEL="https://avj-tools.rent-in-nom.de/version.json"
+  local I=0 GEFUNDEN=""
+  echo "  Warte, bis GitHub Pages die neue Fassung ausliefert …"
+  while [ $I -lt 30 ]; do
+    GEFUNDEN="$(curl -s -m 8 -H 'Cache-Control: no-cache' \
+                 "$ZIEL?t=$(date +%s)-$I" 2>/dev/null \
+               | grep -o '"build"[^0-9]*[0-9]*' | grep -o '[0-9]*$')"
+    if [ "$GEFUNDEN" = "$BUILD" ]; then
+      echo ""
+      echo "  ✓ Build $BUILD ist online."
+      return 0
+    fi
+    I=$((I+1))
+    printf "."
+    sleep 4
+  done
+  echo ""
+  echo "  Nach zwei Minuten liefert GitHub noch Build ${GEFUNDEN:-?} aus."
+  echo "  Der Upload ist trotzdem durch — Pages ist manchmal langsamer."
+  return 1
+}
+
 geschafft() {
   echo ""
-  echo "  Fertig. GitHub Pages braucht ein bis zwei Minuten."
+  online_pruefen
   echo ""
   echo "    https://avj-tools.rent-in-nom.de"
   echo ""
-  echo "  Falls die App noch die alte Fassung zeigt:"
+  echo "  Zeigt die App trotz \"ist online\" eine aeltere Build-Nummer,"
+  echo "  liegt es am Zwischenspeicher des Browsers und NICHT am Upload."
+  echo "  Dann diese Adresse nehmen, die umgeht ihn:"
   echo "    https://avj-tools.rent-in-nom.de/?v=$BUILD"
   echo ""
   echo "  Am iPhone hilft sonst: Einstellungen → Safari → Verlauf löschen,"
   echo "  App vom Homescreen entfernen und neu hinzufügen."
+  echo ""
+  echo "  Die App sagt seit Build 44 selbst Bescheid, wenn sie veraltet ist."
 }
 
 hochladen() {
@@ -214,6 +244,12 @@ GROESSE=$(( $(wc -c < index.html) / 1024 ))
 
 echo "  Build $BUILD · ${GROESSE} KB"
 echo ""
+
+# Dreissig Bytes, die sagen, was online steht. Die App liest sie beim
+# Start und meldet sich, wenn der Browser eine aeltere Fassung zeigt —
+# das war lange ein Raten.
+printf '{"build":%s,"stand":"%s"}\n' \
+  "$BUILD" "$(date '+%d.%m.%Y %H:%M')" > version.json
 
 # ---------------------------------------------------------------- Änderungen
 #

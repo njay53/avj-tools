@@ -1537,6 +1537,28 @@
   font-size:10.5px;color:#8A96A3;letter-spacing:0;text-transform:none;
   margin-top:1px;line-height:1.35;
 }
+/* ══════════════════════════════════════════════════════════════
+   Build 45 · Hinweis auf eine neuere Fassung
+   ══════════════════════════════════════════════════════════════ */
+#avjAlt{
+  position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:#111C2E;color:#fff;border-radius:12px;
+  padding:12px 14px;font-size:13px;line-height:1.5;
+  box-shadow:0 6px 24px rgba(0,0,0,.28);
+  max-width:720px;margin:0 auto;
+}
+#avjAlt span{flex:1 1 240px;}
+#avjAlt b{font-weight:700;}
+#avjAlt button{
+  border:0;border-radius:8px;padding:8px 14px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:700;
+  background:#FDFA61;color:#111C2E;
+}
+#avjAlt #avjAltZu{
+  background:transparent;color:#8A96A3;font-size:19px;
+  padding:2px 6px;line-height:1;
+}
 </style>
 </head>
 <body>
@@ -6071,8 +6093,8 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 44;
-var AVJ_BUILD_DATE = "18.08.2026";
+var AVJ_BUILD = 45;
+var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
 try{ AVJ_EDITOR.start(); }catch(e){}
@@ -6083,6 +6105,55 @@ try{ AVJ_PREISE.start(); }catch(e){}
     el.textContent = "Build " + AVJ_BUILD;
     el.title = "AVJ Tools \u00B7 Build " + AVJ_BUILD + " vom " + AVJ_BUILD_DATE;
   }
+})();
+
+/* ═══ Sehe ich die neueste Fassung? ═════════════════════════════
+   version.json legt hochladen.command beim Upload an. Sie ist winzig,
+   der Abruf kostet nichts — und er beantwortet die Frage, die sonst
+   nur zu raten war: liegt es am Upload oder am Zwischenspeicher?
+
+   Nur bei erreichbarer Datei UND hoeherer Nummer meldet sich etwas.
+   Beim Oeffnen per Doppelklick aus dem Finder passiert gar nichts. */
+(function(){
+  "use strict";
+  if(location.protocol !== "http:" && location.protocol !== "https:") return;
+
+  function zeige(neu, stand){
+    if(document.getElementById("avjAlt")) return;
+    var d = document.createElement("div");
+    d.id = "avjAlt";
+    d.innerHTML =
+      '<span><b>Du siehst Build ' + AVJ_BUILD + ' \u2014 online steht Build '
+      + neu + '.</b> Dein Browser zeigt eine gemerkte Fassung'
+      + (stand ? ' (hochgeladen ' + stand + ')' : '') + '.</span>'
+      + '<button type="button" id="avjAltNeu">Neu laden</button>'
+      + '<button type="button" id="avjAltZu" aria-label="Schlie\u00DFen">&times;</button>';
+    document.body.appendChild(d);
+    document.getElementById("avjAltNeu").addEventListener("click", function(){
+      /* Mit Zeitstempel in der Adresse — ein blosses Neuladen holt in
+         Safari haeufig wieder die gemerkte Fassung. */
+      location.href = location.pathname + "?v=" + neu + "-" + new Date().getTime();
+    });
+    document.getElementById("avjAltZu").addEventListener("click", function(){
+      d.parentNode.removeChild(d);
+    });
+  }
+
+  setTimeout(function(){
+    try{
+      var x = new XMLHttpRequest();
+      x.open("GET", "version.json?t=" + new Date().getTime(), true);
+      x.onreadystatechange = function(){
+        if(x.readyState !== 4) return;
+        if(x.status < 200 || x.status >= 400) return;
+        var d = null;
+        try{ d = JSON.parse(x.responseText); }catch(e){ return; }
+        if(!d || typeof d.build !== "number") return;
+        if(d.build > AVJ_BUILD) zeige(d.build, d.stand || "");
+      };
+      x.send();
+    }catch(e){}
+  }, 1200);
 })();
 </script>
 </body>
