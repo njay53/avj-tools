@@ -1592,6 +1592,19 @@
   background:#E7EBF0;color:#5A6675;font-size:10.5px;font-weight:700;
   letter-spacing:.02em;vertical-align:2px;
 }
+/* ══════════════════════════════════════════════════════════════
+   Build 50 · "Text kopieren" unter der Aufstellung
+   ══════════════════════════════════════════════════════════════ */
+.avj-kopiezeile{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;
+}
+.avj-kopiebtn{
+  border:1px solid #D5D9DE;border-radius:9px;background:#fff;color:#26313B;
+  font-family:inherit;font-size:12.5px;font-weight:650;
+  padding:7px 13px;cursor:pointer;
+}
+.avj-kopiebtn:hover{border-color:#111C2E;}
+.avj-kopiehin{font-size:11.5px;color:#1F6F43;font-weight:600;}
 </style>
 </head>
 <body>
@@ -3619,6 +3632,41 @@ AVJ_RECHNER({
 
    WICHTIG: $("Km") heisst hier "das Element mit der Kennung P + Km".
    Innerhalb der Fabrik werden Kennungen immer ohne Vorsilbe geschrieben. */
+/* ═══ In die Zwischenablage ══════════════════════════════════════
+   Zwei Wege: der moderne braucht eine sichere Herkunft und faellt beim
+   Oeffnen per Doppelklick aus dem Finder aus. Dann greift der alte
+   ueber eine kurz eingehaengte Textauswahl. Dieselbe Doppelung wie bei
+   der Popup-Zeile, hier nur einmal aufgeschrieben. */
+var AVJ_KOPIE = (function(){
+  function text(s, fertig){
+    fertig = fertig || function(){};
+    var ueber = function(){
+      var f = document.createElement("textarea");
+      f.value = s;
+      f.setAttribute("readonly", "");
+      f.style.position = "fixed";
+      f.style.top = "-1000px";
+      f.style.opacity = "0";
+      document.body.appendChild(f);
+      f.focus(); f.select();
+      var ok = false;
+      try{ ok = document.execCommand("copy"); }catch(e){}
+      if(f.parentNode) f.parentNode.removeChild(f);
+      fertig(ok);
+    };
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(s)
+          .then(function(){ fertig(true); })
+          .catch(ueber);
+        return;
+      }
+    }catch(e){}
+    ueber();
+  }
+  return { text: text };
+})();
+
 function AVJ_RECHNER(CFG){
   "use strict";
   var P = CFG.p;
@@ -3707,6 +3755,12 @@ function AVJ_RECHNER(CFG){
       +     '<div class="' + K + '-price"><span class="c">\u20AC</span><span id="' + P + 'Price">\u2014</span></div>'
       +   '</div><div class="' + K + '-badge" id="' + P + 'Badge"></div></div>'
       +   '<ul class="' + K + '-lines" id="' + P + 'Lines"></ul>'
+      + '</div>'
+
+      + '<div class="avj-kopiezeile">'
+      +   '<button type="button" class="avj-kopiebtn" id="' + P + 'Kopie">'
+      +     'Text kopieren</button>'
+      +   '<span class="avj-kopiehin" id="' + P + 'KopieHin"></span>'
       + '</div>'
 
       + '<div class="' + K + '-set-body" id="' + P + 'SetBody" hidden></div>'
@@ -4054,6 +4108,60 @@ function AVJ_RECHNER(CFG){
     /* "auf Anfrage" ist kein Betrag — in voller Preisgroesse bricht es
        auf dem iPhone um. */
     p.style.fontSize = an ? "" : "0.6em";
+  }
+
+  function langDatum(x){
+    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+    var p  = function(n){ return ("0"+n).slice(-2); };
+    return wd[x.getDay()] + " " + p(x.getDate()) + "." + p(x.getMonth()+1) + "."
+         + x.getFullYear() + ", " + p(x.getHours()) + ":" + p(x.getMinutes()) + " Uhr";
+  }
+
+  /* ─── Zusammenfassung zum Kopieren ───────────────────────────────
+     Fuer rentsoft, eine Mail oder eine Antwort per WhatsApp. Die
+     Geldzeilen kommen aus der angezeigten Aufstellung, nicht aus einer
+     zweiten Rechnung — so kann der Text gar nicht von dem abweichen,
+     was auf dem Schirm steht. Zusatzposten und Rabatt gehen dadurch
+     automatisch mit. */
+  function angebotText(){
+    var r = quote();
+    if(!r || r.empty || r.invalid || r.ohneAuto || !r.car || !r.d) return "";
+
+    var z = [];
+    z.push(r.car.name + (r.car.example ? " \u2014 " + r.car.example : ""));
+    z.push("Abholung: " + langDatum(r.d.from));
+    z.push("R\u00FCckgabe: " + langDatum(r.d.to));
+    var kz = ($("Badge").textContent || "").trim();
+    z.push("Dauer: " + r.d.days + (r.d.days === 1 ? " Tag" : " Tage")
+         + (kz ? " \u00B7 " + kz : ""));
+    z.push("");
+
+    if(r.anfrage){
+      z.push("Preis auf Anfrage \u2014 ab vier Wochen wird individuell kalkuliert.");
+      if(r.km) z.push("Geplante Fahrleistung: " + num(r.km) + " km");
+    } else {
+      var lis = $("Lines").querySelectorAll("li");
+      for(var i=0;i<lis.length;i++){
+        var k = lis[i].querySelector(".k"), v = lis[i].querySelector(".v");
+        if(!k || !v) continue;                 /* Hinweiszeilen ueberspringen */
+        z.push(k.textContent.trim() + ": " + v.textContent.trim());
+      }
+    }
+
+    z.push("");
+    var kt = (r.car.kaution && r.car.kaution.tag) ? r.car.kaution.tag : 0;
+    if(kt){
+      z.push("Kaution: " + eur(kt) + " \u20AC \u2014 wird bei der \u00DCbergabe "
+           + "hinterlegt und nach schadenfreier R\u00FCckgabe erstattet. Sie ist "
+           + "nicht Teil des Mietpreises.");
+    }
+    z.push("Ungeplante Mehrkilometer bei R\u00FCckgabe: "
+         + r.car.overKm.toFixed(2).replace(".", ",") + " \u20AC/km.");
+    z.push("");
+    z.push("Alle Preise inkl. 19 % MwSt., zzgl. Kraftstoff. Richtwert "
+         + "vorbehaltlich Verf\u00FCgbarkeit \u2014 ma\u00DFgeblich ist die "
+         + "Reservierungsbest\u00E4tigung bzw. der Mietvertrag.");
+    return z.join("\n");
   }
 
   function render(){
@@ -4540,6 +4648,22 @@ function AVJ_RECHNER(CFG){
   $("ExtraRows").addEventListener("input", onExtraInput);
   $("ExtraRows").addEventListener("click", onExtraClick);
   renderExtras();
+
+  if($("Kopie")) $("Kopie").addEventListener("click", function(){
+    var hin = $("KopieHin");
+    var s = angebotText();
+    var sagen = function(txt){
+      if(!hin) return;
+      hin.textContent = txt;
+      clearTimeout(hin._weg);
+      hin._weg = setTimeout(function(){ hin.textContent = ""; }, 4500);
+    };
+    if(!s){ sagen("Erst Abholung und R\u00FCckgabe eintragen."); return; }
+    AVJ_KOPIE.text(s, function(ok){
+      sagen(ok ? "Kopiert \u2014 einf\u00FCgen mit \u2318V."
+               : "Kopieren hat nicht geklappt.");
+    });
+  });
 
   /* ═══ Einstellungen ══════════════════════════════════════ */
   var _eingebaut   = JSON.parse(JSON.stringify(CARS));   /* Rueckfallebene */
@@ -6226,7 +6350,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 49;
+var AVJ_BUILD = 50;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

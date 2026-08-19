@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 49 · 19.08.2026
+# Onepage-Felder · Stand Version 50 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -50,6 +50,33 @@ wären alle bisherigen Daten und alle Popup-Zeilen ungültig.
 Die **Größenklasse je Fahrzeug** bleibt frei wählbar: ein Sprinter Tourer
 214 ist weiter ein 9-Sitzer, eine V-Klasse wäre ein Van. Beides steht
 jetzt in der Klassenliste des Tools.
+
+---
+
+## Der Hinweis über dem WhatsApp-Knopf (v50)
+
+Dass die Angaben mitgehen, merkt der Kunde sonst erst **nach** dem Klick
+— und tippt bis dahin entweder alles noch einmal ab oder schreibt nur
+„hallo". Deshalb steht es jetzt vorher da, gelb auf dem dunklen Kasten,
+direkt über dem Knopf. Der Text wechselt mit dem Zustand:
+
+**nichts eingetragen**
+
+> **Erst oben Zeitraum und Kilometer eintragen.** Dann gehen deine
+> Angaben mit der WhatsApp-Nachricht direkt an uns — ohne Abtippen.
+
+**alles da**
+
+> **Deine Angaben werden mitgeschickt.** Fahrzeug, Zeitraum, Kilometer
+> und der Richtpreis stehen fertig in der Nachricht — du musst nichts
+> abtippen. Abgeschickt wird sie erst von dir.
+
+Dazu die kleine Zeile im Knopf: „über WhatsApp" wird zu
+**„über WhatsApp · mit deinen Angaben"**, sobald etwas zu übertragen ist.
+
+Der Hinweis wird **vom JS erzeugt** und mit Inline-Stilen versehen —
+deshalb bleiben HTML- und CSS-Kasten unangetastet, es sind wieder nur
+die drei JS-Felder zu tauschen.
 
 ---
 

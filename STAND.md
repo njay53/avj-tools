@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 49 · Onepage v49 · 19.08.2026**
+**Stand: Build 50 · Onepage v50 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2366,3 +2366,88 @@ Der interne Rechner hat keinen WhatsApp-Knopf — er kennt ja keine
 Kundennummer. Denkbar wäre dort ein **„Text kopieren"**, um dieselbe
 Zusammenfassung in rentsoft oder eine Mail zu setzen. Nicht gebaut,
 nicht besprochen.
+
+---
+
+## 39. Build 50 / Onepage v50 — Hinweis am WhatsApp-Knopf, „Text kopieren" im Tool
+
+### 1. Der Kunde muss es vorher wissen
+
+Niran: *„Nur der Kunde weiß es natürlich noch nicht, wenn er den
+whatsapp button noch nicht gedrückt hat. … und auch deutlich genug, das
+sie es gleich checken. auch erst eintragen und dann anklicken."*
+
+Ein Hinweis direkt über dem Knopf, gelb auf dem dunklen Ergebniskasten,
+der mit dem Zustand wechselt:
+
+| Zustand | Text |
+|---|---|
+| nichts eingetragen | **Erst oben Zeitraum und Kilometer eintragen.** Dann gehen deine Angaben mit der WhatsApp-Nachricht direkt an uns — ohne Abtippen. |
+| alles da | **Deine Angaben werden mitgeschickt.** Fahrzeug, Zeitraum, Kilometer und der Richtpreis stehen fertig in der Nachricht — du musst nichts abtippen. Abgeschickt wird sie erst von dir. |
+
+Dazu die Unterzeile im Knopf: „über WhatsApp" → **„über WhatsApp · mit
+deinen Angaben"**, sobald etwas zu übertragen ist.
+
+Der Hinweis wird vom JS erzeugt und inline gestylt — HTML- und
+CSS-Kästen bleiben unangetastet, es sind wieder nur die drei JS-Felder
+zu tauschen. Der Kasten wird genau einmal angelegt und danach nur noch
+befüllt (im Test geprüft: `document.querySelectorAll('#avjWaHin').length === 1`
+auch nach mehrfachem Umrechnen).
+
+### 2. „Text kopieren" im internen Rechner
+
+Unter der Aufstellung steht jetzt ein Knopf **Text kopieren** — in allen
+vier internen Rechnern. Er legt eine fertige Zusammenfassung in die
+Zwischenablage, für rentsoft, eine Mail oder eine Antwort per WhatsApp:
+
+```
+Vito Tourer — 9-Sitzer · Bus · Diesel · Automatik · 119 extralang
+Abholung: Mo 17.08.2026, 09:00 Uhr
+Rückgabe: Mo 24.08.2026, 09:00 Uhr
+Dauer: 7 Tage · Wochentarif
+
+Mietpreis Vito Tourer: 950 €
+Frei-Kilometer inklusive: 1.800 km
+Geplante Fahrleistung: 800 km
+Haftungsreduzierung auf 1.000 €: 100 €
+Richtpreis gesamt: 1.050 €
+
+Kaution: 300 € — wird bei der Übergabe hinterlegt und nach schadenfreier
+Rückgabe erstattet. Sie ist nicht Teil des Mietpreises.
+Ungeplante Mehrkilometer bei Rückgabe: 0,37 €/km.
+
+Alle Preise inkl. 19 % MwSt., zzgl. Kraftstoff. Richtwert vorbehaltlich
+Verfügbarkeit — maßgeblich ist die Reservierungsbestätigung bzw. der Mietvertrag.
+```
+
+**Der entscheidende Kniff:** die Geldzeilen werden aus der *angezeigten*
+Aufstellung gelesen (`#…Lines li` mit `.k` und `.v`), nicht ein zweites
+Mal gerechnet. Dadurch
+
+* kann der kopierte Text nicht vom Bildschirm abweichen,
+* gehen **Zusatzposten und Rabatt automatisch mit**, ohne dass die
+  Rechnung hier ein zweites Mal steht,
+* bleibt der Textbauer klein.
+
+Ab 29 Tagen steht statt einer Summe „Preis auf Anfrage — ab vier Wochen
+wird individuell kalkuliert", Zeitraum und Kilometer bleiben drin.
+
+Neu dafür: `AVJ_KOPIE.text(s, fertig)` — ein Helfer mit den zwei
+bekannten Wegen (`navigator.clipboard`, sonst `execCommand` über eine
+kurz eingehängte Textauswahl), damit es auch beim Öffnen per
+Doppelklick aus dem Finder funktioniert.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefkopie50.js` | 20 Proben gegen die **echte Zwischenablage**: jede Geldzeile der Anzeige steht im Text, Gesamtpreis stimmt, Rabatt schlägt durch, 29 Tage ohne erfundenen Preis, Knopf in allen Rechnern |
+| `pruefwa49.js` | um den Hinweis erweitert: beide Zustände, Unterzeile, und dass der Kasten nur einmal existiert |
+| `gold.js` | identisch mit Build 49 |
+| übrige Tests | grün |
+
+### Bekannte Kleinigkeit
+
+`bildkopie.js` (Bildschirmfoto des Knopfes) läuft in dieser Umgebung in
+einen Zeitablauf beim Warten auf Schriftarten. Für die Prüfung
+unerheblich — `pruefkopie50.js` deckt die Sache ab.

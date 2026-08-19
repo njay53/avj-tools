@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 49;
+var AVJ_WEB_BUILD = 50;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
@@ -603,6 +603,39 @@ function avjTrack(name, params){
     var a = $("avjCta");
     if(!a) return;
     a.href = "https://wa.me/" + WA_NUMMER + "?text=" + encodeURIComponent(waText(r));
+
+    /* Vorher sagen, nicht nachher: sonst tippt der Kunde in WhatsApp
+       alles noch einmal ab oder schreibt nur "hallo". Der Hinweis
+       wechselt mit dem Zustand und fordert bei leerem Formular zuerst
+       zum Eintragen auf.
+
+       Bewusst mit Inline-Stilen erzeugt: so bleiben die HTML- und
+       CSS-Kaesten bei Onepage unangetastet. */
+    var voll = !!(r && !r.empty && !r.invalid && r.car && r.d);
+
+    var h = document.getElementById("avjWaHin");
+    if(!h){
+      h = document.createElement("div");
+      h.id = "avjWaHin";
+      h.style.cssText = "margin:12px 0 9px;padding:10px 12px;border-radius:10px;"
+        + "background:rgba(253,250,97,.13);border:1px solid rgba(253,250,97,.45);"
+        + "font-size:12.5px;line-height:1.5;color:#FDFA61;";
+      if(a.parentNode) a.parentNode.insertBefore(h, a);
+    }
+    h.innerHTML = voll
+      ? '<b>Deine Angaben werden mitgeschickt.</b>'
+        + '<span style="color:#fff;opacity:.92"> Fahrzeug, Zeitraum, Kilometer und '
+        + 'der Richtpreis stehen fertig in der Nachricht \u2014 du musst nichts '
+        + 'abtippen. Abgeschickt wird sie erst von dir.</span>'
+      : '<b>Erst oben Zeitraum und Kilometer eintragen.</b>'
+        + '<span style="color:#fff;opacity:.92"> Dann gehen deine Angaben mit der '
+        + 'WhatsApp-Nachricht direkt an uns \u2014 ohne Abtippen.</span>';
+
+    var s = a.querySelector(".s");
+    if(s){
+      s.textContent = voll ? "\u00FCber WhatsApp \u00B7 mit deinen Angaben"
+                           : "\u00FCber WhatsApp";
+    }
   }
 
   function render(){
