@@ -1621,6 +1621,31 @@
   font-weight:650;padding:7px 13px;cursor:pointer;
 }
 .pr-warnung button:hover{border-color:#5E4A16;}
+/* ══════════════════════════════════════════════════════════════
+   Build 52 · Vorschau der Kopfzeile im Popup-Zeilen-Dialog
+   ══════════════════════════════════════════════════════════════ */
+.avj-zl-vorschau{
+  margin:10px 0 4px;padding:11px 13px;border-radius:10px;
+  background:#111C2E;line-height:1.5;
+}
+.avj-zl-vorschau .l{
+  display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#8A96A3;font-weight:700;margin-bottom:3px;
+}
+.avj-zl-vorschau .k{
+  display:block;font-size:14px;font-weight:700;color:#fff;
+}
+.avj-zl-vorschau .k .rot{color:#FF3B30;}
+.avj-zl-schalter{
+  display:flex;gap:9px;align-items:flex-start;margin:10px 0 2px;cursor:pointer;
+}
+.avj-zl-schalter input{margin-top:3px;flex:0 0 auto;}
+.avj-zl-schalter b{display:block;font-size:13px;font-weight:650;color:#26313B;}
+.avj-zl-schalter em{
+  display:block;font-style:normal;font-size:11.5px;color:#8A96A3;
+  line-height:1.5;margin-top:2px;
+}
+.avj-zl-f[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -2446,6 +2471,16 @@ var AVJ_ZEILE = (function(){
      Der Vorschlag ist bewusst schlicht: er trifft nie genau das, was
      im Verkauf draufstehen soll, aber er trifft immer die Fakten.
      Ueberschreiben ist der Normalfall, nicht die Ausnahme. */
+  /* Wortgleich mit tab-motor.js: so baut die Tabelle die Kopfzeile,
+     wenn keine data-titel-Zeile dabeisteht. Wer eine der beiden Stellen
+     aendert, aendert die andere mit — sonst zeigt die Vorschau etwas
+     anderes als die Seite. */
+  function autoTitel(a, key){
+    return "*" + (a.name || key) + "*"
+      + (a.example ? " (" + a.example + ")" : "");
+  }
+
+  /* Vorschlag NUR fuer den Ausnahmefall "eigene Kopfzeile". */
   function vorschlag(a, key){
     var m = a.merkmale || {};
     /* Dieselbe Reihenfolge wie in der Kurzbeschreibung unter dem Namen —
@@ -2464,7 +2499,13 @@ var AVJ_ZEILE = (function(){
      schliessen und die Zeile zerreissen. Als HTML-Entitaet geschrieben
      stehen sie spaeter ganz normal in der blauen Kopfzeile. */
   function bauen(gruppe, key, titel){
-    var t = String(titel || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+    /* Ohne eigene Kopfzeile bleibt data-titel weg — dann holt sich die
+       Tabelle Name und Kurzbeschreibung aus preise.json und aendert sich
+       mit, sobald im Tool etwas umbenannt wird. Das ist der Normalfall.
+       Bis Build 51 wurde immer eine data-titel-Zeile erzeugt; genau die
+       lief dann von der App weg. */
+    if(!titel) return '<div class="avjtab" data-fz="' + gruppe + '.' + key + '"></div>';
+    var t = String(titel).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
     return '<div class="avjtab" data-fz="' + gruppe + '.' + key + '"\n'
       + '     data-titel="' + t + '"></div>';
   }
@@ -2488,8 +2529,16 @@ var AVJ_ZEILE = (function(){
       + 'Custom-Code-Feldes im Fahrzeug-Popup. CSS- und JS-Kasten bleiben leer. '
       + 'Die Tabelle baut sich daraus selbst \u2014 aus denselben Tarifen, die '
       + 'hier im Tool stehen.</p>'
-      + '<label class="avj-zl-f"><span>Kopfzeile <em>blau, ganz oben \u2014 '
-      + 'was zwischen *Sternchen* steht, wird rot</em></span>'
+      + '<div class="avj-zl-vorschau" id="avjZlVor"></div>'
+      + '<label class="avj-zl-schalter"><input type="checkbox" id="avjZlEigen">'
+      +   '<span><b>Eigene Kopfzeile schreiben</b>'
+      +   '<em>Normalfall: aus. Dann nimmt die Tabelle Name und '
+      +   'Kurzbeschreibung aus dem Tool \u2014 benennst du das Fahrzeug hier '
+      +   'um, \u00E4ndert sich die \u00DCberschrift auf der Website mit. Eine '
+      +   'eigene Kopfzeile steht dagegen fest bei Onepage und l\u00E4uft '
+      +   'irgendwann auseinander.</em></span></label>'
+      + '<label class="avj-zl-f" id="avjZlFeld" hidden><span>Kopfzeile '
+      + '<em>was zwischen *Sternchen* steht, wird rot</em></span>'
       + '<input type="text" id="avjZlTitel" value="' + vorschlag(a, key).replace(/"/g,"&quot;") + '"></label>'
       + '<textarea id="avjZlText" rows="3" readonly></textarea>'
       + '<div class="avj-zl-hin" id="avjZlHin"></div>'
@@ -2504,13 +2553,36 @@ var AVJ_ZEILE = (function(){
     ov.innerHTML = h;
     document.body.appendChild(ov);
 
-    var feld = document.getElementById("avjZlTitel");
-    var text = document.getElementById("avjZlText");
-    var hin  = document.getElementById("avjZlHin");
+    var feld  = document.getElementById("avjZlTitel");
+    var text  = document.getElementById("avjZlText");
+    var hin   = document.getElementById("avjZlHin");
+    var eigen = document.getElementById("avjZlEigen");
+    var kasten= document.getElementById("avjZlFeld");
+    var vor   = document.getElementById("avjZlVor");
 
-    function frisch(){ text.value = bauen(gruppe, key, feld.value); }
+    /* Zeigt die blaue Kopfzeile so, wie sie auf der Seite steht —
+       einschliesslich des roten Teils. Dann muss niemand raten, was
+       *Sternchen* bedeutet. */
+    function vorschau(txt){
+      var teile = String(txt).replace(/&/g,"&amp;").replace(/</g,"&lt;").split("*");
+      var h = "";
+      for(var i=0;i<teile.length;i++){
+        h += (i % 2) ? '<span class="rot">' + teile[i] + '</span>' : teile[i];
+      }
+      vor.innerHTML = '<span class="l">So steht es in der blauen Kopfzeile:</span>'
+        + '<span class="k">' + h + '</span>';
+    }
+
+    function frisch(){
+      var an = eigen.checked;
+      if(an) kasten.removeAttribute("hidden"); else kasten.setAttribute("hidden","");
+      var titel = an ? feld.value : autoTitel(a, key);
+      vorschau(titel);
+      text.value = bauen(gruppe, key, an ? feld.value : null);
+    }
     frisch();
     feld.addEventListener("input", function(){ frisch(); hin.textContent = ""; });
+    eigen.addEventListener("change", function(){ frisch(); hin.textContent = ""; });
 
     document.getElementById("avjZlZu").addEventListener("click", schliesse);
     ov.addEventListener("click", function(e){ if(e.target === ov) schliesse(); });
@@ -2545,7 +2617,8 @@ var AVJ_ZEILE = (function(){
     });
   }
 
-  return { zeige: zeige, bauen: bauen, vorschlag: vorschlag };
+  return { zeige: zeige, bauen: bauen, vorschlag: vorschlag,
+           autoTitel: autoTitel };
 })();
 
 /* ═══ Neues Fahrzeug ═══════════════════════════════════════════
@@ -4951,13 +5024,12 @@ function AVJ_RECHNER(CFG){
 
   /* Sobald preise.json da ist: Kundenstand ersetzen, eigene Abweichungen
      erneut daraufsetzen, neu zeichnen. */
-  /* Beschreibende Angaben gehoeren zum Fahrzeug, nicht zum Tarif.
-     Stehen sie im Code neuer als in preise.json, sollen sie nicht
-     stillschweigend zurueckfallen — die Datei ist dann einfach noch
-     nicht neu erzeugt worden. Sie tauchen dann als Abweichung auf und
-     gehen beim naechsten Freigeben mit raus. Eigene Aenderungen aus dem
-     Bearbeiten-Dialog stehen im Diff und haben Vorrang. */
-  var BESCHREIBEND = ["name", "example", "merkmale"];
+  /* Name, Kurzbeschreibung und Merkmale kommen aus preise.json wie jeder
+     andere Wert auch. Bis Build 51 gewann hier der Programmtext, solange
+     der Nutzer das Feld nicht selbst angefasst hatte — dadurch zeigte
+     das Tool auf einem frischen Browser den alten Namen, waehrend die
+     Website den neuen zeigte. Eigene Aenderungen stehen weiterhin im
+     Diff und haben Vorrang, das erledigt legeAuf. */
 
   AVJ_PREISE.bereit(function(d){
     if(d && d[CFG.schluessel]){
@@ -4966,16 +5038,6 @@ function AVJ_RECHNER(CFG){
       _defaults    = _kundenstand;
       var neu = legeAuf(_kundenstand, diff);
       for(var k in neu){
-        var e = _eingebaut[k];
-        if(e){
-          for(var bi=0;bi<BESCHREIBEND.length;bi++){
-            var feld = BESCHREIBEND[bi];
-            var vomNutzer = diff[k] && diff[k][feld] !== undefined;
-            if(!vomNutzer && e[feld] !== undefined){
-              neu[k][feld] = JSON.parse(JSON.stringify(e[feld]));
-            }
-          }
-        }
         CARS[k] = neu[k];
       }
       _gridCache = {};
@@ -6423,7 +6485,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 51;
+var AVJ_BUILD = 52;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 50 · 19.08.2026
+# Onepage-Felder · Stand Version 51 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -225,6 +225,57 @@ und wer zuerst läuft, baut den Lader für alle anderen mit. Steht in einer
 Datei eine ältere Fassung, hängt es vom Zufall ab, welche gewinnt.
 
 Das Bauskript prüft das und bricht ab, wenn eine Datei abweicht.
+
+---
+
+## Die blaue Kopfzeile (v51) — WICHTIG beim Nachziehen
+
+Bis v50 stand in jeder Popup-Zeile ein `data-titel` mit einer von Hand
+übernommenen Überschrift. Die stand fest bei Onepage und wusste nichts
+vom Tool — deshalb zeigten Tabelle und Rechner verschiedene Namen:
+
+| | |
+|---|---|
+| Tool | VW Golf 8 Energy Variant |
+| Rechner-Knopf | VW Golf 8 Energy Variant jetzt berechnen |
+| Kopfzeile | ~~PKW Volkswagen *Golf Variant* 8 (Kombi, Automatik)~~ |
+
+**Ab v51 gilt: Popup-Zeile ohne `data-titel`.**
+
+```html
+<div class="avjtab" data-fz="pkw.golfvariant"></div>
+```
+
+Die Kopfzeile kommt dann aus `preise.json` — Name plus Kurzbeschreibung,
+also genau das, was im Bearbeiten-Dialog unter dem Namen steht. Der
+**Name** wird rot:
+
+> **VW Golf 8 Energy Variant** (Kompaktklasse · Kombi · Benzin · Automatik)
+
+Umbenennen im Tool → freigeben → hochladen: Kopfzeile, Rechner-Knopf und
+Fahrzeugauswahl heißen überall gleich. Kein Nachpflegen bei Onepage.
+
+**Zu tun:** in jedem Fahrzeug-Popup das ` data-titel="…"` aus der Zeile
+löschen. Die fertigen Zeilen stehen in `tariftabelle-3-EINBAU.txt`.
+
+### Kein Rot?
+
+Ganz oben in `tariftabelle-2-JS.txt`:
+
+```js
+var AVJTAB_ROT = false;
+```
+
+Dann ist die Kopfzeile einfarbig weiß. Die Sternchen verschwinden in
+beiden Fällen.
+
+### Eigene Kopfzeile (Ausnahme)
+
+Im Dialog *Popup-Zeile* gibt es den Haken **„Eigene Kopfzeile
+schreiben"**. Dann kommt wieder ein `data-titel` in die Zeile, und was
+zwischen `*Sternchen*` steht, wird rot. Der Text steht damit aber wieder
+fest bei Onepage und läuft mit der Zeit vom Tool weg — im Zweifel
+weglassen.
 
 ---
 

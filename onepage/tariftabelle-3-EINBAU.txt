@@ -1,25 +1,24 @@
-AVJ Tariftabellen · Einbau · Version 47 · 19.08.2026
+AVJ Tariftabellen · Einbau · Version 51 · 19.08.2026
 ================================================================
 
 WAS HIER PASSIERT
-Die Preistabellen liegen bisher als JPG in den Fahrzeug-Popups.
-Ab jetzt baut der Browser sie aus preise.json — derselben Datei, aus
-der auch die Rechner ihre Preise holen. Preis im Tool ändern, für
-Kunden freigeben, hochladen: die Tabelle im Popup stimmt sofort.
-Kein Bild mehr bauen, kein Bild mehr austauschen.
+Die Preistabellen lagen frueher als JPG in den Fahrzeug-Popups. Jetzt
+baut der Browser sie aus preise.json — derselben Datei, aus der auch die
+Rechner ihre Preise holen. Preis im Tool aendern, fuer Kunden freigeben,
+hochladen: die Tabelle im Popup stimmt sofort.
 
-DER HÄUFIGSTE FEHLER ZUERST
-Jede Datei gehört in GENAU EINEN Kasten. Die Zahl im Dateinamen sagt,
+DER HAEUFIGSTE FEHLER ZUERST
+Jede Datei gehoert in GENAU EINEN Kasten. Die Zahl im Dateinamen sagt,
 in welchen:
 
   …-1-HTML.txt  →  HTML-Kasten
   …-2-CSS.txt   →  CSS-Kasten
   …-2-JS.txt    →  JS-Kasten
 
-Landet tariftabelle-2-JS.txt im HTML-Kasten, zeigt die Seite den
-ganzen Quelltext als Fließtext an — man sieht dann Kommentare,
-Klammern und Zahlenreihen mitten im Popup. Dann ist nichts kaputt,
-der Text steht nur im falschen Kasten.
+Landet tariftabelle-2-JS.txt im HTML-Kasten, zeigt die Seite den ganzen
+Quelltext als Fliesstext an — man sieht dann Kommentare, Klammern und
+Zahlenreihen mitten im Popup. Dann ist nichts kaputt, der Text steht nur
+im falschen Kasten.
 
 SCHRITT 1 — einmal pro Seite
 Ein neues Custom-Code-Feld auf der Fahrzeugseite anlegen (irgendwo
@@ -30,75 +29,89 @@ unten, es zeigt nichts an) und dort einsetzen:
   HTML-Kasten  bleibt LEER
 
 SCHRITT 2 — einmal pro Popup
-Im Fahrzeug-Popup das JPG löschen und stattdessen ein Custom-Code-Feld
-einsetzen. In den HTML-Kasten kommt EINE Zeile, sonst nichts. CSS- und
-JS-Kasten bleiben LEER. Die passende Zeile steht unten.
+Im Fahrzeug-Popup ein Custom-Code-Feld einsetzen. In den HTML-Kasten
+kommt EINE Zeile, sonst nichts. CSS- und JS-Kasten bleiben LEER.
 
 WICHTIG
 · Schritt 1 muss auf derselben Seite liegen wie die Popups.
-· Reihenfolge egal — das Feld aus Schritt 1 darf auch unter den
-  Popups stehen.
+· Reihenfolge egal — das Feld aus Schritt 1 darf auch unter den Popups
+  stehen.
 · Fehlt Schritt 1, zeigt das Popup nichts an. Deshalb Schritt 1 zuerst
   einsetzen und speichern, dann die Popups.
-· Schritt 1 kommt genau EINMAL auf die Seite. Ein zweites Motorfeld
-  schadet zwar nicht, ist aber unnötiger Ballast.
+· Schritt 1 kommt genau EINMAL auf die Seite.
+
+DIE BLAUE KOPFZEILE
+Sie kommt aus dem Tool: Name plus Kurzbeschreibung, also genau das, was
+im Bearbeiten-Dialog unter dem Namen steht. Der Name wird rot.
+
+  VW Golf 8 Energy Variant (Kompaktklasse · Kombi · Benzin · Automatik)
+  ^^^^^^^^^^^^^^^^^^^^^^^^ rot
+
+Benennst du das Fahrzeug im Tool um, aendert sich die Kopfzeile auf der
+Website mit — nach Freigeben und Hochladen. Kein Nachpflegen bei Onepage.
+
+Wer das Rot gar nicht will: in tariftabelle-2-JS.txt ganz oben
+
+  var AVJTAB_ROT = false;
 
 DIE ZEILEN
-Der Text in data-titel ist die blaue Kopfzeile. Was zwischen
-*Sternchen* steht, wird rot — wie bisher der Modellname.
-
 
 ────────────────────────────────────────────────────────────────
 Vito Tourer   (neunsitzer.vito)
+   9-Sitzer · Bus · Diesel · Automatik · 119 extralang
 
-<div class="avjtab" data-fz="neunsitzer.vito"
-     data-titel="Kleinbus Mercedes-Benz *Vito Tourer* 119 (9-Sitzer, extralang, AHK)"></div>
+<div class="avjtab" data-fz="neunsitzer.vito"></div>
 
 ────────────────────────────────────────────────────────────────
 Sprinter Tourer   (neunsitzer.sprinter)
+   9-Sitzer · Bus · Diesel · Handschaltung · 214 kurz
 
-<div class="avjtab" data-fz="neunsitzer.sprinter"
-     data-titel="Kleinbus Mercedes-Benz *Sprinter Tourer* 214 (9-Sitzer, kurz, Flachdach)"></div>
+<div class="avjtab" data-fz="neunsitzer.sprinter"></div>
 
 ────────────────────────────────────────────────────────────────
 Transporter M   (transporter.m)
+   Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Renault Trafic L2H1
 
-<div class="avjtab" data-fz="transporter.m"
-     data-titel="Transporter *M* lang z.B. Renault Trafic lang (AHK)"></div>
+<div class="avjtab" data-fz="transporter.m"></div>
 
 ────────────────────────────────────────────────────────────────
 Transporter XL   (transporter.xl)
+   Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Mercedes Sprinter L3
 
-<div class="avjtab" data-fz="transporter.xl"
-     data-titel="Transporter *XL* z.B. Mercedes-Benz Sprinter lang (AHK)"></div>
+<div class="avjtab" data-fz="transporter.xl"></div>
 
 ────────────────────────────────────────────────────────────────
 Golf   (pkw.golf)
+   Kompaktklasse · Limousine · Benzin · Automatik
+
+<div class="avjtab" data-fz="pkw.golf"></div>
+
+────────────────────────────────────────────────────────────────
+Golf Variant   (pkw.golfvariant)
+   Kompaktklasse · Kombi · Benzin · Automatik
+
+<div class="avjtab" data-fz="pkw.golfvariant"></div>
+
+────────────────────────────────────────────────────────────────
+Low-Budget   (lb.yaris)
+   Kleinwagen · Limousine · Benzin · Handschaltung · z. B. Toyota Yaris
+
+<div class="avjtab" data-fz="lb.yaris"></div>
+
+────────────────────────────────────────────────────────────────
+NEUES FAHRZEUG
+Die Zeile musst du nicht abtippen. Im Tool unter "Tarif Config." das
+Fahrzeug auswaehlen, dann der Knopf "Popup-Zeile": dort steht sie fertig,
+mit einer Vorschau der blauen Kopfzeile, und geht per Klick in die
+Zwischenablage.
+
+EIGENE KOPFZEILE (Ausnahme)
+Im selben Dialog gibt es den Haken "Eigene Kopfzeile schreiben". Dann
+bekommt die Zeile ein data-titel mit festem Text:
 
 <div class="avjtab" data-fz="pkw.golf"
      data-titel="PKW Volkswagen *Golf* 8 (Kompaktklasse, Automatik)"></div>
 
-────────────────────────────────────────────────────────────────
-Golf Variant   (pkw.golfvariant)
-
-<div class="avjtab" data-fz="pkw.golfvariant"
-     data-titel="PKW Volkswagen *Golf Variant* 8 (Kombi, Automatik)"></div>
-
-────────────────────────────────────────────────────────────────
-Low-Budget   (lb.yaris)
-
-<div class="avjtab" data-fz="lb.yaris"
-     data-titel="*Low-Budget* Kleinwagen z.B. Toyota Yaris"></div>
-
-────────────────────────────────────────────────────────────────
-OHNE EIGENE KOPFZEILE
-Lässt du data-titel weg, nimmt die Tabelle Name und Kurzbeschreibung
-aus dem Tool:
-
-<div class="avjtab" data-fz="neunsitzer.vito"></div>
-
-NEUES FAHRZEUG
-Die Zeile musst du nicht abtippen. Im Tool unter "Tarif Config."
-das Fahrzeug auswählen, dann der Knopf "Popup-Zeile": dort steht sie
-fertig, mit einem Vorschlag für die Kopfzeile, und geht per Klick in
-die Zwischenablage.
+Was zwischen *Sternchen* steht, wird rot. ABER: dieser Text steht dann
+fest bei Onepage und weiss nichts mehr vom Tool. Genau daran lagen die
+unterschiedlichen Namen zwischen Tabelle und Rechner. Im Zweifel: weglassen.

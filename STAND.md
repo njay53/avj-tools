@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 51 · Onepage v50 · 19.08.2026**
+**Stand: Build 52 · Onepage v51 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2551,3 +2551,90 @@ Build 51 sauber verglichen, 0 Unterschiede.
 
 **Unverändert bei v50.** Diese Runde betrifft nur `index.html` und
 `hochladen.command`.
+
+---
+
+## 41. Build 52 / Onepage v51 — die Kopfzeile kommt aus dem Tool
+
+### Was Niran sah
+
+| | |
+|---|---|
+| im Tool benannt | VW Golf 8 Energy Variant |
+| Rechner-Knopf | VW Golf 8 Energy Variant jetzt berechnen |
+| blaue Kopfzeile | PKW Volkswagen **Golf Variant** 8 (Kombi, Automatik) |
+
+Dazu: *„was macht er eigentlich immer rot?"* und *„woher holt die Tabelle
+das? sind das noch die Sachen, die du von meinen alten Vorlagen
+übernommen hast?"*
+
+**Ja.** Beim Umstieg von den JPG-Tabellen habe ich seine alten
+Überschriften übernommen und als `data-titel` in jede Popup-Zeile
+geschrieben. Die steht seitdem fest bei Onepage. Und rot wurde, was
+zwischen `*Sternchen*` stand — mal „Golf Variant", mal nur „M". Daher
+wirkte es willkürlich.
+
+### Behoben
+
+Der Motor kann die Kopfzeile längst selbst bauen. Nur erzeugte der Knopf
+*Popup-Zeile* **immer** eine Zeile mit `data-titel`. Das dreht sich um:
+
+| | |
+|---|---|
+| Normalfall | `<div class="avjtab" data-fz="pkw.golfvariant"></div>` |
+| Kopfzeile | Name + Kurzbeschreibung aus `preise.json`, **Name rot** |
+| Ausnahme | Haken „Eigene Kopfzeile schreiben" → wieder mit `data-titel` |
+
+Im Dialog steht jetzt eine **Vorschau der blauen Kopfzeile**, inklusive
+Rotfärbung — damit muss niemand raten, was die Sternchen tun.
+
+Wer das Rot gar nicht will: `var AVJTAB_ROT = false;` ganz oben in
+`tariftabelle-2-JS.txt`. Die Sternchen verschwinden in beiden Fällen.
+
+`AVJ_ZEILE.autoTitel()` im Tool und der Titelbau in `tab-motor.js` sind
+**wortgleich** — sonst zeigt die Vorschau etwas anderes als die Seite.
+
+### Beim Testen gefunden: das Tool zeigte selbst den alten Namen
+
+Auf einem frischen Browser stand im Tool weiter „Golf Variant", obwohl in
+`preise.json` längst „VW Golf 8 Energy Variant" steht.
+
+Schuld war eine Regel aus Build 35:
+
+```js
+var BESCHREIBEND = ["name", "example", "merkmale"];
+// … für eingebaute Fahrzeuge IMMER aus dem Programmtext,
+//    solange der Nutzer das Feld auf diesem Gerät nicht angefasst hat
+```
+
+Der Gedanke damals: liefere ich in einem neuen Build eine bessere
+Beschreibung mit, soll sie nicht von einer alten `preise.json`
+überschrieben werden. Inzwischen pflegt Niran die Beschreibungen im Tool
+und gibt sie frei — die Datei ist damit per Definition der neuere Stand.
+Die Regel ist raus, die Datei gewinnt. Eigene, noch nicht freigegebene
+Änderungen stehen weiter im Diff und haben Vorrang (`legeAuf`).
+
+### Zu tun bei Onepage
+
+In allen sieben Fahrzeug-Popups das ` data-titel="…"` aus der Zeile
+löschen. Die fertigen Zeilen stehen in `tariftabelle-3-EINBAU.txt`.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefkopf52.js` | **neu**, 15 Proben: Kopfzeile = Name aus `preise.json`; **rot ist genau der Name**; Kopfzeile und Rechner-Knopf nennen dasselbe Fahrzeug; Umbenennen schlägt in beide durch; `AVJTAB_ROT=false` färbt nichts und lässt den Text vollständig; `data-titel` wird weiterhin beachtet; die Vorschau im Tool stimmt Zeichen für Zeichen mit der Seite überein |
+| `pruefzeile.js` | auf den Haken nachgezogen — prüft jetzt gezielt den Ausnahmefall |
+| `gold.js` | identisch mit Build 51 |
+| übrige Tests | grün |
+
+### Geändert
+
+| Datei | was |
+|---|---|
+| `index.html` | `autoTitel`, Haken + Vorschau im Popup-Zeilen-Dialog, `BESCHREIBEND` raus |
+| `tariftabelle-2-JS.txt` | `AVJTAB_ROT`, Kommentar am automatischen Titel |
+| `tariftabelle-3-EINBAU.txt` | Zeilen ohne `data-titel`, Abschnitt zur Kopfzeile |
+
+Die drei Rechner-Felder sind **unverändert** (v50) — nur die
+Tariftabellen-Dateien sind neu.

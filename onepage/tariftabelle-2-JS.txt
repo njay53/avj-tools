@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 50 · 19.08.2026
+   Version 51 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -29,6 +29,13 @@
    zeigten nur den ungeplanten Satz. Auf true stellen, sobald beide
    in der Tabelle stehen sollen. */
 var AVJTAB_GEPLANT = false;
+
+/* ─── Modellname rot? ─────────────────────────────────────────────
+   In der blauen Kopfzeile wird rot, was zwischen *Sternchen* steht —
+   so war es auf den bisherigen JPG-Tabellen. Ohne eigene data-titel-
+   Zeile ist das immer genau der Name aus dem Tool. Auf false steht die
+   Kopfzeile einfarbig weiß. */
+var AVJTAB_ROT = true;
 
 /* ═══ Zentrale Preisliste ═══════════════════════════════════════
    Wortgleich mit den drei Rechner-Feldern. Wer zuerst läuft, baut
@@ -961,11 +968,13 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
   /* Im Titel markiert *Sternchen* den Modellnamen — der wird rot,
-     genau wie auf den bisherigen Tabellen. */
+     genau wie auf den bisherigen Tabellen. Die Sternchen selbst
+     verschwinden in jedem Fall, auch wenn AVJTAB_ROT aus ist. */
   function titelHtml(t){
     var teile = esc(t).split("*"), h = "";
     for(var i=0;i<teile.length;i++){
-      h += (i % 2) ? '<span class="rot">' + teile[i] + '</span>' : teile[i];
+      h += (i % 2 && AVJTAB_ROT) ? '<span class="rot">' + teile[i] + '</span>'
+                                 : teile[i];
     }
     return h;
   }
@@ -1325,11 +1334,13 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     var c = d.c;
     var titel = el.getAttribute("data-titel");
     if(!titel){
-      /* Ohne data-titel baut die Tabelle die Kopfzeile selbst — im
-         gleichen Stil, also Modellname rot. Der Vorteil: sie kommt dann
-         aus preise.json und wandert mit, wenn im Tool eine Angabe
-         geaendert wird. Eine eingetragene data-titel-Zeile tut das
-         nicht, die steht fest bei Onepage. */
+      /* Der Normalfall seit v51: die Kopfzeile kommt aus preise.json und
+         wandert mit, sobald im Tool umbenannt wird. Rot ist dann immer
+         genau der Name aus dem Namensfeld — nicht mehr ein zufaelliges
+         Stueck aus einer alten Ueberschrift.
+
+         Wortgleich mit AVJ_ZEILE.autoTitel() im Tool: die Vorschau dort
+         muss zeigen, was hier herauskommt. */
       titel = "*" + (c.name || d.key) + "*"
         + (c.example ? " (" + c.example + ")" : "");
     }
