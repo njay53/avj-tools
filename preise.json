@@ -1,7 +1,7 @@
 {
   "version": 1,
   "stand": "19.08.2026",
-  "erzeugtVon": "AVJ Tools Build 47",
+  "erzeugtVon": "AVJ Tools Build 50",
   "lb": {
     "yaris": {
       "name": "Low-Budget",
@@ -44,7 +44,7 @@
   },
   "pkw": {
     "golf": {
-      "name": "VW Golf",
+      "name": "Golf",
       "merkmale": {
         "klasse": "Kompaktklasse",
         "karosserie": "Limousine",
@@ -148,7 +148,7 @@
       "lzAnfrage": true
     },
     "golfvariant": {
-      "name": "VW Golf Variant",
+      "name": "Golf Variant",
       "merkmale": {
         "klasse": "Kompaktklasse",
         "karosserie": "Kombi",
@@ -741,9 +741,9 @@
   },
   "transporter": {
     "m": {
-      "name": "Transporter M Kasten",
+      "name": "Transporter M",
       "frSaPlus": 5,
-      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Renault Trafic L2H1",
+      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Renault Trafic L2H1",
       "planKm": 0.2,
       "overKm": 0.3,
       "dayMoDo": [
@@ -881,14 +881,14 @@
         "karosserie": "Kastenwagen",
         "kraftstoff": "Diesel",
         "getriebe": "Handschaltung",
-        "zusatz": "z.B. Renault Trafic L2H1"
+        "zusatz": "z. B. Renault Trafic L2H1"
       },
       "lzAnfrage": true
     },
     "xl": {
-      "name": "Transporter XL / L3H2",
+      "name": "Transporter XL",
       "frSaPlus": 10,
-      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Mercedes Sprinter o. MAN TGE",
+      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Mercedes Sprinter L3",
       "planKm": 0.26,
       "overKm": 0.37,
       "dayMoDo": [
@@ -1026,7 +1026,7 @@
         "karosserie": "Kastenwagen",
         "kraftstoff": "Diesel",
         "getriebe": "Handschaltung",
-        "zusatz": "z.B. Mercedes Sprinter o. MAN TGE"
+        "zusatz": "z. B. Mercedes Sprinter L3"
       },
       "lzAnfrage": true
     }
