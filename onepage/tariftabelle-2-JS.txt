@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 44 · 19.08.2026
+   Version 46 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -1190,42 +1190,31 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
      es Tagespakete gibt. */
   function langzeit(c){
     if(!c.tier || !c.tier[6]) return "";
-    /* "Langzeit" passt erst ab vier Wochen. Ist der Schalter gesetzt,
-       faengt der Abschnitt schon bei acht Tagen an — dann heisst er
-       auch so. */
+    /* Der Abschnitt faengt immer bei vier Wochen an — "Langzeitmiete"
+       passt erst da. Was davor liegt, rechnet der Preisrechner und zeigt
+       es auf den Euro genau; in der Tabelle waere es nur eine Zahlenwand.
+       Der Schalter im Tool tauscht seit v46 ausschliesslich den Betrag
+       gegen "auf Anfrage" — nicht mehr den ganzen Abschnitt. */
     var h = '<div class="avjtab-reihe">'
-      + '<div class="avjtab-z avjtab-band">'
-      + (c.lzAnfrage ? 'Mehrwochen- und Langzeitmiete' : 'Langzeit')
-      + '</div>'
+      + '<div class="avjtab-z avjtab-band">Langzeitmiete</div>'
       + zelle('avjtab-rot','je extra km') + '</div>';
-    if(c.lzAnfrage){
-      /* Der Schalter im Tool: Langzeitpreise sind hinterlegt, aber noch
-         nicht freigegeben. Dann steht hier kein Betrag. */
-      h += '<div class="avjtab-reihe">'
-        + zelle('avjtab-gelb','ab 8 Tagen<br><span class="kl2">l\u00E4nger als eine Woche</span>',
-                'grid-column:1')
-        + zelle('avjtab-grau','<b>Preis auf Anfrage</b>', 'grid-column:2/6')
-        + zelle('avjtab-grau', extraKm(c), 'grid-column:6')
-        + '</div>';
-      h += '<div class="avjtab-reihe"><div class="avjtab-lang">'
-        + 'F\u00FCr Mietdauern ab acht Tagen machen wir dir ein '
-        + 'pers\u00F6nliches Angebot \u2014 je l\u00E4nger die Miete, desto '
-        + 'g\u00FCnstiger. <b>Ruf uns an oder schreib per WhatsApp:</b> '
-        + '<a href="tel:+49555154545">05551-54545</a>.'
-        + '</div></div>';
-      return h;
-    }
+
     h += '<div class="avjtab-reihe">'
-      + zelle('avjtab-gelb','1 Monat<br><span class="kl2">4 Wochen &middot; 28 Tage</span>',
-              'grid-column:1')
-      + zelle('avjtab-grau', wert(lzKm(c), lzPreis(c)), 'grid-column:2/6')
+      + zelle('avjtab-gelb', c.lzAnfrage
+          ? 'ab 4 Wochen<br><span class="kl2">28 Tage</span>'
+          : '1 Monat<br><span class="kl2">4 Wochen &middot; 28 Tage</span>',
+          'grid-column:1')
+      + zelle('avjtab-grau', c.lzAnfrage
+          ? '<b>Preis auf Anfrage</b>'
+          : wert(lzKm(c), lzPreis(c)), 'grid-column:2/6')
       + zelle('avjtab-grau', extraKm(c), 'grid-column:6')
       + '</div>';
+
     h += '<div class="avjtab-reihe"><div class="avjtab-lang">'
       + 'Zwischen einer und vier Wochen f\u00E4llt der Wochenpreis mit der '
       + 'Mietdauer \u2014 den genauen Betrag zeigt der Preisrechner. '
-      + '<b>\u00DCber vier Wochen: Preis auf Anfrage</b>, '
-      + '<a href="tel:+49555154545">05551-54545</a>.'
+      + '<b>' + (c.lzAnfrage ? 'Ab' : '\u00DCber') + ' vier Wochen: Preis auf '
+      + 'Anfrage</b>, <a href="tel:+49555154545">05551-54545</a>.'
       + '</div></div>';
     return h;
   }

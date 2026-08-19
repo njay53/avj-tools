@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 45 · Onepage v44 · 19.08.2026**
+**Stand: Build 46 · Onepage v46 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1993,3 +1993,121 @@ Goldstandard: identisch mit Build 44.
 
 `version.json` entsteht erst beim nächsten `hochladen.command`. Bis
 dahin bekommt die App eine 404 und schweigt — genau wie vorgesehen.
+
+---
+
+## 35. Build 46 / Onepage v46 — der Schalter versteckt nur noch den Monat
+
+### Was falsch war
+
+Niran, nach dem Hochladen von Build 45:
+
+> „wenn ich es deaktiviere für den Kunden steht da immer noch ab 8 Tage.
+> ich weiß das hatten wir gemacht weil wenn ich keinen monatspreis habe
+> der bezug fehlt. hm das heißt ich müsste echt immer erstmal den
+> monatspreis angeben. … im tarif rechner sollten 2 und 3 wochen auch
+> rechenbar sein."
+
+Der Haken `lzAnfrage` griff ab Tag 8. Das war zu breit. Zwei und drei
+Wochen sind gängige Anfragen, und sie hängen **nicht** davon ab, ob der
+Vier-Wochen-Preis schon feststeht: fehlt er, wird er geschätzt (Preis
+3 × Woche, Frei-km 2 × Woche, Haftung 3 × Wochensatz), und der Wert
+dient nur als Zielpunkt der Interpolation — gezeigt wird er nie.
+
+Die Schätzung ist auch nicht daneben. Nirans eigene Zahlen:
+
+| er sagt | die Regel rechnet |
+|---|---|
+| 450 €/Woche → 14 Tage „eher 730 bis 800" | **750 €** |
+| 730 € für 14 Tage → 28 Tage „1.460, vielleicht 50–100 weniger" | **1.350 €** |
+
+Beim Vito (950 €/Woche) kommen 1.585 € für 14 Tage heraus, also Faktor
+1,67 statt 2,0 — genau der Korridor, den Niran beschreibt.
+
+### Was jetzt gilt
+
+| Dauer | ohne Haken | mit Haken |
+|---|---|---|
+| 1–7 Tage | Preis | Preis |
+| 8–27 Tage | Preis | **Preis** (vorher: auf Anfrage) |
+| 28 Tage | Preis | auf Anfrage |
+| ab 29 Tagen | auf Anfrage | auf Anfrage |
+
+Der Haken heißt jetzt **„Vier-Wochen-Preis nicht anzeigen"**, nicht mehr
+„Langzeit nicht anzeigen".
+
+### Tariftabelle
+
+Der Block heißt in beiden Fällen **Langzeitmiete** und fängt bei vier
+Wochen an. Die Zeile „ab 8 Tagen / länger als eine Woche" gibt es nicht
+mehr:
+
+* ohne Haken — „1 Monat · 4 Wochen · 28 Tage" mit Betrag und Frei-km
+* mit Haken — „ab 4 Wochen · 28 Tage" mit *Preis auf Anfrage*
+
+Darunter in beiden Fällen der Verweis auf den Preisrechner für alles
+zwischen einer und vier Wochen. Die Haftungszeile „pro Monat" entfällt
+mit Haken wie bisher.
+
+### Kennzeichnung im Rechner
+
+| Dauer | Kennzeichnung |
+|---|---|
+| 7 Tage | Wochentarif |
+| 8–27 Tage | **Mehrwochentarif** (neu) |
+| 28 Tage | Monatstarif |
+| ab 29 Tagen / mit Haken ab 28 | Tarifname „Langzeitmiete", Kennzeichnung die Dauer |
+
+Bis Build 45 war „Mehrwochentarif" der **Tarifname** eines Fahrzeugs
+ohne Preis. Jetzt ist es eine Kennzeichnung neben einem echten Betrag —
+der Tarifname ist dort die Dauer („14 Tage").
+
+### Vorschau im Einstellungsteil
+
+Unter den beiden Langzeitfeldern steht eine Tafel mit vier Punkten:
+7 / 14 / 21 / 28 Tage, je mit Betrag, umgerechnetem Wochenpreis und
+Frei-km. Sie beantwortet die Frage, die vorher nur der Rechner
+beantworten konnte: *was bedeuten diese zwei Anker für die Wochen
+dazwischen?*
+
+* ohne Monatspreis steht dabei „Vier-Wochen-Preis geschätzt (3 × Woche)"
+* mit Haken bleibt der Betrag stehen und darunter steht „Kunde: auf
+  Anfrage" — der Wert wird ja gerade nachkalkuliert, ihn zu verstecken
+  wäre unbrauchbar
+
+Sie zieht bei jeder Eingabe mit (`zeichneLzVorschau()` hängt an
+`renderSettings` und an beiden Wegen von `onSettingInput`).
+
+### Geändert
+
+| Datei | was |
+|---|---|
+| `index.html` | Grenze Tag 8 → Tag 28, Kennzeichnung, Vorschau, CSS |
+| `9sitzer-3-JS` `transporter-3-JS` `pkw-3-JS` | dieselbe Grenze, dieselbe Kennzeichnung |
+| `tariftabelle-2-JS` | `langzeit(c)` neu — ein Block statt zwei Zweigen |
+
+Der Langzeit-Helferblock (`LZ_TAGE`, `lzPreis`, `lzKm`, `lzSb`,
+`lzAnteil`) ist **unverändert** und steht weiter wortgleich an fünf
+Stellen.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `gold.js` | einziger Unterschied zu Build 45: die neue Kennzeichnung „Mehrwochentarif" bei 10 Tagen. **Kein Preis weicht ab.** |
+| `pruefweb41.js` | 240 Fälle, Tool und Website auf den Euro gleich, auch bei 8 / 14 / 21 / 27 / 28 / 29 Tagen |
+| `pruefschalter46.js` | 37 Proben: 7–27 Tage mit und ohne Haken **identisch**, 28 und 29 auf Anfrage, Tabelle sagt „ab 4 Wochen" und nicht mehr „ab 8 Tagen", Gegenprobe ohne Haken |
+| `pruefnamen.js` | auf die neuen Benennungen nachgezogen |
+| `prueftab` `prueflangzeit` `pruefzeile` `prueffuell` `pruefanker` `pruefnot` `pruefverwirf` `pruefnachtrag` `pruefversion` | unverändert grün |
+
+`pruefversion.js` liest die Build-Nummer jetzt aus der gebauten Datei,
+statt sie abzutippen — sonst fällt der Test bei jedem Build um, ohne
+dass etwas kaputt ist.
+
+### Noch offen
+
+* Die Vier-Wochen-Preise selbst will Niran nachrechnen („4 wochen sind
+  doch bisschen zu gering"). Der Haken ist genau dafür da.
+* Anhängertabelle (Tag / Woche / WE, keine km-Stufen, keine Haftung).
+* km-Stufen hinzufügen oder entfernen — z. B. ein drittes
+  Wochenendpaket mit 1.200 km für PKW — geht im Tool weiterhin nicht.

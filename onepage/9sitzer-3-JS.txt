@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 43;
+var AVJ_WEB_BUILD = 46;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
@@ -435,9 +435,10 @@ function avjTrack(name, params){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
-      if(d.days > 7 && car.lzAnfrage){
-        /* Solange der Vier-Wochen-Anker nicht steht, gibt es fuer
-           Kunden gar keinen Langzeitpreis. */
+      if(d.days >= LZ_TAGE && car.lzAnfrage){
+        /* Der Haken versteckt den Vier-Wochen-Preis — nicht die Wochen
+           davor. Zwei und drei Wochen rechnen weiter: dort ist der
+           Monatswert nur Zwischenziel der Staffel, nie die Ausgabe. */
         return { anfrage:true, car:car, d:d, tage:d.days };
       }
       if(d.days > LZ_TAGE){
@@ -460,8 +461,9 @@ function avjTrack(name, params){
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
-      if(d.days === 7)       badge = "Wochentarif";
-      if(d.days === LZ_TAGE) badge = "Monatstarif";
+      if(d.days === 7)                   badge = "Wochentarif";
+      if(d.days > 7 && d.days < LZ_TAGE) badge = "Mehrwochentarif";
+      if(d.days === LZ_TAGE)             badge = "Monatstarif";
     }
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
@@ -535,16 +537,13 @@ function avjTrack(name, params){
     if(r.anfrage){
       /* Kein Preis, aber die Nummer steht da — keine Sackgasse. */
       $("avjPrice").textContent = "auf Anfrage";
-      /* "Langzeitmiete" passt erst ab vier Wochen. Darunter greift
-         der Schalter, das ist ein Mehrwochentarif. */
-      var lang = r.tage >= LZ_TAGE;
-      $("avjTarifLabel").textContent = lang ? "Langzeitmiete" : "Mehrwochentarif";
+      /* Hier landet seit v46 nur noch, wer vier Wochen oder laenger
+         will. Die Wochen davor rechnen immer. */
+      $("avjTarifLabel").textContent = "Langzeitmiete";
       setzeKennzeichnung(r.tage + " Tage");
       $("avjLines").innerHTML =
-        '<li class="hint"><b>' + (lang
-          ? "Ab vier Wochen machen wir dir ein pers\u00F6nliches Angebot."
-          : "F\u00FCr diese Mietdauer machen wir dir ein pers\u00F6nliches Angebot.")
-        + '</b> Der Preis h\u00E4ngt von Fahrzeug, '
+        '<li class="hint"><b>Ab vier Wochen machen wir dir ein '
+        + 'pers\u00F6nliches Angebot.</b> Der Preis h\u00E4ngt von Fahrzeug, '
         + 'Laufzeit und Kilometern ab \u2014 das rechnen wir dir gern durch.</li>'
         + '<li class="hint">Ruf uns an oder schreib per WhatsApp: '
         + '<b>05551-54545</b></li>';

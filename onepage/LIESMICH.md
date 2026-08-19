@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 44 · 19.08.2026
+# Onepage-Felder · Stand Version 46 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -13,9 +13,9 @@ in den CSS-Kasten, `…-3-JS.txt` in den JS-Kasten.
 
 | Feld | Dateien | wohin | eingebaut |
 |---|---|---|---|
-| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v43** |
-| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v43** |
-| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v43** |
+| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
+| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
+| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
 | **Tariftabellen · Motor** | `tariftabelle-1-CSS` `-2-JS` | Fahrzeugseite, einmal | neu |
 | **Tariftabellen · je Popup** | siehe `tariftabelle-3-EINBAU.txt` | in jedes Fahrzeug-Popup | neu |
 | **Notfallhinweis** | `stoerung-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite, einmal | neu |
@@ -134,7 +134,7 @@ stehen beide in der Tabelle.
 
 ---
 
-## Langzeit (ab v41)
+## Langzeit (ab v41, neu geregelt in v46)
 
 Bis sieben Tage rechnet alles wie bisher. Darüber gilt ein zweiter
 Anker: **vier Wochen = 28 Tage**. Zwischen Woche und Monat wird linear
@@ -148,15 +148,47 @@ Frei-km 2 × Wochen-km, Haftung 3 × Wochensatz. Diese Regel steht
 und noch einmal im Tariftabellen-Motor. Wer sie ändert, ändert sie
 überall, sonst rechnet die Website anders als der Betrieb.
 
-**Schalter je Fahrzeug (ab v42):** im Tool gibt es unter den
-Langzeitfeldern den Haken *„Langzeit nicht anzeigen"*. Ist er gesetzt,
-zeigen Rechner und Tabelle ab Tag 8 nur noch „Preis auf Anfrage" mit der
-Telefonnummer. Der Haken (`lzAnfrage`) steht im Fahrzeugdatensatz und geht
-mit der Freigabe raus.
+Die Schätzung ist kein Notbehelf, sondern der Normalfall: sie trifft
+Nirans eigene Erwartung. Eine Woche 450 € ergibt für 14 Tage 750 € —
+er nennt 730 bis 800. Für 28 Tage ergibt sie 1.350 €; er rechnet mit
+rund 1.360 bis 1.410. Ein Monatspreis muss also **nicht** für jedes
+Fahrzeug eingetragen werden, er verschiebt die Staffel nur dort, wo
+Niran es genauer will.
 
-Geprüft wird das mit `pruefweb41.js`: Tool und Website laufen
-nebeneinander, 240 Fälle über alle Fahrzeuge, SB-Stufen, Mietdauern und
-Kilometerstände — jeder Preis muss auf den Euro gleich sein.
+**Schalter je Fahrzeug (v42, Bedeutung geändert in v46):** im Tool steht
+unter den Langzeitfeldern der Haken *„Vier-Wochen-Preis nicht anzeigen"*.
+
+| | ohne Haken | mit Haken |
+|---|---|---|
+| 1–7 Tage | Preis | Preis |
+| 8–27 Tage | Preis | **Preis** (v45: auf Anfrage) |
+| 28 Tage | Preis | auf Anfrage |
+| ab 29 Tagen | auf Anfrage | auf Anfrage |
+
+Bis v45 stieg der Rechner mit Haken schon ab Tag 8 aus. Das war zu viel:
+zwei und drei Wochen sind gängige Anfragen, und sie hängen nicht davon
+ab, ob der Monatspreis schon feststeht — der Monatswert ist dort nur
+Zwischenziel der Staffel und wird nie gezeigt.
+
+In der **Tariftabelle** heißt der Block jetzt in beiden Fällen
+*Langzeitmiete* und fängt bei vier Wochen an:
+
+* ohne Haken — Zeile „1 Monat · 4 Wochen · 28 Tage" mit Betrag und Frei-km
+* mit Haken — Zeile „ab 4 Wochen · 28 Tage" mit *Preis auf Anfrage*
+
+Darunter steht in beiden Fällen der Verweis auf den Preisrechner für
+alles zwischen einer und vier Wochen. Die Haftungszeile „pro Monat"
+entfällt mit Haken.
+
+Im Einstellungsteil steht unter den beiden Feldern eine **Vorschau**:
+7 / 14 / 21 / 28 Tage mit Betrag, umgerechnetem Wochenpreis und Frei-km.
+Sie zeigt auch dann Zahlen, wenn kein Monatspreis eingetragen ist, und
+sagt dazu, dass geschätzt wird. Mit Haken bleibt der Betrag stehen —
+darunter steht „Kunde: auf Anfrage".
+
+Geprüft wird das mit `pruefweb41.js` (240 Fälle Tool gegen Website, jeder
+Preis auf den Euro gleich) und `pruefschalter46.js` (der Haken über Tool,
+Kundenrechner und Tabelle hinweg).
 
 ---
 

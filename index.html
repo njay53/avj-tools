@@ -1559,6 +1559,31 @@
   background:transparent;color:#8A96A3;font-size:19px;
   padding:2px 6px;line-height:1;
 }
+/* ══════════════════════════════════════════════════════════════
+   Build 46 · Vorschau auf die Langzeitstaffel
+   ══════════════════════════════════════════════════════════════ */
+.avjt-lzv{margin:8px 0 4px;}
+.avjt-lzt{
+  font-size:10.5px;color:#8A96A3;line-height:1.45;margin-bottom:5px;
+}
+.avjt-lzr{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.avjt-lzp{
+  background:#F4F6F8;border-radius:7px;padding:6px 8px;line-height:1.35;
+}
+.avjt-lzp.aus{background:#FBF3E4;}
+.avjt-lzp .t{
+  font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:#8A96A3;font-weight:700;
+}
+.avjt-lzp .p{font-size:14px;font-weight:700;color:#111C2E;}
+.avjt-lzp .w,.avjt-lzp .k{font-size:10.5px;color:#5A6675;}
+.avjt-lzp .x{
+  font-size:10px;font-weight:700;color:#9A6B12;margin-top:3px;
+  letter-spacing:.01em;
+}
+@media(max-width:600px){
+  .avjt-lzr{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
@@ -3878,10 +3903,13 @@ function AVJ_RECHNER(CFG){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
-      if(d.days > 7 && car.lzAnfrage){
-        /* Solange der Vier-Wochen-Anker nicht steht, gibt es fuer
-           Kunden gar keinen Langzeitpreis — lieber ein Anruf als eine
-           Zahl, die noch nicht stimmt. */
+      if(d.days >= LZ_TAGE && car.lzAnfrage){
+        /* Der Haken versteckt den Vier-Wochen-Preis — nicht die Wochen
+           davor. Zwei und drei Wochen rechnen weiter: dort ist der
+           Monatswert nur Zwischenziel der Staffel, nie die Ausgabe.
+           Bis Build 45 stieg der Rechner schon ab Tag 8 aus, dann
+           musste fuer jedes Fahrzeug erst ein Monatspreis stehen,
+           bevor ueberhaupt etwas rechenbar war. */
         return { anfrage:true, car:car, d:d, tage:d.days };
       }
       if(d.days > LZ_TAGE){
@@ -3913,8 +3941,9 @@ function AVJ_RECHNER(CFG){
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
-      if(d.days === 7)       badge = "Wochentarif";
-      if(d.days === LZ_TAGE) badge = "Monatstarif";
+      if(d.days === 7)                   badge = "Wochentarif";
+      if(d.days > 7 && d.days < LZ_TAGE) badge = "Mehrwochentarif";
+      if(d.days === LZ_TAGE)             badge = "Monatstarif";
     }
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
@@ -4000,17 +4029,14 @@ function AVJ_RECHNER(CFG){
       /* Kein Preis, aber auch keine Sackgasse: die Nummer steht da. */
       $("Price").textContent = "auf Anfrage";
       syncDiscount(0);
-      /* Ab acht Tagen kann der Schalter greifen, ab 29 Tagen greift die
-         Grenze. Beides landet hier — aber "Langzeitmiete" passt erst ab
-         vier Wochen. */
-      var lang = r.tage >= LZ_TAGE;
-      $("TarifLabel").textContent = lang ? "Langzeitmiete" : "Mehrwochentarif";
+      /* Hier landet seit Build 46 nur noch, wer vier Wochen oder laenger
+         will. Die Wochen davor rechnen immer — deshalb keine Fallunter-
+         scheidung mehr. */
+      $("TarifLabel").textContent = "Langzeitmiete";
       setzeKennzeichnung(r.tage + " Tage");
       $("Lines").innerHTML =
-        '<li class="hint"><b>' + (lang
-          ? "Ab vier Wochen machen wir dir ein pers\u00F6nliches Angebot."
-          : "F\u00FCr diese Mietdauer machen wir dir ein pers\u00F6nliches Angebot.")
-        + '</b> Der Preis h\u00E4ngt von Fahrzeug, '
+        '<li class="hint"><b>Ab vier Wochen machen wir dir ein '
+        + 'pers\u00F6nliches Angebot.</b> Der Preis h\u00E4ngt von Fahrzeug, '
         + 'Laufzeit und Kilometern ab \u2014 das rechnen wir dir gern durch.</li>'
         + '<li class="hint">Ruf uns an oder schreib per WhatsApp: '
         + '<b>05551-54545</b></li>';
@@ -5132,12 +5158,15 @@ function AVJ_RECHNER(CFG){
       +  '<input type="number" step="50" data-rate="monthKm" placeholder="'
       +    lzKm(car) + '" value="'+(car.monthKm||"")+'"></div>'
       +  '</div>'
+      +  '<div class="avjt-lzv" id="' + P + 'LzVorschau"></div>'
       +  '<label class="avjt-schalter"><input type="checkbox" '
       +    'data-schalter="lzAnfrage"' + (car.lzAnfrage ? " checked" : "") + '>'
-      +    '<span><b>Langzeit nicht anzeigen \u2014 "Preis auf Anfrage"</b>'
-      +    '<em>Gilt ab Tag 8, im Rechner und in der Tariftabelle. Die Werte '
-      +    'oben bleiben gespeichert, sie werden nur nicht gezeigt. Haken '
-      +    'setzen, solange der Vier-Wochen-Preis noch nicht steht.</em></span>'
+      +    '<span><b>Vier-Wochen-Preis nicht anzeigen \u2014 "auf Anfrage"</b>'
+      +    '<em>Gilt ab 28 Tagen, im Rechner und in der Tariftabelle. Zwei und '
+      +    'drei Wochen rechnen weiter \u2014 der Monatswert ist dort nur '
+      +    'Zwischenziel der Staffel und wird nie gezeigt. Die Werte oben '
+      +    'bleiben gespeichert. Haken setzen, solange der Vier-Wochen-Preis '
+      +    'noch nicht steht.</em></span>'
       +  '</label>';
 
     for(var s=1;car.sb && s<car.sb.length;s++){
@@ -5201,9 +5230,49 @@ function AVJ_RECHNER(CFG){
       +  '</div>';
     $("SetBody").innerHTML = h;
     updateDeltas();
+    zeichneLzVorschau();
     try{ AVJ_EDITOR.bloecke(P + "SetBody"); }catch(e){}
     zeichneKundenstand();
     AVJ_PREISE.zeigeQuelle();
+  }
+
+  /* Was die beiden Anker fuer die Wochen dazwischen bedeuten, sah man
+     bisher erst im Rechner. Hier steht es direkt unter den Feldern —
+     auch und gerade dann, wenn kein Monatspreis eingetragen ist und
+     geschaetzt wird. Das war Nirans Frage: wie kommt er ohne
+     Monatspreis auf zwei und drei Wochen?
+
+     Mitgerechnet wird der Wochenpreis, weil er in dieser Groesse denkt
+     ("eine Woche 450, zwei Wochen eher 730 bis 800"). */
+  function zeichneLzVorschau(){
+    var el = $("LzVorschau"); if(!el) return;
+    var car = CARS[carKey];
+    if(!car || !car.tier || !car.tier[6] || !car.tierKm){ el.innerHTML = ""; return; }
+    var punkte = [7, 14, 21, LZ_TAGE], h = "";
+    for(var i=0;i<punkte.length;i++){
+      var tage = punkte[i], p, k;
+      if(tage <= 7){
+        p = car.tier[6]; k = car.tierKm[6];
+      } else {
+        var a = lzAnteil(tage);
+        p = mRund5( car.tier[6]   + a * (lzPreis(car) - car.tier[6]));
+        k = mRund50(car.tierKm[6] + a * (lzKm(car)    - car.tierKm[6]));
+      }
+      /* Der Betrag bleibt auch mit Haken stehen — Niran kalibriert ihn
+         ja gerade. Was der Kunde stattdessen sieht, steht darunter. */
+      var versteckt = car.lzAnfrage && tage >= LZ_TAGE;
+      h += '<div class="avjt-lzp' + (versteckt ? ' aus' : '') + '">'
+        +  '<div class="t">' + tage + ' Tage</div>'
+        +  '<div class="p">' + eur(p) + ' \u20AC</div>'
+        +  '<div class="w">' + eur(p / (tage / 7)) + ' \u20AC je Woche</div>'
+        +  '<div class="k">' + num(k) + ' km</div>'
+        +  (versteckt ? '<div class="x">Kunde: auf Anfrage</div>' : '')
+        +  '</div>';
+    }
+    el.innerHTML =
+      '<div class="avjt-lzt">Daraus rechnet der Rechner'
+      + (car.monthPrice > 0 ? '' : ' \u2014 Vier-Wochen-Preis gesch\u00E4tzt (3 \u00D7 Woche)')
+      + '</div><div class="avjt-lzr">' + h + '</div>';
   }
 
   function onSettingInput(e){
@@ -5217,8 +5286,8 @@ function AVJ_RECHNER(CFG){
       if(el.checked) car[schalter] = true;
       else           delete car[schalter];
       _gridCache = {};
-      saveCfg(); renderSb(); render(); zeichneKundenstand();
-      flashSaved(el.checked ? "Langzeit: auf Anfrage" : "Langzeit: Preis sichtbar");
+      saveCfg(); renderSb(); render(); zeichneKundenstand(); zeichneLzVorschau();
+      flashSaved(el.checked ? "Vier Wochen: auf Anfrage" : "Vier Wochen: Preis sichtbar");
       return;
     }
 
@@ -5256,6 +5325,7 @@ function AVJ_RECHNER(CFG){
 
     _gridCache = {};      /* Paketraster neu berechnen */
     saveCfg();
+    zeichneLzVorschau();
     try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
     flashSaved();
     updateDeltas();
@@ -6093,7 +6163,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 45;
+var AVJ_BUILD = 46;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
