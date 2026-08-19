@@ -741,9 +741,9 @@
   },
   "transporter": {
     "m": {
-      "name": "Transporter M",
+      "name": "Transporter M Kasten",
       "frSaPlus": 5,
-      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Renault Trafic L2H1",
+      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Renault Trafic L2H1",
       "planKm": 0.2,
       "overKm": 0.3,
       "dayMoDo": [
@@ -881,14 +881,14 @@
         "karosserie": "Kastenwagen",
         "kraftstoff": "Diesel",
         "getriebe": "Handschaltung",
-        "zusatz": "z. B. Renault Trafic L2H1"
+        "zusatz": "z.B. Renault Trafic L2H1"
       },
       "lzAnfrage": true
     },
     "xl": {
-      "name": "Transporter XL",
+      "name": "Transporter XL / L3H2",
       "frSaPlus": 10,
-      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z. B. Mercedes Sprinter L3",
+      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Mercedes Sprinter o. MAN TGE",
       "planKm": 0.26,
       "overKm": 0.37,
       "dayMoDo": [
@@ -1026,7 +1026,7 @@
         "karosserie": "Kastenwagen",
         "kraftstoff": "Diesel",
         "getriebe": "Handschaltung",
-        "zusatz": "z. B. Mercedes Sprinter L3"
+        "zusatz": "z.B. Mercedes Sprinter o. MAN TGE"
       },
       "lzAnfrage": true
     }
