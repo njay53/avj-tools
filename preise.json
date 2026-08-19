@@ -1,7 +1,7 @@
 {
   "version": 1,
   "stand": "19.08.2026",
-  "erzeugtVon": "AVJ Tools Build 42",
+  "erzeugtVon": "AVJ Tools Build 45",
   "lb": {
     "yaris": {
       "name": "Low-Budget",
@@ -734,8 +734,7 @@
         "kraftstoff": "Diesel",
         "getriebe": "Automatik",
         "zusatz": "119 extralang"
-      },
-      "lzAnfrage": true
+      }
     }
   },
   "transporter": {
