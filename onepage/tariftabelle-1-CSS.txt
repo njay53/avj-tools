@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Aussehen
-   Version 39 · 19.08.2026
+   Version 41 · 19.08.2026
 
    Eigene Vorsilbe avjtab- , damit sich nichts mit den Rechnern
    beisst (die benutzen avj- , avjt- und avjp-).
@@ -84,6 +84,14 @@
 .avjtab-firma img{ display:block; width:178px; height:auto; margin:0 0 3px auto; }
 .avjtab-firma .adr{ font-size:11px; font-style:normal; line-height:1.42; }
 .avjtab-firma .adr a{ color:#000; }
+
+/* Hinweis unter dem Langzeitblock */
+.avjtab-lang{
+  grid-column:1 / -1; background:#F4F6FA; border-left:5px solid #0018C4;
+  display:block; text-align:left; padding:9px 13px;
+  font-size:13px; line-height:1.5;
+}
+.avjtab-lang a{ color:#0018C4; font-weight:700; text-decoration:none; }
 
 /* Störungshinweis, wenn zu dem Fahrzeug keine Preise da sind */
 .avjtab-stoer{

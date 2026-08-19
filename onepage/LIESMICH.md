@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 39 · 19.08.2026
+# Onepage-Felder · Stand Version 41 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -13,9 +13,9 @@ in den CSS-Kasten, `…-3-JS.txt` in den JS-Kasten.
 
 | Feld | Dateien | wohin | eingebaut |
 |---|---|---|---|
-| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja |
-| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja |
-| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | noch nicht |
+| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
+| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
+| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
 | **Tariftabellen · Motor** | `tariftabelle-1-CSS` `-2-JS` | Fahrzeugseite, einmal | neu |
 | **Tariftabellen · je Popup** | siehe `tariftabelle-3-EINBAU.txt` | in jedes Fahrzeug-Popup | neu |
 | **Notfallhinweis** | `stoerung-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite, einmal | neu |
@@ -124,6 +124,26 @@ Auf `false` zeigt die Spalte „je extra km“ nur den ungeplanten Satz —
 genau wie die bisherigen JPGs. Der Rechner rechnet aber mit zwei
 Sätzen: vorab geplante Mehrkilometer sind günstiger. Auf `true`
 stehen beide in der Tabelle.
+
+---
+
+## Langzeit (ab v41)
+
+Bis sieben Tage rechnet alles wie bisher. Darüber gilt ein zweiter
+Anker: **vier Wochen = 28 Tage**. Zwischen Woche und Monat wird linear
+interpoliert, dadurch fällt der Wochenpreis mit der Dauer. **Ab Tag 29**
+zeigt der Rechner keinen Preis mehr, sondern *„auf Anfrage"* mit der
+Telefonnummer.
+
+Fehlt der Monatsanker beim Fahrzeug, wird er geschätzt: Preis 3 × Woche,
+Frei-km 2 × Wochen-km, Haftung 3 × Wochensatz. Diese Regel steht
+**wortgleich an vier Stellen** — im Tool und in den drei Rechner-Feldern,
+und noch einmal im Tariftabellen-Motor. Wer sie ändert, ändert sie
+überall, sonst rechnet die Website anders als der Betrieb.
+
+Geprüft wird das mit `pruefweb41.js`: Tool und Website laufen
+nebeneinander, 240 Fälle über alle Fahrzeuge, SB-Stufen, Mietdauern und
+Kilometerstände — jeder Preis muss auf den Euro gleich sein.
 
 ---
 

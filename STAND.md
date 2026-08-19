@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 40 · Onepage v39 · 19.08.2026**
+**Stand: Build 41 · Onepage v41 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1592,3 +1592,94 @@ prüfen. Dazu Rasterung, Widerruf und die Fehlermeldung.
 
 Goldstandard: 1.666 Zeilen, identisch mit Build 37. Popup-Zeile und
 Zurücksetzen aus 38/39 unverändert grün.
+
+---
+
+## 29. Build 41 / Onepage v41 — Langzeit bis vier Wochen, danach auf Anfrage
+
+Niran: *„wenn ein Kunde 2 Wochen 3 oder 4 Wochen eingibt müsste der
+Wochenpreis definitiv noch mehr fallen."* Nachgerechnet — er hat recht:
+
+```
+Vito, alte Rechnung   Woche 1: 950   Woche 4: 893
+```
+
+Ab Tag 8 kostete jeder weitere Tag 92 % des Wochen-Tagessatzes. Flach,
+ohne Ende, ohne Mengenrabatt. Bei drei Monaten kam eine Zahl heraus, die
+mit der Wirklichkeit nichts zu tun hatte.
+
+### Die Entscheidung
+
+Zwei Anker, wie überall sonst im Tool: **Woche** und **vier Wochen**,
+dazwischen linear. Ab Tag 29 **kein Automatikpreis mehr**.
+
+Ein Monat sind ab jetzt **28 Tage**. Bisher waren es beim Low Budget 30 —
+zwei Monatsbegriffe im selben Tool wären eine Falle. Der Betrag dort
+bleibt (620 €), nur die Dauer ändert sich; das Fahrzeug ist ohnehin noch
+nicht da.
+
+Ergebnis beim Vito:
+
+| Tage | Preis | je Woche |
+|---|---|---|
+| 7 | 950 | 950 |
+| 10 | 1.220 | 854 |
+| 14 | 1.585 | 793 |
+| 21 | 2.215 | 738 |
+| 28 | 2.850 | 713 |
+| 29+ | — | Preis auf Anfrage |
+
+### Woher die Vorbelegung kommt
+
+Kein geratener Faktor, sondern Nirans eigene Zahlen. Low Budget hatte als
+einziges Fahrzeug schon einen Monatsanker: **620 € bei 210 € Wochenpreis
+= 2,95** und **3.500 km bei 1.800 Wochen-km = 1,94**. Daraus:
+
+- Preis fehlt → **3 × Wochenpreis**
+- Frei-km fehlt → **2 × Wochen-km**
+- Haftung fehlt → **3 × Wochensatz**
+
+Alles überschreibbar, je Fahrzeug ein Feld. Das leere Feld zeigt den
+geschätzten Wert als Platzhalter, damit sichtbar ist, womit gerechnet wird.
+
+### Die Haftung wäre sonst der Bumerang gewesen
+
+Sie lief ab Tag 8 stur linear weiter: Vito SB 500 kostete für vier Wochen
+**600 €** gegenüber 150 € für eine Woche. Das hätte den Mengenrabatt beim
+Preis wieder aufgefressen. Sie bekommt denselben Anker — jetzt 450 €.
+
+### Vier Stellen, eine Regel
+
+`LZ_TAGE`, `lzPreis`, `lzKm`, `lzSb`, `lzAnteil` stehen **wortgleich** in
+`index.html`, in den drei Onepage-Rechnern und im Tariftabellen-Motor.
+Das ist die gefährlichste Stelle des ganzen Projekts: rechnet die Website
+anders als der Betrieb, fällt es erst auf, wenn ein Kunde anruft.
+
+Deshalb ein eigener Test, `pruefweb41.js`: Tool und Website laufen in zwei
+Tabs nebeneinander mit derselben `preise.json`, **240 Fälle** über drei
+Kategorien, sechs Fahrzeuge, zwei SB-Stufen, zehn Mietdauern (1 bis 45
+Tage) und zwei Kilometerstände. Jeder Preis muss auf den Euro
+übereinstimmen. Ergebnis: identisch.
+
+### Tariftabelle
+
+Neuer Block **Langzeit** mit der Zeile „1 Monat · 4 Wochen · 28 Tage",
+dem Hinweis *„Über vier Wochen: Preis auf Anfrage"* samt Nummer, und in
+der Haftungstabelle eine Zeile **pro Monat (4 Wochen)**. Die Monatszeile
+aus dem Low-Budget-Zweig ist entfallen — der neue Block gilt für alle.
+
+### Goldstandard
+
+Bewusst neu gesetzt. Auswertung der 832 Fälle gegen Build 37:
+
+- **bis 7 Tage: 0 Änderungen** ✓ — der Kurzzeitbereich bleibt unangetastet
+- über 7 Tage: 191 Fälle geändert, wie beabsichtigt
+
+`gold-b41.txt` ist ab jetzt die Bezugsgröße.
+
+### Was Niran noch tun muss
+
+Die Vorbelegung ist eine Schätzung, kein Preis. Die vier-Wochen-Werte
+gehören durchgesehen — er sagte selbst, die Mehrwochenpreise seien
+generell noch zu hoch. Das Feld dafür steht in *Tarif Config.* unter
+„Langzeit – vier Wochen (28 Tage)", die Haftung daneben unter „28 T".

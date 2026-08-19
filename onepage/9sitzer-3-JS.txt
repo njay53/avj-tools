@@ -1,6 +1,6 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 37;
-var AVJ_WEB_DATE  = "18.08.2026";
+var AVJ_WEB_BUILD = 41;
+var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
   if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
@@ -278,6 +278,30 @@ function avjTrack(name, params){
   var eur = function(n){ return Math.round(n).toLocaleString("de-DE"); };
   var num = function(n){ return Math.round(n).toLocaleString("de-DE"); };
 
+
+  /* ═══ Langzeit ══════════════════════════════════════════════════
+     Vier Wochen sind die Grenze. Bis dahin wird zwischen Wochen- und
+     Monatsanker interpoliert, danach gibt es keinen Automatikpreis mehr.
+     Wortgleich mit dem Tool — wer hier etwas aendert, aendert es dort
+     auch, sonst rechnet die Website anders als der Betrieb. */
+  var LZ_TAGE = 28;
+  function mRund5(n){  return Math.max(5,  Math.round(n / 5)  * 5);  }
+  function mRund50(n){ return Math.max(50, Math.round(n / 50) * 50); }
+  function lzPreis(car){
+    if(car.monthPrice > 0) return car.monthPrice;
+    return mRund5((car.tier ? car.tier[6] : 0) * 3);
+  }
+  function lzKm(car){
+    if(car.monthKm > 0) return car.monthKm;
+    return mRund50((car.tierKm ? car.tierKm[6] : 0) * 2);
+  }
+  function lzSb(stufe){
+    if(!stufe || !stufe.tier) return 0;
+    if(stufe.monat !== undefined && stufe.monat !== null) return stufe.monat;
+    return Math.round(stufe.tier[6] * 3);
+  }
+  function lzAnteil(tage){ return (tage - 7) / (LZ_TAGE - 7); }
+
   /* ─── Datum / Dauer ──────────────────────────────────────── */
   function parseDT(dEl, tEl){
     var d = $(dEl).value, t = $(tEl).value || "09:00";
@@ -410,20 +434,28 @@ function avjTrack(name, params){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
+      if(d.days > LZ_TAGE){
+        /* Ueber vier Wochen kein Automatikpreis mehr — das verhandelt
+           Niran persoenlich. */
+        return { anfrage:true, car:car, d:d, tage:d.days };
+      }
       if(d.days > 7){
-        var extra = d.days - 7;
-        base   += extra * (car.tier[6] / 7) * 0.92;
-        freeKm += Math.round(extra * car.tierKm[6] / 7);
+        var anteil = lzAnteil(d.days);
+        base   = mRund5( car.tier[6]   + anteil * (lzPreis(car) - car.tier[6]));
+        freeKm = mRund50(car.tierKm[6] + anteil * (lzKm(car)    - car.tierKm[6]));
       }
       if(hatSb){
-        var sbTier = car.sb[sbIdx].tier;
+        var stufe = car.sb[sbIdx], sbTier = stufe.tier;
         sbCost = sbTier[Math.min(d.days, 7) - 1];
-        if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+        if(d.days > 7){
+          sbCost = Math.round(sbTier[6] + lzAnteil(d.days) * (lzSb(stufe) - sbTier[6]));
+        }
       } else {
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
-      if(d.days === 7) badge = "Wochentarif";
+      if(d.days === 7)       badge = "Wochentarif";
+      if(d.days === LZ_TAGE) badge = "Monatstarif";
     }
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
@@ -477,6 +509,21 @@ function avjTrack(name, params){
     renderDur();
     var q = $("avjOut");
     var r = quote();
+
+    if(r.anfrage){
+      /* Kein Preis, aber die Nummer steht da — keine Sackgasse. */
+      $("avjPrice").textContent = "auf Anfrage";
+      $("avjTarifLabel").textContent = "Langzeitmiete";
+      $("avjBadge").textContent = r.tage + " Tage";
+      $("avjLines").innerHTML =
+        '<li class="hint"><b>Ab vier Wochen machen wir dir ein pers\u00F6nliches '
+        + 'Angebot.</b> Bei Langzeitmieten h\u00E4ngt der Preis von Fahrzeug, '
+        + 'Laufzeit und Kilometern ab \u2014 das rechnen wir dir gern durch.</li>'
+        + '<li class="hint">Ruf uns an oder schreib per WhatsApp: '
+        + '<b>05551-54545</b></li>';
+      $("avjKmHint").textContent = "Frei-Kilometer nach Absprache";
+      return;
+    }
 
     if(r.empty || r.invalid){
       $("avjPrice").textContent = "\u2014";
@@ -538,7 +585,9 @@ function avjTrack(name, params){
       +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
 
     if(r.mode === "tier" && r.d.days > 7){
-      L += '<li class="hint">\u00DCber sieben Tage rechnen wir individuell \u2014 dieser Wert ist ein N\u00E4herungswert.</li>';
+      L += '<li class="hint">Langzeittarif: je l\u00E4nger die Miete, desto '
+        +  'g\u00FCnstiger die Woche. Ab vier Wochen machen wir dir ein '
+        +  'pers\u00F6nliches Angebot.</li>';
     }
     if(r.mode === "we"){
       L += '<li class="hint">Wochenendtarif: Abholung ab Freitag 12:00 Uhr, R\u00FCckgabe bis Montag 10:00 Uhr.</li>';

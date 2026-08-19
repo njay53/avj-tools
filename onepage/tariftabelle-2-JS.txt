@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 39 · 19.08.2026
+   Version 41 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -980,6 +980,28 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     return '<div class="avjtab-km">' + kmTxt(kmv) + '</div>'
          + '<div class="avjtab-pr">' + eur(preis) + '</div>';
   }
+  /* ─── Langzeit ───────────────────────────────────────────────────
+     Wortgleiche Regel wie im Tool und in den Rechnern: vier Wochen
+     sind der zweite Anker, darueber gibt es keinen Automatikpreis.
+     Fehlt der Anker beim Fahrzeug, wird er geschaetzt — sonst wuerde
+     die Tabelle etwas anderes zeigen als der Rechner rechnet. */
+  var LZ_TAGE = 28;
+  function mRund5(n){  return Math.max(5,  Math.round(n / 5)  * 5);  }
+  function mRund50(n){ return Math.max(50, Math.round(n / 50) * 50); }
+  function lzPreis(c){
+    if(c.monthPrice > 0) return c.monthPrice;
+    return mRund5((c.tier ? c.tier[6] : 0) * 3);
+  }
+  function lzKm(c){
+    if(c.monthKm > 0) return c.monthKm;
+    return mRund50((c.tierKm ? c.tierKm[6] : 0) * 2);
+  }
+  function lzSb(stufe){
+    if(!stufe || !stufe.tier) return 0;
+    if(stufe.monat !== undefined && stufe.monat !== null) return stufe.monat;
+    return Math.round(stufe.tier[6] * 3);
+  }
+
   function extraKm(c){
     if(AVJTAB_GEPLANT && c.planKm && c.overKm && c.planKm !== c.overKm){
       return '<div style="font-size:12.5px;line-height:1.45">vorab geplant<br><b>'
@@ -1129,11 +1151,6 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
       h += '<div class="avjtab-z avjtab-grau">' + kmTxt(c.tierKm[k]) + '</div>';
     }
     h += '</div>';
-    if(c.monthPrice){
-      h += '<div class="avjtab-reihe" style="grid-template-columns:1.55fr 1fr">'
-        + zelle('avjtab-gelb links','<b>1 Monat</b> <span class="kl">30 Tage</span>')
-        + zelle('avjtab-grau', wert(c.monthKm || 0, c.monthPrice)) + '</div>';
-    }
     h += '<div class="avjtab-reihe" style="grid-template-columns:1.55fr 1fr">'
       + zelle('avjtab-gelb links','<b>je extra km</b>')
       + zelle('avjtab-grau', extraKm(c)) + '</div>';
@@ -1165,6 +1182,28 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     return h;
   }
 
+  /* Eigener Block, weil er fuer jede Kategorie gilt — auch dort, wo
+     es Tagespakete gibt. */
+  function langzeit(c){
+    if(!c.tier || !c.tier[6]) return "";
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Langzeit</div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+    h += '<div class="avjtab-reihe">'
+      + zelle('avjtab-gelb','1 Monat<br><span class="kl2">4 Wochen &middot; 28 Tage</span>',
+              'grid-column:1')
+      + zelle('avjtab-grau', wert(lzKm(c), lzPreis(c)), 'grid-column:2/6')
+      + zelle('avjtab-grau', extraKm(c), 'grid-column:6')
+      + '</div>';
+    h += '<div class="avjtab-reihe"><div class="avjtab-lang">'
+      + 'Zwischen einer und vier Wochen f\u00E4llt der Wochenpreis mit der '
+      + 'Mietdauer \u2014 den genauen Betrag zeigt der Preisrechner. '
+      + '<b>\u00DCber vier Wochen: Preis auf Anfrage</b>, '
+      + '<a href="tel:+49555154545">05551-54545</a>.'
+      + '</div></div>';
+    return h;
+  }
+
   function haftung(c){
     if(!c.sb || !c.sb.length) return "";
     var n = c.sb.length;
@@ -1191,14 +1230,16 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     var zeilen = [['pro Tag', 0]];
     if(c.weekend && c.weekend.length) zeilen.push(['pro Wochenende (WE-Tarif)', 'we']);
     zeilen.push(['pro Woche (7-Tagestarif)', 6]);
+    zeilen.push(['pro Monat (4 Wochen)', 'monat']);
 
     for(var z=0;z<zeilen.length;z++){
       h += '<div class="avjtab-reihe" style="' + raster + '">'
         + zelle('avjtab-gelb links','<b>' + zeilen[z][0] + '</b>');
       for(var q=0;q<n;q++){
         var feld = zeilen[z][1], v;
-        if(feld === 'we') v = c.sb[q].we;
-        else              v = (c.sb[q].tier || [])[feld];
+        if(feld === 'we')         v = c.sb[q].we;
+        else if(feld === 'monat') v = lzSb(c.sb[q]);
+        else                      v = (c.sb[q].tier || [])[feld];
         h += zelle('avjtab-grau', v ? eur(v) : 'inklusive');
       }
       h += '</div>';
@@ -1279,6 +1320,7 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     h += staffel(c);
     h += tagestarife(c);
     h += wochenende(c);
+    h += langzeit(c);
     h += haftung(c);
     h += kaution(c);
     h += fuss(d.stand);

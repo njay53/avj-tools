@@ -2506,14 +2506,23 @@ var AVJ_NEUFZ = (function(){
       satz.ahk = tief(satz.ahk);
       for(var a in satz.ahk) if(satz.ahk[a]) satz.ahk[a] = r5(satz.ahk[a] * pf);
     }
+    /* Der Monatsanker haengt am Wochenpreis, nicht am Tagespreis —
+       sonst verschiebt sich der Langzeitrabatt gegenueber der Vorlage. */
     if(satz.monthPrice) satz.monthPrice = r5(satz.monthPrice / (vorlage.tier[6] || 1) * v.woche);
     if(satz.monthKm)    satz.monthKm    = r50(satz.monthKm * kf2);
+    if(satz.sb){
+      var wf2 = (vorlage.tier && vorlage.tier[6]) ? v.woche / vorlage.tier[6] : 1;
+      for(var sm=0; sm<satz.sb.length; sm++){
+        if(satz.sb[sm] && satz.sb[sm].monat) satz.sb[sm].monat = r5(satz.sb[sm].monat * wf2);
+      }
+    }
 
     /* Aus einer fremden Vorlage koennen Felder mitkommen, die in der
        Zielkategorie niemand liest. Die wandern sonst als tote Daten in
        preise.json und tauchen als Abweichung auf. */
     if(v.ziel){
-      if(v.ziel.langzeit !== "monat"){ delete satz.monthPrice; delete satz.monthKm; }
+      /* Seit Build 41 hat jede Kategorie einen Monatsanker — nichts
+         mehr wegzuwerfen. Nur die Haftung faellt weg, wo es keine gibt. */
       if(!v.ziel.haftung){ delete satz.sb; }
     }
     /* Haftungsstufen und Kaution bleiben sonst, wie sie in der Vorlage stehen */
@@ -2786,7 +2795,7 @@ var AVJ_NEUFZ = (function(){
     if(satz.sb)      mit.push(satz.sb.length + " Haftungsstufen");
     if(satz.kurzzeit) mit.push("Kurzzeittarife");
     if(satz.ahk)     mit.push("AHK");
-    if(satz.monthPrice) mit.push("Monatsanker");
+    if(satz.monthPrice) mit.push("Langzeitanker");
     /* Kommt die Vorlage aus einer anderen Kategorie, ist das keine
        Warnung wert — aber ein Hinweis, damit man es nicht uebersieht. */
     if(v.vorlageEintrag && v.vorlageEintrag.kat !== v.kat){
@@ -3778,37 +3787,37 @@ function AVJ_RECHNER(CFG){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
+      if(d.days > LZ_TAGE){
+        /* Ueber vier Wochen gibt es keinen Automatikpreis. Frueher
+           wurde hier einfach fortgeschrieben — was bei drei Monaten
+           eine Zahl ergab, die mit Nirans Wirklichkeit nichts zu tun
+           hat. Jetzt sagt der Rechner ehrlich, dass er hier aussteigt. */
+        return { anfrage:true, car:car, d:d, tage:d.days };
+      }
       if(d.days > 7){
-        if(CFG.langzeit === "monat"){
-          /* Wo Monatsmieten ein realistischer Fall sind, wird zwischen
-             Wochen- und Monatspreis interpoliert statt fortgeschrieben. */
-          var mp = car.monthPrice || Math.round(car.tier[6]   * 30/7 * 0.92);
-          var mk = car.monthKm    || Math.round(car.tierKm[6] * 30/7);
-          if(d.days <= 30){
-            var t30 = (d.days - 7) / 23;
-            base   = Math.round(car.tier[6]    + t30 * (mp - car.tier[6]));
-            freeKm = Math.round((car.tierKm[6] + t30 * (mk - car.tierKm[6])) / 50) * 50;
-          } else {
-            var ueber = d.days - 30;
-            base   = Math.round(mp + ueber * (mp / 30));
-            freeKm = Math.round((mk + ueber * (mk / 30)) / 50) * 50;
-          }
-        } else {
-          var extra = d.days - 7;
-          base   += extra * (car.tier[6] / 7) * 0.92;
-          freeKm += Math.round(extra * car.tierKm[6] / 7);
-        }
+        /* Zwei Anker, dazwischen linear — dieselbe Logik wie ueberall
+           sonst im Tool. Dadurch faellt der Wochenpreis mit der Dauer,
+           statt bei 92 % stehen zu bleiben. */
+        var anteil = lzAnteil(d.days);
+        base   = mRund5( car.tier[6]   + anteil * (lzPreis(car) - car.tier[6]));
+        freeKm = mRund50(car.tierKm[6] + anteil * (lzKm(car)    - car.tierKm[6]));
       }
       if(hatSb){
-        var sbTier = car.sb[sbIdx].tier;
+        var stufe = car.sb[sbIdx], sbTier = stufe.tier;
         sbCost = sbTier[Math.min(d.days, 7) - 1];
-        if(d.days > 7) sbCost += Math.round((d.days - 7) * (sbTier[6] / 7));
+        if(d.days > 7){
+          /* Lief bisher stur linear weiter und haette den Mengenrabatt
+             wieder aufgefressen: beim Vito 600 Haftung fuer vier Wochen
+             gegenueber 150 fuer eine. Jetzt derselbe Anker wie beim
+             Preis. */
+          sbCost = Math.round(sbTier[6] + lzAnteil(d.days) * (lzSb(stufe) - sbTier[6]));
+        }
       } else {
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
-      if(d.days === 7)  badge = "Wochentarif";
-      if(d.days === 30 && CFG.langzeit === "monat") badge = "Monatstarif";
+      if(d.days === 7)       badge = "Wochentarif";
+      if(d.days === LZ_TAGE) badge = "Monatstarif";
     }
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
@@ -3872,6 +3881,22 @@ function AVJ_RECHNER(CFG){
       $("Lines").innerHTML = '<li class="hint">Noch kein Fahrzeug in dieser Kategorie '
         + '— im Reiter <b>Tarif Config.</b> anlegen.</li>';
       $("KmHint").textContent = "Frei-Kilometer richten sich nach der Mietdauer.";
+      return;
+    }
+
+    if(r.anfrage){
+      /* Kein Preis, aber auch keine Sackgasse: die Nummer steht da. */
+      $("Price").textContent = "auf Anfrage";
+      syncDiscount(0);
+      $("TarifLabel").textContent = "Langzeitmiete";
+      $("Badge").textContent = r.tage + " Tage";
+      $("Lines").innerHTML =
+        '<li class="hint"><b>Ab vier Wochen machen wir dir ein pers\u00F6nliches '
+        + 'Angebot.</b> Bei Langzeitmieten h\u00E4ngt der Preis von Fahrzeug, '
+        + 'Laufzeit und Kilometern ab \u2014 das rechnen wir dir gern durch.</li>'
+        + '<li class="hint">Ruf uns an oder schreib per WhatsApp: '
+        + '<b>05551-54545</b></li>';
+      $("KmHint").textContent = "Frei-Kilometer nach Absprache";
       return;
     }
 
@@ -4752,6 +4777,38 @@ function AVJ_RECHNER(CFG){
   var _snapshot = null;
   function takeSnapshot(){ _snapshot = JSON.stringify(CARS); }
 
+  /* ─── Langzeit ──────────────────────────────────────────────────
+     Vier Wochen sind die Grenze. Bis dahin wird zwischen Wochen- und
+     Monatsanker interpoliert, danach gibt es keinen Automatikpreis
+     mehr — zwei, drei Monate verhandelt Niran ohnehin persoenlich.
+
+     28 statt 30 Tage, damit "Monat" und "vier Wochen" dasselbe heissen.
+     Das Feld heisst weiter monthPrice, weil es so schon in preise.json
+     steht; die Bedeutung ist neu, der Name bleibt. */
+  var LZ_TAGE = 28;
+
+  function mRund5(n){  return Math.max(5,  Math.round(n / 5)  * 5);  }
+  function mRund50(n){ return Math.max(50, Math.round(n / 50) * 50); }
+
+  /* Fehlt ein Anker, wird er geschaetzt — aus Nirans eigenen Zahlen:
+     Low Budget hat 620 bei 210 Wochenpreis (Faktor 2,95) und 3500 km
+     bei 1800 Wochen-km (Faktor 1,94). */
+  function lzPreis(car){
+    if(car.monthPrice > 0) return car.monthPrice;
+    return mRund5((car.tier ? car.tier[6] : 0) * 3);
+  }
+  function lzKm(car){
+    if(car.monthKm > 0) return car.monthKm;
+    return mRund50((car.tierKm ? car.tierKm[6] : 0) * 2);
+  }
+  function lzSb(stufe){
+    if(!stufe || !stufe.tier) return 0;
+    if(stufe.monat !== undefined && stufe.monat !== null) return stufe.monat;
+    return Math.round(stufe.tier[6] * 3);
+  }
+  /* Anteil des Weges von einer Woche zu vier Wochen */
+  function lzAnteil(tage){ return (tage - 7) / (LZ_TAGE - 7); }
+
   /* ─── Zwischenwerte aus 1T und 7T ───────────────────────────────
      Beim Anlegen zieht der Dialog die Staffel aus zwei Ankern. Danach
      stand man ohne da: wer 1T und 7T von Hand aendert, hatte fuenf
@@ -4939,22 +4996,34 @@ function AVJ_RECHNER(CFG){
         : '')
       +  '</div>';
 
-    /* Monatsanker: nur dort, wo ab Tag 8 dorthin interpoliert wird */
-    if(CFG.langzeit === "monat"){
-      h += '<div class="avjt-slabel">Monatsanker \u2013 gilt ab Tag 8 als Zielwert</div>'
-        +  '<div class="avjt-sgrid r3">'
-        +  '<div class="avjt-scol"><div class="d">Preis 30 T</div>'
-        +  '<input type="number" step="5" data-rate="monthPrice" value="'+(car.monthPrice||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Frei-km 30 T</div>'
-        +  '<input type="number" step="50" data-rate="monthKm" value="'+(car.monthKm||0)+'"></div>'
-        +  '</div>';
-    }
+    /* Monatsanker \u2014 seit Build 41 fuer jede Kategorie. Ab Tag 8
+       wird zwischen Wochen- und Monatswert interpoliert, ab Tag 29
+       gibt es "Preis auf Anfrage". Leer heisst: geschaetzt aus dem
+       Wochenwert, der Platzhalter im Feld zeigt womit. */
+    h += '<div class="avjt-slabel">Langzeit \u2013 vier Wochen (28 Tage). '
+      +  'Leer lassen sch\u00E4tzt aus dem Wochenwert. Ab Tag 29: Preis auf Anfrage</div>'
+      +  '<div class="avjt-sgrid r3">'
+      +  '<div class="avjt-scol"><div class="d">Preis 28 T</div>'
+      +  '<input type="number" step="5" data-rate="monthPrice" placeholder="'
+      +    lzPreis(car) + '" value="'+(car.monthPrice||"")+'"></div>'
+      +  '<div class="avjt-scol"><div class="d">Frei-km 28 T</div>'
+      +  '<input type="number" step="50" data-rate="monthKm" placeholder="'
+      +    lzKm(car) + '" value="'+(car.monthKm||"")+'"></div>'
+      +  '</div>';
 
     for(var s=1;car.sb && s<car.sb.length;s++){
       h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
-      h += '<div class="avjt-slabel">SB '+car.sb[s].label+" \u2013 Wochenende (\u20AC)</div>"
-        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">WE</div>'
-        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div></div>';
+      h += '<div class="avjt-slabel">SB '+car.sb[s].label
+        +  " \u2013 Wochenende und vier Wochen (\u20AC)</div>"
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">WE</div>'
+        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">28 T</div>'
+        +  '<input type="number" step="5" data-pfad="sb.'+s+'.monat" placeholder="'
+        +    lzSb(car.sb[s]) + '" value="'
+        +    (car.sb[s].monat === undefined || car.sb[s].monat === null ? "" : car.sb[s].monat)
+        +  '"></div>'
+        +  '</div>';
     }
 
 
@@ -5875,7 +5944,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 40;
+var AVJ_BUILD = 41;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
