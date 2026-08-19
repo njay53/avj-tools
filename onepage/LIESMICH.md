@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 51 · 19.08.2026
+# Onepage-Felder · Stand Version 52 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -225,6 +225,22 @@ und wer zuerst läuft, baut den Lader für alle anderen mit. Steht in einer
 Datei eine ältere Fassung, hängt es vom Zufall ab, welche gewinnt.
 
 Das Bauskript prüft das und bricht ab, wenn eine Datei abweicht.
+
+---
+
+## Eigener Mehrkilometer-Satz für Kurzzeit (v52)
+
+Die Kurzzeitzeile nahm bisher den allgemeinen Satz des Fahrzeugs mit.
+Wer die Freigrenze auf 50 km zieht, kann damit nicht weiterrechnen —
+deshalb gibt es jetzt `kurzzeit.overKm`.
+
+Im Tool: *Tarif Config.* → Fahrzeug → Abschnitt **Kurzzeittarife**,
+Feld **Mehr-km bei KZ**. Leer heißt „wie beim Fahrzeug"; der Platzhalter
+zeigt, welcher Satz das gerade ist.
+
+Betrifft **nur** die Kurzzeitzeile der Tabelle. Tages-, Wochenend- und
+Langzeitzeilen behalten den Satz des Fahrzeugs. Der Kundenrechner ist
+gar nicht betroffen — er kennt keine Stundenmieten.
 
 ---
 

@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 51 · 19.08.2026
+   Version 52 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -1011,6 +1011,19 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     return Math.round(stufe.tier[6] * 3);
   }
 
+  /* Kurzzeit darf einen eigenen Mehrkilometer-Satz haben: wer die
+     Freigrenze auf 50 km zieht, kann nicht mit dem Tagessatz weiter-
+     rechnen. Fehlt er, gilt wie bisher der Satz des Fahrzeugs. */
+  function kzExtraKm(c){
+    var kz = c.kurzzeit || {};
+    if(!(kz.overKm > 0)) return extraKm(c);
+    if(AVJTAB_GEPLANT && kz.planKm > 0 && kz.planKm !== kz.overKm){
+      return '<div style="font-size:12.5px;line-height:1.45">vorab geplant<br><b>'
+        + eur(kz.planKm) + '</b><br>bei Rückgabe<br><b>' + eur(kz.overKm) + '</b></div>';
+    }
+    return eur(kz.overKm);
+  }
+
   function extraKm(c){
     if(AVJTAB_GEPLANT && c.planKm && c.overKm && c.planKm !== c.overKm){
       return '<div style="font-size:12.5px;line-height:1.45">vorab geplant<br><b>'
@@ -1092,7 +1105,7 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
       + zelle('avjtab-leer','','grid-row:1')
       + zelle('avjtab-grau','<b>3 Std.</b> ' + kmTxt(c.kurzzeit.km), 'grid-column:2/4;grid-row:1')
       + zelle('avjtab-grau','<b>6 Std.</b> ' + kmTxt(c.kurzzeit.km), 'grid-column:4/6;grid-row:1')
-      + zelle('avjtab-grau', extraKm(c), 'grid-column:6;grid-row:1/4')
+      + zelle('avjtab-grau', kzExtraKm(c), 'grid-column:6;grid-row:1/4')
       + zelle('avjtab-gelb','Mo. - Do.','grid-column:1;grid-row:2')
       + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.moDo[0]) + '</b>','grid-column:2/4;grid-row:2')
       + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.moDo[1]) + '</b>','grid-column:4/6;grid-row:2')

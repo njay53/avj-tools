@@ -5460,11 +5460,11 @@ function AVJ_RECHNER(CFG){
       +  'Leer lassen sch\u00E4tzt aus dem Wochenwert. Ab Tag 29: Preis auf Anfrage</div>'
       +  '<div class="avjt-sgrid r3">'
       +  '<div class="avjt-scol"><div class="d">Preis 28 T</div>'
-      +  '<input type="number" step="5" data-rate="monthPrice" placeholder="'
-      +    lzPreis(car) + '" value="'+(car.monthPrice||"")+'"></div>'
+      +  '<input type="number" step="5" data-rate="monthPrice" data-leer="weg" '
+      +    'placeholder="' + lzPreis(car) + '" value="'+(car.monthPrice||"")+'"></div>'
       +  '<div class="avjt-scol"><div class="d">Frei-km 28 T</div>'
-      +  '<input type="number" step="50" data-rate="monthKm" placeholder="'
-      +    lzKm(car) + '" value="'+(car.monthKm||"")+'"></div>'
+      +  '<input type="number" step="50" data-rate="monthKm" data-leer="weg" '
+      +    'placeholder="' + lzKm(car) + '" value="'+(car.monthKm||"")+'"></div>'
       +  '</div>'
       +  '<div class="avjt-lzv" id="' + P + 'LzVorschau"></div>'
       +  '<label class="avjt-schalter"><input type="checkbox" '
@@ -5485,7 +5485,7 @@ function AVJ_RECHNER(CFG){
         +  '<div class="avjt-scol"><div class="d">WE</div>'
         +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div>'
         +  '<div class="avjt-scol"><div class="d">28 T</div>'
-        +  '<input type="number" step="5" data-pfad="sb.'+s+'.monat" placeholder="'
+        +  '<input type="number" step="5" data-pfad="sb.'+s+'.monat" data-leer="weg" placeholder="'
         +    lzSb(car.sb[s]) + '" value="'
         +    (car.sb[s].monat === undefined || car.sb[s].monat === null ? "" : car.sb[s].monat)
         +  '"></div>'
@@ -5495,7 +5495,13 @@ function AVJ_RECHNER(CFG){
 
     /* Werte, die nur die Preistabelle auf der Website braucht */
     if(car.kurzzeit){
-      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle</div>'
+      /* Der eigene Mehrkilometer-Satz ist freiwillig. Leer = der Satz
+         des Fahrzeugs, und genau der steht als Platzhalter drin — man
+         sieht also immer, womit gerechnet wird. */
+      var kzOver = (car.kurzzeit.overKm > 0) ? car.kurzzeit.overKm : "";
+      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle. '
+        +  'Mehr-km leer: wie beim Fahrzeug ('
+        +  (car.overKm || 0).toFixed(2).replace(".", ",") + ' \u20AC/km)</div>'
         +  '<div class="avjt-sgrid p4">'
         +  '<div class="avjt-scol"><div class="d">Frei-km</div>'
         +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
@@ -5506,8 +5512,12 @@ function AVJ_RECHNER(CFG){
         +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
         +  '</div>'
-        +  '<div class="avjt-sgrid r3"><div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Mehr-km bei KZ</div>'
+        +  '<input type="number" step="0.01" data-pfad="kurzzeit.overKm" data-leer="weg" '
+        +    'placeholder="'+(car.overKm || 0)+'" value="'+kzOver+'"></div>'
         +  '</div>';
     }
     if(car.ahk){
@@ -5596,6 +5606,33 @@ function AVJ_RECHNER(CFG){
       _gridCache = {};
       saveCfg(); renderSb(); render(); zeichneKundenstand(); zeichneLzVorschau();
       flashSaved(el.checked ? "Vier Wochen: auf Anfrage" : "Vier Wochen: Preis sichtbar");
+      return;
+    }
+
+    /* Ein leeres Feld heisst bei den freiwilligen Angaben "nicht
+       gesetzt". Bisher stieg die Funktion hier aus (parseFloat("") ist
+       NaN) und der alte Wert blieb stehen — leeren war unmoeglich.
+       Bewusst OHNE renderSettings: sonst springt der Fokus weg, sobald
+       man ein Feld zum Neutippen leert. */
+    if(el.getAttribute && el.getAttribute("data-leer") === "weg"
+       && String(el.value).trim() === ""){
+      takeSnapshot();
+      var lr = el.getAttribute("data-rate"), lp = el.getAttribute("data-pfad");
+      if(lr){
+        delete car[lr];
+      } else if(lp){
+        var lt = lp.split("."), lz = car, geht = true;
+        for(var li=0; li<lt.length-1; li++){
+          if(lz[lt[li]] === undefined || lz[lt[li]] === null){ geht = false; break; }
+          lz = lz[lt[li]];
+        }
+        if(geht) delete lz[lt[lt.length-1]];
+      }
+      _gridCache = {};
+      saveCfg();
+      render(); updateDeltas();
+      try{ zeichneKundenstand(); }catch(err){}
+      flashSaved("Feld geleert \u2014 es gilt wieder der Standard");
       return;
     }
 
@@ -6485,7 +6522,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 52;
+var AVJ_BUILD = 53;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

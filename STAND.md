@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 52 · Onepage v51 · 19.08.2026**
+**Stand: Build 53 · Onepage v52 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2638,3 +2638,65 @@ löschen. Die fertigen Zeilen stehen in `tariftabelle-3-EINBAU.txt`.
 
 Die drei Rechner-Felder sind **unverändert** (v50) — nur die
 Tariftabellen-Dateien sind neu.
+
+---
+
+## 42. Build 53 / Onepage v52 — Mehrkilometer nur für Kurzzeit
+
+### Die Frage
+
+Niran: *„übersehe ich es oder gibt es kein feld wo ich die mehrkilometer
+nur für kz bearbeiten kann? ich will nämlich die frei km auf nur 50 km
+begrenzen und die mehrkilometer hoch setzen und den 3 und 6 std. preis
+bisschen verringern damit sich M und XL so ein wenig mehr
+unterscheiden."*
+
+Er übersieht nichts — das Feld gab es nicht. Die Kurzzeitzeile hat den
+allgemeinen Satz des Fahrzeugs mitbenutzt. Bei 50 Frei-km auf drei
+Stunden ist das zu billig: wer die Freigrenze eng zieht, muss den Satz
+danebenlegen können.
+
+Vorhanden waren schon: Frei-km (`kurzzeit.km`) und die vier Preise
+(3 / 6 Std., Mo–Do und Fr/Sa).
+
+### Neu
+
+`kurzzeit.overKm`, freiwillig. Feld **Mehr-km bei KZ** im Abschnitt
+Kurzzeittarife. Leer = Satz des Fahrzeugs, der Platzhalter zeigt welcher.
+
+Wirkt **nur** in der Kurzzeitzeile der Tariftabelle. Tages-, Wochenend-
+und Langzeitzeilen behalten den Fahrzeugsatz. Der Kundenrechner ist
+nicht betroffen — er rechnet keine Stundenmieten.
+
+### Nebenbei: freiwillige Felder ließen sich nicht leeren
+
+`onSettingInput` stieg bei leerem Feld aus (`parseFloat("")` ist `NaN`),
+der alte Wert blieb also stehen — ein einmal gesetzter Monatspreis war
+nicht mehr auf „geschätzt" zurückzustellen. Felder mit `data-leer="weg"`
+räumen sich jetzt auf:
+
+* `kurzzeit.overKm`
+* `monthPrice`, `monthKm`
+* `sb.N.monat`
+
+Bewusst **ohne** `renderSettings()` — sonst springt der Fokus weg, sobald
+man ein Feld zum Neutippen leert.
+
+**Bekannte Kleinigkeit:** wird ein Feld geleert, das im Kundenstand noch
+steht, taucht das nicht in der Abweichungsliste auf (`diffGegen` läuft
+über die Felder des Ist-Stands). Die erzeugte `preise.json` ist trotzdem
+richtig — sie wird aus `CARS` gebaut, und dort ist das Feld weg. Nur die
+Anzeige verschweigt es.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefkz53.js` | **neu**, 10 Proben: ohne eigenen Satz erbt Kurzzeit den Fahrzeugsatz; mit 0,65 € ändert sich **nur** die Kurzzeitzeile (Tag / Wochenende / Langzeit bleiben bei 0,30 €); Feld vorhanden mit Platzhalter; Eintippen landet in `kurzzeit.overKm`; Leeren entfernt es wieder; der Fahrzeugsatz bleibt unangetastet |
+| `gold.js` | identisch mit Build 52 |
+| übrige Tests | grün |
+
+### Geändert
+
+`index.html` und `tariftabelle-2-JS.txt`. Die drei Rechner-Felder sind
+weiterhin unverändert (v50).
