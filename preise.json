@@ -354,6 +354,110 @@
           ]
         }
       ]
+    },
+    "skodaoctavia": {
+      "name": "Skoda Octavia",
+      "merkmale": {
+        "klasse": "Kompaktklasse",
+        "karosserie": "Kombi",
+        "kraftstoff": "Diesel",
+        "getriebe": "Automatik"
+      },
+      "example": "Kompaktklasse · Kombi · Diesel · Automatik",
+      "planKm": 0.3,
+      "overKm": 0.3,
+      "dayMoDo": [
+        [
+          100,
+          115
+        ],
+        [
+          300,
+          155
+        ],
+        [
+          600,
+          180
+        ],
+        [
+          900,
+          205
+        ]
+      ],
+      "weekend": [
+        [
+          600,
+          230
+        ],
+        [
+          900,
+          270
+        ]
+      ],
+      "tier": [
+        115,
+        195,
+        275,
+        345,
+        405,
+        455,
+        490
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "sb": [
+        {
+          "label": "1.500 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 25,
+          "tier": [
+            10,
+            20,
+            28,
+            35,
+            41,
+            47,
+            50
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 40,
+          "tier": [
+            15,
+            35,
+            51,
+            64,
+            78,
+            88,
+            95
+          ]
+        }
+      ],
+      "lzAnfrage": true
     }
   },
   "neunsitzer": {
