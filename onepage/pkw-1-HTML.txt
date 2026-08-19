@@ -3,7 +3,7 @@
 <div class="avjp-trigger">
   <button type="button" class="avjp-open" id="avjPOpen">
     <span class="avjp-open-txt">JETZT NEU: PKW-Preis berechnen</span>
-    <span class="avjp-open-sub">Golf &amp; Golf Variant &middot; in 30 Sekunden</span>
+    <span class="avjp-open-sub">Alle PKW-Modelle &middot; in 30 Sekunden</span>
   </button>
 </div>
 

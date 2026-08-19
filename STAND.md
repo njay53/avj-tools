@@ -1,8 +1,20 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 46 · Onepage v46 · 19.08.2026**
+**Stand: Build 47 · Onepage v47 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
+
+> ## Reihenfolge beim Ausliefern der Onepage-Felder
+>
+> Niran setzt die Felder immer in dieser Reihenfolge ein — Dateien also
+> auch in dieser Reihenfolge übergeben und benennen:
+>
+> 1. **Kleinbus/Van** (`9sitzer-*`)
+> 2. **PKW** (`pkw-*`)
+> 3. **Transporter** (`transporter-*`)
+> 4. **Tariftabelle** (`tariftabelle-*`)
+>
+> Danach `hochladen.command`.
 
 ---
 
@@ -2111,3 +2123,99 @@ dass etwas kaputt ist.
 * Anhängertabelle (Tag / Woche / WE, keine km-Stufen, keine Haftung).
 * km-Stufen hinzufügen oder entfernen — z. B. ein drittes
   Wochenendpaket mit 1.200 km für PKW — geht im Tool weiterhin nicht.
+
+---
+
+## 36. Build 47 / Onepage v47 — der verschwundene Touran, das Archiv, Kleinbus/Van
+
+### Der Touran
+
+Niran: *„nach dem update ist aus der tool app der angelegte VW touran
+raus."*
+
+Nachgestellt mit `pruefneufz46.js`: Fahrzeug in Build 45 anlegen, Build
+46 laden — es überlebt. Auch ein neuer Serverstand, der es nicht kennt,
+nimmt es nicht weg. Am Update lag es also **nicht**.
+
+Schuldig ist **„Auf Kundenstand zurücksetzen"**. Der Knopf machte:
+
+```js
+window.localStorage.removeItem(_storeKey);
+```
+
+Das wirft nicht nur die Preisabweichungen weg, sondern alles, was im
+Kundenstand gar nicht steht: **selbst angelegte Fahrzeuge und das
+komplette Archiv**. Im Fenster sah man davon nichts — `CARS` behielt die
+Schlüssel, das Fahrzeug stand weiter in der Liste. Erst beim nächsten
+Laden war es fort. Deshalb wirkte es wie ein Fehler des Updates.
+
+**Jetzt:** nur die Tarife der bekannten Fahrzeuge zurücksetzen, dann
+`saveCfg()`. Eigene Fahrzeuge und Archiv bleiben. Dazu eine Rückfrage,
+denn der Knopf wirft ja weiterhin alle nicht freigegebenen
+Preisänderungen der Kategorie weg.
+
+**Der Touran selbst ist nicht wiederherstellbar** — der Speichereintrag
+ist gelöscht. Er muss einmal neu angelegt werden.
+
+### Archiv
+
+Der Kasten war `hidden`, solange nichts drin lag — also genau dann, wenn
+man ihn zum ersten Mal sucht. Einen Knopf „ins Archiv gehen" gibt es
+nicht, **die Liste ist das Archiv**. Sie steht jetzt immer da, mit
+Anzahl bzw. „leer" und einem Satz, wie man hineinkommt.
+
+Die Rückfrage beim Knopf **„Ins Archiv"** gab es schon seit Build 38 —
+Niran hatte sie nur nie ausgelöst.
+
+**Fahrzeug auf der Website abschalten:** genau so. Archivieren nimmt es
+aus Auswahl, Rechner **und** Preisdatei. Nach *Für Kunden freigeben* →
+`Kundenpreise aktualisieren.command` ist es im Kundenrechner weg. Was
+**nicht** automatisch geht: der Tariftabellen-Block im Fahrzeug-Popup.
+Der steht als `<div class="avjtab" data-fz="…">` bei Onepage und muss
+dort raus (in aller Regel ohnehin mitsamt dem Popup).
+
+### Kleinbus/Van
+
+Überall, wo es Beschriftung ist: Reiter im Tool, Kategorie in der
+Fahrzeugliste, Frage im Rechner, Knopf und Überschrift auf der Website,
+Kategorie in der Auswertung.
+
+**Unverändert bleiben:** Abschnitt `neunsitzer` in `preise.json`,
+Element-Kennungen `avj…`, CSS-Klassen `avj-…`, `data-fz="neunsitzer.…"`
+in allen Popup-Zeilen. Sonst wären alle Daten und alle Onepage-Felder
+ungültig.
+
+Die **Größenklasse je Fahrzeug** bleibt frei: ein Sprinter Tourer 214 ist
+weiter ein 9-Sitzer, eine V-Klasse wäre ein Van. Beide stehen jetzt in
+der Klassenliste (`START.klasse`).
+
+### Unterzeile am Knopf
+
+`Golf & Golf Variant` → `Alle PKW-Modelle`, dazu `Alle Kleinbusse &
+Vans` und `Alle Größen`. Im selben Zug sind die fest eingetragenen
+Fahrzeugknöpfe aus `9sitzer-1-HTML` und `transporter-1-HTML` raus — das
+JS-Feld baut sie ohnehin aus den Tarifdaten (`renderCars`), die festen
+waren nur ein Aufblitzen womöglich falscher Namen und wären bei einem
+neuen Fahrzeug stehengeblieben.
+
+**Damit sind erstmals seit v37 auch die HTML-Kästen neu.**
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefarchiv47.js` | 19 Proben: Zurücksetzen und Neuladen lassen ein selbst angelegtes Fahrzeug stehen, Archiv überlebt das Zurücksetzen, archiviert = raus aus der Preisdatei, Zurückholen, leerer Kasten sichtbar, Rückfragen erscheinen |
+| `pruefneufz46.js` | die Reproduktion des Fehlers (gegen Build 45/46) |
+| `gold.js` | **identisch mit Build 46**, einziger Unterschied die Build-Nummer |
+| alle übrigen Tests | grün, Reiterbeschriftung in den Skripten auf „Kleinbus/Van" nachgezogen |
+
+### Noch offen
+
+* Vier-Wochen-Preise nachrechnen.
+* Anhängertabelle.
+* km-Stufen hinzufügen oder entfernen (z. B. drittes Wochenendpaket
+  1.200 km für PKW).
+* Ein archiviertes Fahrzeug räumt seinen Tabellen-Block im Popup nicht
+  selbst weg — bewusst so, aber es wäre denkbar, dass die Tabelle bei
+  einem Fahrzeug, das der Server nicht mehr kennt, still verschwindet
+  statt den Störungshinweis zu zeigen.

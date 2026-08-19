@@ -1,9 +1,9 @@
-<!-- ═══ AVJ Preisrechner 9-Sitzer · Trigger + Popup ═══ -->
+<!-- ═══ AVJ Preisrechner Kleinbus/Van · Trigger + Popup ═══ -->
 
 <div class="avj-trigger">
   <button type="button" class="avj-open" id="avjOpen">
-    <span class="avj-open-txt">JETZT NEU: 9-Sitzer Preis berechnen</span>
-    <span class="avj-open-sub">Sprinter Tourer &amp; Vito Tourer &middot; in 30 Sekunden</span>
+    <span class="avj-open-txt">JETZT NEU: Kleinbus &amp; Van Preis berechnen</span>
+    <span class="avj-open-sub">Alle Kleinbusse &amp; Vans &middot; in 30 Sekunden</span>
   </button>
 </div>
 
@@ -16,21 +16,12 @@
 
   <div class="avj-head">
     <div class="avj-eyebrow">Preisrechner</div>
-    <h3>Was kostet dein 9-Sitzer?</h3>
+    <h3>Was kostet dein Kleinbus oder Van?</h3>
     <p>Dauer und geplante Kilometer eintragen &mdash; du siehst sofort einen Richtpreis.</p>
   </div>
 
   <!-- Fahrzeugwahl -->
-  <div class="avj-cars">
-    <button class="avj-car is-active" data-car="sprinter">
-      <span class="n">Sprinter Tourer</span>
-      <span class="d">214 &middot; kurz &middot; Handschaltung</span>
-    </button>
-    <button class="avj-car" data-car="vito">
-      <span class="n">Vito Tourer</span>
-      <span class="d">119 &middot; extralang &middot; Automatik</span>
-    </button>
-  </div>
+  <div class="avj-cars"><!-- Knoepfe erzeugt das JS-Feld aus den Tarifdaten --></div>
 
   <!-- Zeitraum -->
   <div class="avj-grid">

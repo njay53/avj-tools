@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 46 · 19.08.2026
+# Onepage-Felder · Stand Version 47 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -11,17 +11,65 @@ in den CSS-Kasten, `…-3-JS.txt` in den JS-Kasten.
 
 ## Die Felder
 
-| Feld | Dateien | wohin | eingebaut |
+**Reihenfolge beim Einsetzen — immer diese:**
+
+| # | Feld | Dateien | wohin |
 |---|---|---|---|
-| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
-| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
-| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v46** |
-| **Tariftabellen · Motor** | `tariftabelle-1-CSS` `-2-JS` | Fahrzeugseite, einmal | neu |
-| **Tariftabellen · je Popup** | siehe `tariftabelle-3-EINBAU.txt` | in jedes Fahrzeug-Popup | neu |
-| **Notfallhinweis** | `stoerung-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite, einmal | neu |
+| **1** | Rechner **Kleinbus/Van** | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite |
+| **2** | Rechner **PKW** | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite |
+| **3** | Rechner **Transporter** | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite |
+| **4** | **Tariftabellen · Motor** | `tariftabelle-1-CSS` `-2-JS` | Fahrzeugseite, einmal |
+
+Danach, unabhängig von der Reihenfolge:
+
+| Feld | Dateien | wohin |
+|---|---|---|
+| Tariftabellen · je Popup | siehe `tariftabelle-3-EINBAU.txt` | in jedes Fahrzeug-Popup |
+| Notfallhinweis | `stoerung-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite, einmal |
+
+**Neu in v47 sind auch die HTML-Kästen** der drei Rechner — sie waren
+seit v37 unverändert. Wer nur die JS-Kästen tauscht, behält die alten
+Unterzeilen und die fest eingetragenen Fahrzeugknöpfe.
 
 `404.html` gehört nicht zu Onepage, sondern in den Ordner `avj-tools`
 und wird mit `hochladen.command` mit hochgeladen.
+
+---
+
+## Kleinbus/Van statt 9-Sitzer (v47)
+
+Die Kategorie heißt überall **Kleinbus/Van** — im Tool, am Knopf, in der
+Überschrift des Rechners und in der Auswertung. Grund: eine V-Klasse mit
+sieben Sitzen ist kein 9-Sitzer und hätte sonst nicht hineingepasst.
+
+**Was sich NICHT ändert:** der Abschnitt in `preise.json` heißt weiter
+`neunsitzer`, die Element-Kennungen weiter `avj…`, die CSS-Klassen weiter
+`avj-…`, und `data-fz="neunsitzer.vito"` bleibt genau so stehen. Sonst
+wären alle bisherigen Daten und alle Popup-Zeilen ungültig.
+
+Die **Größenklasse je Fahrzeug** bleibt frei wählbar: ein Sprinter Tourer
+214 ist weiter ein 9-Sitzer, eine V-Klasse wäre ein Van. Beides steht
+jetzt in der Klassenliste des Tools.
+
+---
+
+## Unterzeile am Knopf (v47)
+
+Stand vorher `Golf & Golf Variant`, `Sprinter Tourer & Vito Tourer`,
+`Transporter M & XL`. Zu speziell — die Flotte wechselt, der Rechner
+nicht. Jetzt:
+
+| Rechner | Unterzeile |
+|---|---|
+| Kleinbus/Van | Alle Kleinbusse & Vans · in 30 Sekunden |
+| PKW | Alle PKW-Modelle · in 30 Sekunden |
+| Transporter | Alle Größen · in 30 Sekunden |
+
+Im selben Zug sind die **fest eingetragenen Fahrzeugknöpfe** aus
+`9sitzer-1-HTML` und `transporter-1-HTML` verschwunden. Das JS-Feld baut
+sie ohnehin aus den Tarifdaten (`renderCars`) — die festen Knöpfe waren
+nur ein kurzes Aufblitzen womöglich falscher Namen und wären bei einem
+neuen Fahrzeug stehengeblieben. Das PKW-Feld macht es seit v37 so.
 
 ---
 

@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 46;
+var AVJ_WEB_BUILD = 47;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
@@ -177,7 +177,7 @@ function avjTrack(name, params){
   function show(){
     lastFocus = document.activeElement;
     ov.hidden = false;
-    avjTrack("rechner_geoeffnet", { kategorie: "9-Sitzer" });
+    avjTrack("rechner_geoeffnet", { kategorie: "Kleinbus/Van" });
     document.body.style.overflow = "hidden";
     var first = ov.querySelector(".avj-car");
     if(first) first.focus();
@@ -628,7 +628,7 @@ function avjTrack(name, params){
       if(sig === _lastSig) return;
       _lastSig = sig;
       avjTrack("preis_berechnet", {
-        kategorie: "9-Sitzer",
+        kategorie: "Kleinbus/Van",
         fahrzeug:  r.car.name,
         tage:      r.d.days,
         tarif:     r.mode,
@@ -663,7 +663,7 @@ function avjTrack(name, params){
     carKey = b.getAttribute("data-car");
     sbIdx = 0;
     renderCars();
-    avjTrack("fahrzeug_gewechselt", { kategorie: "9-Sitzer", fahrzeug: CARS[carKey].name });
+    avjTrack("fahrzeug_gewechselt", { kategorie: "Kleinbus/Van", fahrzeug: CARS[carKey].name });
     renderSb();
     render();
   });
@@ -688,7 +688,7 @@ function avjTrack(name, params){
   $("avjCta").addEventListener("click", function(){
     var r = quote();
     avjTrack("whatsapp_klick", {
-      kategorie: "9-Sitzer",
+      kategorie: "Kleinbus/Van",
       fahrzeug:  CARS[carKey].name,
       tage:      (r && r.d) ? r.d.days : 0,
       preis:     (r && r.total) ? Math.round(r.total) : 0

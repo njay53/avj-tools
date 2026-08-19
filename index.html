@@ -120,7 +120,7 @@
   /* ── LB Preistool: eigenes CSS entfaellt ab Build 27,
      der Rechner nutzt jetzt die Klassen der anderen Rechner ── */
 
-/* ── Rechner-Tabs (9-Sitzer / Transporter) ── */
+/* ── Rechner-Tabs (Kleinbus/Van / Transporter) ── */
 .calc-wrap{
   background:#fff;border:1px solid #e0dfd8;border-radius:14px;
   padding:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);
@@ -1584,6 +1584,14 @@
 @media(max-width:600px){
   .avjt-lzr{grid-template-columns:repeat(2,1fr);}
 }
+/* ══════════════════════════════════════════════════════════════
+   Build 47 · Archivkasten
+   ══════════════════════════════════════════════════════════════ */
+.pr-archiv h3 .z{
+  display:inline-block;margin-left:7px;padding:1px 7px;border-radius:999px;
+  background:#E7EBF0;color:#5A6675;font-size:10.5px;font-weight:700;
+  letter-spacing:.02em;vertical-align:2px;
+}
 </style>
 </head>
 <body>
@@ -1598,7 +1606,7 @@
   <button class="nav-btn active" onclick="showTool('mietdauer',this)">Mietdauer</button>
   <button class="nav-btn" onclick="showTool('rabatt',this)">Rabatt</button>
   <button class="nav-btn" onclick="showTool('lb',this)">LB-Preis</button>
-  <button class="nav-btn" onclick="showTool('neun',this)">9-Sitzer</button>
+  <button class="nav-btn" onclick="showTool('neun',this)">Kleinbus/Van</button>
   <button class="nav-btn" onclick="showTool('trans',this)">Transporter</button>
   <button class="nav-btn" onclick="showTool('pkw',this)">PKW</button>
   <button class="nav-btn" onclick="showTool('tank',this)">Tank</button>
@@ -1874,7 +1882,7 @@ calcMietdauer();
    fest, damit PKW spaeter einfach dazwischenpasst. */
 var AVJ_EDITOR = (function(){
   "use strict";
-  var KATEGORIEN = ["Transporter", "9-Sitzer", "PKW", "Low Budget"];
+  var KATEGORIEN = ["Transporter", "Kleinbus/Van", "PKW", "Low Budget"];
   var bereiche = [], aktiv = null, umgehaengt = false;
 
   function melde(b){ bereiche.push(b); }
@@ -1944,11 +1952,12 @@ var AVJ_EDITOR = (function(){
   function zeichneArchiv(){
     var el = document.getElementById("prArchiv");
     if(!el) return;
-    var zeilen = "";
+    var zeilen = "", anzahl = 0;
     for(var i=0;i<bereiche.length;i++){
       var arch = {};
       try{ arch = bereiche[i].archiv() || {}; }catch(e){}
       for(var k in arch){
+        anzahl++;
         zeilen += '<li><span class="n">' + (arch[k].name || k) + '</span>'
           +  '<span class="k">' + bereiche[i].kategorie + '</span>'
           +  '<span class="b">' + (arch[k].example || "") + '</span>'
@@ -1956,9 +1965,20 @@ var AVJ_EDITOR = (function(){
           +  bereiche[i].schluessel + '">Zurückholen</button></li>';
       }
     }
-    if(!zeilen){ el.innerHTML = ""; el.setAttribute("hidden",""); return; }
+    /* Frueher blieb der Kasten unsichtbar, solange nichts drin war —
+       also genau dann, wenn man ihn zum ersten Mal sucht. Es gibt
+       keinen Knopf "ins Archiv gehen", die Liste ist das Archiv. */
     el.removeAttribute("hidden");
-    el.innerHTML = '<h3>Archiv</h3>'
+    if(!zeilen){
+      el.innerHTML = '<h3>Archiv <span class="z">leer</span></h3>'
+        + '<p class="note">Legst du ein Fahrzeug mit <b>„Ins Archiv"</b> ab, steht '
+        + 'es hier. Es verschwindet dann aus der Auswahl, aus seinem Rechner und '
+        + 'aus der Preisdatei — auf der Website ist es nach dem nächsten '
+        + '<b>Freigeben</b> und Hochladen weg. Die Tarife bleiben vollständig '
+        + 'erhalten, gelöscht wird nie etwas.</p>';
+      return;
+    }
+    el.innerHTML = '<h3>Archiv <span class="z">' + anzahl + '</span></h3>'
       + '<p class="note">Diese Fahrzeuge sind aus Auswahl, Rechner und Preisdatei '
       + 'genommen. Ihre Tarife bleiben vollständig erhalten — kommt dasselbe '
       + 'Modell wieder, holst du es mit einem Klick zurück.</p>'
@@ -2219,7 +2239,8 @@ var AVJ_MERKMALE = (function(){
   ];
   var START = {
     klasse: ["Kleinstwagen","Kleinwagen","Kompaktklasse","Mittelklasse",
-             "Obere Mittelklasse","9-Sitzer","Transporter bis 3,5 t"],
+             "Obere Mittelklasse","Van","Kleinbus","9-Sitzer",
+             "Transporter bis 3,5 t"],
     karosserie: ["Limousine","Kombi","SUV","Van","Bus","Kastenwagen",
                  "Hochdachkombi","Pritsche","Koffer"],
     kraftstoff: ["Benzin","Diesel","Hybrid","Elektro","Autogas"],
@@ -3518,10 +3539,14 @@ AVJ_RECHNER({
   p:          "avj",
   k:          "avj",
   ziel:       "wrapNeun",
-  frage:      "Was kostet dein 9-Sitzer?",
-  kategorie:  "9-Sitzer",
+  frage:      "Was kostet dein Kleinbus oder Van?",
+  /* Der Schluessel bleibt "neunsitzer" — er steht so in jeder
+     preise.json und in jedem data-fz auf der Website. Nur die
+     Beschriftung wandert mit, damit auch eine V-Klasse mit sieben
+     Sitzen in die Kategorie passt. */
+  kategorie:  "Kleinbus/Van",
   schluessel: "neunsitzer",
-  titel:      "9-Sitzer",
+  titel:      "Kleinbus/Van",
   start:      "sprinter",
   speicher:   "avj_preise_v1",
   autos: {
@@ -5351,12 +5376,26 @@ function AVJ_RECHNER(CFG){
     var id = e.target.id;
 
     if(id === P + "SReset"){
+      if(!window.confirm("Alle Tarife dieser Kategorie auf den Kundenstand "
+        + "zur\u00FCcksetzen?\n\nDeine noch nicht freigegebenen Preis\u00E4nderungen "
+        + "gehen dabei verloren. Selbst angelegte Fahrzeuge und das Archiv "
+        + "bleiben erhalten.")) return;
       takeSnapshot();                      /* auch das laesst sich verwerfen */
       var _vorRs = avjWerte(P + "SetBody");
       for(var k in _defaults) CARS[k] = JSON.parse(JSON.stringify(_defaults[k]));
       _gridCache = {};
-      try{ window.localStorage.removeItem(_storeKey); }catch(err){}
+      /* Bis Build 46 stand hier localStorage.removeItem(_storeKey). Das
+         hat nicht nur die Preisabweichungen weggeworfen, sondern alles,
+         was im Kundenstand gar nicht vorkommt: selbst angelegte
+         Fahrzeuge und das Archiv. Im Fenster war davon nichts zu sehen,
+         CARS behielt die Schluessel — erst beim naechsten Laden war das
+         Fahrzeug weg. So ist Nirans Touran verschwunden.
+         saveCfg() schreibt jetzt den neuen Stand: die bekannten
+         Fahrzeuge ohne Abweichung, die eigenen unveraendert dazu. */
+      saveCfg();
       renderSettings(); renderSb(); render();
+      try{ zeichneKundenstand(); }catch(err){}
+      try{ AVJ_EDITOR.neuZeichnen(); }catch(err){}
       var _nRs = avjBlitz(P + "SetBody", _vorRs);
       flashSaved(_nRs ? "Kundenstand \u00B7 " + _nRs + (_nRs === 1 ? " Wert" : " Werte")
                       : "Kundenstand geladen");
@@ -6163,7 +6202,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 46;
+var AVJ_BUILD = 47;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

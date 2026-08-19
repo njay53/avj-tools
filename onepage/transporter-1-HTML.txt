@@ -3,7 +3,7 @@
 <div class="avjt-trigger">
   <button type="button" class="avjt-open" id="avjTOpen">
     <span class="avjt-open-txt">JETZT NEU: Transporter Preis berechnen</span>
-    <span class="avjt-open-sub">Transporter M &amp; XL &middot; in 30 Sekunden</span>
+    <span class="avjt-open-sub">Alle Gr&ouml;&szlig;en &middot; in 30 Sekunden</span>
   </button>
 </div>
 
@@ -21,16 +21,7 @@
   </div>
 
   <!-- Fahrzeugwahl -->
-  <div class="avjt-cars">
-    <button class="avjt-car is-active" data-car="m">
-      <span class="n">Transporter M</span>
-      <span class="d">z.&#8239;B. Renault Trafic L2H1</span>
-    </button>
-    <button class="avjt-car" data-car="xl">
-      <span class="n">Transporter XL</span>
-      <span class="d">z.&#8239;B. Mercedes Sprinter L3</span>
-    </button>
-  </div>
+  <div class="avjt-cars"><!-- Knoepfe erzeugt das JS-Feld aus den Tarifdaten --></div>
 
   <!-- Zeitraum -->
   <div class="avjt-grid">
