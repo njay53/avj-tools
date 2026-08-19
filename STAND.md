@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 50 · Onepage v50 · 19.08.2026**
+**Stand: Build 51 · Onepage v50 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2451,3 +2451,103 @@ Doppelklick aus dem Finder funktioniert.
 `bildkopie.js` (Bildschirmfoto des Knopfes) läuft in dieser Umgebung in
 einen Zeitablauf beim Warten auf Schriftarten. Für die Prüfung
 unerheblich — `pruefkopie50.js` deckt die Sache ab.
+
+---
+
+## 40. Build 51 — warum in der Tarifpflege Fahrzeuge fehlten
+
+### Die Frage
+
+Niran: *„nach einem update fehlen immer die nachträglich hinzugefügten
+autos in der Tarif config. warum ist das so, wo du dann letztes mal
+gesagt hast du änderst was und ich muss sie dann aber wieder hinzufügen,
+waren sie plötzlich wieder da"*
+
+### Erst nachgesehen, dann geraten
+
+Im Repository steht, seit wann welches Fahrzeug in `preise.json` ist:
+
+| Commit | Zeit | pkw |
+|---|---|---|
+| 4af5327 | 19.08. 01:25 | golf, golfvariant, **vwtouran** |
+| a6ec139 | 19.08. 10:33 | + **skodaoctavia** |
+| c02c69e | 19.08. 18:00 | unverändert |
+
+Die beiden waren also **nie weg**. Sie wurden nur nicht angezeigt.
+
+### Der Grund
+
+Reihenfolge beim Laden:
+
+1. Jeder Rechner baut `CARS` aus den eingebauten Werten plus dem, was auf
+   diesem Gerät abweicht (`loadCfg`).
+2. `AVJ_EDITOR.start()` zeichnet daraus die Fahrzeugliste der
+   Tarifpflege.
+3. **Danach erst** trifft `preise.json` ein. Die Rechner zeichnen sich im
+   Rückruf selbst neu (`renderCars`) — **die Tarifpflege nicht**.
+
+Damit fehlte in der Tarifpflege genau eine Sorte Fahrzeug: die, die es
+nur auf dem Server gibt. Und das sind ausgerechnet die freigegebenen —
+beim Freigeben löst sich der örtliche Unterschied ja auf, das Fahrzeug
+steht danach nur noch in `preise.json`.
+
+Im Rechner-Reiter waren sie die ganze Zeit da. Nur die Liste unter
+*Tarif Config.* kannte sie nicht.
+
+**Und das „plötzlich wieder da":** sobald Niran ein Fahrzeug erneut
+anlegte oder etwas daran änderte, stand es wieder im örtlichen
+Unterschied — und war damit schon vor dem Server bekannt.
+
+### Behoben
+
+`AVJ_EDITOR.aufDatenstand()` zeichnet die Liste neu, sobald die
+Preisdatei da ist, und hält die gewählte Zeile fest. Angemeldet wird der
+Rückruf **nach** `AVJ_EDITOR.start()`, also nach den vier Rechnern — die
+Rückrufe laufen in der Reihenfolge ihrer Anmeldung, so ist `CARS` fertig,
+bevor die Tarifpflege es abliest.
+
+### Zweiter Fall: gar keine Preisdatei
+
+Kommt sie nicht an (kein Server **und** kein Zwischenspeicher — frischer
+Browser, gelöschter Verlauf, anderes Gerät, dazu ein langsames GitHub
+direkt nach dem Hochladen), bleibt nur der eingebaute Stand. Dann fehlen
+die Fahrzeuge tatsächlich — unvermeidlich, sie stehen ja nur in der
+Datei. Es darf aber nicht stillschweigend passieren:
+
+> **Die Preisdatei konnte nicht geladen werden.** Hier stehen gerade nur
+> die Fahrzeuge, die fest im Programm sind — alles, was du selbst
+> angelegt und freigegeben hast, fehlt. **Nichts ändern, sondern neu
+> laden.** … [Neu laden]
+
+Der Knopf lädt mit Zeitstempel in der Adresse.
+
+### Dritter Punkt: ein Fußangel im hochladen.command
+
+Nach jedem Upload stand dort der Rat *„Einstellungen → Safari → Verlauf
+löschen"*. Das löscht auch den Speicher der App: **nicht freigegebene
+Fahrzeuge, das Archiv und den Zwischenspeicher der Preisdatei** — also
+genau das, was den Ausfall oben auffängt. Der Rat ist raus, stattdessen
+steht dort eine Warnung. Die `?v=`-Adresse reicht ohnehin.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefquelle51.js` | **neu.** Fahrzeuge nur in `preise.json`, drei Fälle: schneller Server → sie sind da (mit Build 50 **nicht** — der Fehler ist damit belegt); langsamer Server ohne Zwischenspeicher → sie fehlen, aber mit Warnung; mit Zwischenspeicher → sie überstehen auch den langsamen Server |
+| `gold.js` | identisch mit Build 50 |
+| übrige Tests | grün |
+
+### Eigener Fehler bei den Tests
+
+`pruefarchiv47.js` und `pruefkopie50.js` kopierten ihren eigenen Build
+nach `/tmp/srv/index.html` und ließen ihn dort liegen. Ein danach
+gestarteter `gold.js` maß dann den **falschen Build** — die Läufe für
+Build 49 und 50 waren dadurch wertlos (sie verglichen zweimal Build 47).
+Beide Tests nehmen jetzt, was in `/tmp/srv/index.html` liegt; der
+Aufrufer legt den zu prüfenden Build hin. Nachgeholt: Build 50 gegen
+Build 51 sauber verglichen, 0 Unterschiede.
+
+### Onepage
+
+**Unverändert bei v50.** Diese Runde betrifft nur `index.html` und
+`hochladen.command`.

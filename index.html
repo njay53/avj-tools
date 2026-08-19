@@ -1605,6 +1605,22 @@
 }
 .avj-kopiebtn:hover{border-color:#111C2E;}
 .avj-kopiehin{font-size:11.5px;color:#1F6F43;font-weight:600;}
+/* ══════════════════════════════════════════════════════════════
+   Build 51 · Warnung, wenn die Preisdatei fehlt
+   ══════════════════════════════════════════════════════════════ */
+.pr-warnung{
+  background:#FBF3E4;border:1px solid #E4C77A;border-radius:12px;
+  padding:12px 14px;margin-bottom:13px;
+  font-size:13px;line-height:1.55;color:#5E4A16;
+}
+.pr-warnung[hidden]{display:none;}
+.pr-warnung b{font-weight:700;color:#3F3208;}
+.pr-warnung button{
+  display:block;margin-top:9px;border:1px solid #C9A94E;border-radius:9px;
+  background:#fff;color:#5E4A16;font-family:inherit;font-size:12.5px;
+  font-weight:650;padding:7px 13px;cursor:pointer;
+}
+.pr-warnung button:hover{border-color:#5E4A16;}
 </style>
 </head>
 <body>
@@ -1783,6 +1799,7 @@
          erst nach dem Freigeben.</p>
     </div>
 
+    <div class="pr-warnung" id="prWarnung" hidden></div>
     <div id="prWahl"></div>
     <div class="pr-fzakt" id="prFzAkt"></div>
     <div class="pr-halter" id="prHalter"></div>
@@ -2222,7 +2239,63 @@ var AVJ_EDITOR = (function(){
     }
   }
 
+  /* ─── Nach dem Eintreffen von preise.json ───────────────────────
+     Die Liste wird neu gezeichnet, weil dort Fahrzeuge stehen koennen,
+     die es im Programm gar nicht gibt: alles einmal Freigegebene lebt
+     nur noch in der Datei. Die gewaehlte Zeile bleibt gewaehlt, sonst
+     springt einem die Ansicht unter den Haenden weg. */
+  function aufDatenstand(){
+    if(!document.getElementById("prWahl")) return;
+    var vorherB = aktiv ? aktiv.schluessel : null, vorherF = aktivFz;
+    zeichneWahl();
+
+    var gibtEs = false;
+    if(vorherB && vorherF){
+      for(var i=0;i<bereiche.length;i++){
+        if(bereiche[i].schluessel !== vorherB) continue;
+        var l = [];
+        try{ l = bereiche[i].fahrzeuge() || []; }catch(e){}
+        for(var j=0;j<l.length;j++) if(l[j].key === vorherF) gibtEs = true;
+      }
+    }
+    if(gibtEs){ waehle(vorherB, vorherF); return; }
+
+    for(var k=0;k<KATEGORIEN.length;k++){
+      var bs = fuerKategorie(KATEGORIEN[k]);
+      for(var q=0;q<bs.length;q++){
+        var fz = [];
+        try{ fz = bs[q].fahrzeuge() || []; }catch(e){}
+        if(fz.length){ waehle(bs[q].schluessel, fz[0].key); return; }
+      }
+    }
+    zeichneFzAkt(); zeichneArchiv();
+  }
+
+  /* Kommt gar keine Preisdatei an, fehlt in der Liste alles, was nur
+     dort steht. Das ist kein Zustand, den man erraten soll. */
+  function warnung(quelle){
+    var el = document.getElementById("prWarnung");
+    if(!el) return;
+    if(quelle === "server" || quelle === "gespeichert"){
+      el.setAttribute("hidden", ""); el.innerHTML = ""; return;
+    }
+    el.removeAttribute("hidden");
+    el.innerHTML =
+      '<b>Die Preisdatei konnte nicht geladen werden.</b> Hier stehen gerade '
+      + 'nur die Fahrzeuge, die fest im Programm sind — alles, was du selbst '
+      + 'angelegt und freigegeben hast, fehlt. <b>Nichts ändern, sondern neu '
+      + 'laden.</b> Das passiert vor allem direkt nach dem Hochladen, solange '
+      + 'GitHub noch baut.'
+      + '<button type="button" id="prWarnNeu">Neu laden</button>';
+    var k = document.getElementById("prWarnNeu");
+    if(k) k.addEventListener("click", function(){
+      location.href = location.pathname + "?t=" + new Date().getTime();
+    });
+  }
+
   return { melde: melde, start: start, bloecke: bloecke,
+    aufDatenstand: aufDatenstand,
+    warnung: warnung,
     kategorien: function(){ return KATEGORIEN.slice(); },
     bereiche:   function(){ return bereiche.slice(); },
     fuerKategorie: fuerKategorie,
@@ -6350,11 +6423,22 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 50;
+var AVJ_BUILD = 51;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
 try{ AVJ_EDITOR.start(); }catch(e){}
+
+/* Erst hier anmelden, nicht in den Rechnern: die Rueckrufe laufen in der
+   Reihenfolge ihrer Anmeldung, und die Rechner haben ihre schon. So ist
+   CARS fertig, bevor die Tarifpflege es abliest. */
+try{
+  AVJ_PREISE.bereit(function(d, quelle){
+    try{ AVJ_EDITOR.aufDatenstand(); }catch(e){}
+    try{ AVJ_EDITOR.warnung(quelle); }catch(e){}
+  });
+}catch(e){}
+
 try{ AVJ_PREISE.start(); }catch(e){}
 (function(){
   var el = document.getElementById("appBuild");

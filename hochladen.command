@@ -52,8 +52,11 @@ geschafft() {
   echo "  Dann diese Adresse nehmen, die umgeht ihn:"
   echo "    https://avj-tools.rent-in-nom.de/?v=$BUILD"
   echo ""
-  echo "  Am iPhone hilft sonst: Einstellungen → Safari → Verlauf löschen,"
-  echo "  App vom Homescreen entfernen und neu hinzufügen."
+  echo ""
+  echo "  ACHTUNG, nicht mehr tun: Safari-Verlauf loeschen."
+  echo "  Das entfernt auch den Speicher der App — Fahrzeuge, die noch"
+  echo "  nicht freigegeben sind, das Archiv und den Zwischenspeicher der"
+  echo "  Preisdatei. Die Adresse mit ?v= oben reicht voellig."
   echo ""
   echo "  Die App sagt seit Build 44 selbst Bescheid, wenn sie veraltet ist."
 }
