@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 48;
+var AVJ_WEB_BUILD = 49;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjPVer");
@@ -427,12 +427,12 @@ function avjpTrack(name, params){
         /* Der Haken versteckt den Vier-Wochen-Preis — nicht die Wochen
            davor. Zwei und drei Wochen rechnen weiter: dort ist der
            Monatswert nur Zwischenziel der Staffel, nie die Ausgabe. */
-        return { anfrage:true, car:car, d:d, tage:d.days };
+        return { anfrage:true, car:car, d:d, tage:d.days, km:km };
       }
       if(d.days > LZ_TAGE){
         /* Ueber vier Wochen kein Automatikpreis mehr — das verhandelt
            Niran persoenlich. */
-        return { anfrage:true, car:car, d:d, tage:d.days };
+        return { anfrage:true, car:car, d:d, tage:d.days, km:km };
       }
       if(d.days > 7){
         var anteil = lzAnteil(d.days);
@@ -533,11 +533,70 @@ function avjpTrack(name, params){
     p.style.fontSize = an ? "" : "0.6em";
   }
 
+  /* ─── WhatsApp mit vorausgefuellter Nachricht ────────────────────
+     wa.me nimmt ein ?text= entgegen. WhatsApp legt es dem Kunden ins
+     Eingabefeld — abgeschickt wird erst mit seinem Fingertipp. Es geht
+     also nichts heimlich raus, und er kann vorher noch etwas
+     dazuschreiben.
+
+     Drin steht nur, was ohnehin im Rechner steht. Nach Name oder
+     Telefonnummer wird nicht gefragt — das waere ein Formular, und
+     beides steht in WhatsApp ohnehin dran. */
+  var WA_NUMMER = "49555154545";
+
+  function waDatum(x){
+    var wd = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+    var p  = function(n){ return ("0"+n).slice(-2); };
+    return wd[x.getDay()] + " " + p(x.getDate()) + "." + p(x.getMonth()+1) + "."
+         + x.getFullYear() + ", " + p(x.getHours()) + ":" + p(x.getMinutes()) + " Uhr";
+  }
+
+  function waText(r){
+    /* Ohne Zeitraum gibt es nichts mitzuteilen — dann lieber eine
+       schlichte Begruessung als ein Geruest mit Luecken. */
+    if(!r || r.empty || r.invalid || !r.car || !r.d) {
+      return "Hallo, ich interessiere mich f\u00FCr ein Fahrzeug bei euch.";
+    }
+    var z = [];
+    z.push("Hallo, ich habe euren Preisrechner benutzt und h\u00E4tte gern ein Angebot.");
+    z.push("");
+    z.push("Fahrzeug: " + r.car.name + (r.car.example ? " (" + r.car.example + ")" : ""));
+    z.push("Abholung: " + waDatum(r.d.from));
+    z.push("R\u00FCckgabe: " + waDatum(r.d.to));
+    z.push("Dauer: " + r.d.days + (r.d.days === 1 ? " Tag" : " Tage"));
+    if(r.km !== null && r.km !== undefined && r.km > 0){
+      z.push("Geplante Kilometer: " + num(r.km) + " km");
+    }
+    if(r.car.sb && r.car.sb[sbIdx] && r.car.sb[sbIdx].label){
+      z.push("Selbstbeteiligung: " + r.car.sb[sbIdx].label);
+    }
+    z.push("");
+    if(r.anfrage){
+      z.push("F\u00FCr diese Mietdauer nennt der Rechner keinen Preis \u2014 "
+           + "bitte um ein Angebot.");
+    } else {
+      z.push("Richtpreis laut Rechner: " + eur(r.total) + " \u20AC"
+           + (r.badge ? " (" + r.badge + ")" : ""));
+      z.push("Frei-Kilometer: " + num(r.freeKm) + " km");
+    }
+    z.push("");
+    z.push("Ist das Fahrzeug in dem Zeitraum frei?");
+    return z.join("\n");
+  }
+
+  function waLink(r){
+    var a = $("avjPCta");
+    if(!a) return;
+    a.href = "https://wa.me/" + WA_NUMMER + "?text=" + encodeURIComponent(waText(r));
+  }
+
   function render(){
     renderDur();
     euroZeichen(true);
     var q = $("avjPOut");
     var r = quote();
+    /* Vor allen Abzweigungen — der Knopf ist in jedem Fall da. */
+    waLink(r);
 
     if(r.anfrage){
       /* Kein Preis, aber die Nummer steht da — keine Sackgasse. */

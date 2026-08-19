@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 48 · Onepage v48 · 19.08.2026**
+**Stand: Build 49 · Onepage v49 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2291,3 +2291,78 @@ Text brach auf dem iPhone in Preisgröße um. Jetzt kein Eurozeichen und
 Bildschirmbreiten, macht von jedem Ergebniskasten ein Bild und meldet,
 ob die Kennzeichnung umbricht. Nützlich bei jeder Textänderung an dieser
 Stelle.
+
+---
+
+## 38. Onepage v49 / Build 49 — WhatsApp nimmt die Eingaben mit
+
+### Die Frage
+
+Niran: *„was könnten wir machen dass wenn der Kunde im Rechner auf
+Whatsapp klickt das dann gleich seine im rechner eingegebene Daten
+rüber geschickt werden? das ist bestimmt nicht möglich oder?"*
+
+Doch. `wa.me` kennt einen Parameter `?text=`. WhatsApp legt den Text dem
+Kunden ins Eingabefeld; abgeschickt wird er erst mit seinem Fingertipp.
+Es geht nichts heimlich raus, und er kann vorher noch etwas
+dazuschreiben. iPhone, Android und web.whatsapp.com verhalten sich
+gleich.
+
+### Die Nachricht
+
+```
+Hallo, ich habe euren Preisrechner benutzt und hätte gern ein Angebot.
+
+Fahrzeug: Vito Tourer (9-Sitzer · Bus · Diesel · Automatik · 119 extralang)
+Abholung: Mo 17.08.2026, 09:00 Uhr
+Rückgabe: Mo 24.08.2026, 09:00 Uhr
+Dauer: 7 Tage
+Geplante Kilometer: 800 km
+Selbstbeteiligung: 1.000 €
+
+Richtpreis laut Rechner: 1.050 € (Wochentarif)
+Frei-Kilometer: 1.800 km
+
+Ist das Fahrzeug in dem Zeitraum frei?
+```
+
+Bewusst **nur, was ohnehin im Rechner steht**. Nach Name oder
+Telefonnummer wird nicht gefragt — das würde die Nachricht zu einem
+Formular machen, und beides steht in WhatsApp ohnehin dran.
+
+| Fall | Nachricht |
+|---|---|
+| nichts eingetragen | nur „Hallo, ich interessiere mich für ein Fahrzeug bei euch." |
+| Rückgabe vor Abholung | dasselbe — kein Gerüst mit Lücken |
+| ab 29 Tagen | kein Preis, sondern „bitte um ein Angebot"; Zeitraum und Kilometer bleiben drin |
+
+### Umsetzung
+
+In jedem der drei Rechnerfelder:
+
+* `WA_NUMMER`, `waDatum()`, `waText(r)`, `waLink(r)` direkt vor
+  `render()`
+* `waLink(r)` steht unmittelbar hinter `var r = quote();` — also **vor**
+  allen Abzweigungen, damit der Knopf in jedem Zustand stimmt
+* die Nummer steht an genau einer Stelle je Feld
+
+**Build 49 im Tool** ändert nur eine Kleinigkeit: der Rückgabewert im
+Anfrage-Fall führt jetzt `km` mit. Ohne das fehlte in der
+WhatsApp-Nachricht ausgerechnet bei Langzeit die Kilometerangabe. Die
+Regel „Tool und Website geben dasselbe zurück" ist damit wieder
+hergestellt; sichtbar ändert sich im Tool nichts.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefwa49.js` | 26 Proben: Fahrzeug, Zeitraum, Dauer, km, SB und Preis stehen drin; **Preis in der Nachricht = Preis im Kasten**; Fahrzeug- und SB-Wechsel schlagen durch; leeres Formular und 29 Tage verhalten sich wie beschrieben; alle drei Rechner gefüllt und mit verschiedenen Fahrzeugen |
+| `gold.js` | identisch mit Build 48 |
+| übrige Tests | grün |
+
+### Was das Tool (noch) nicht hat
+
+Der interne Rechner hat keinen WhatsApp-Knopf — er kennt ja keine
+Kundennummer. Denkbar wäre dort ein **„Text kopieren"**, um dieselbe
+Zusammenfassung in rentsoft oder eine Mail zu setzen. Nicht gebaut,
+nicht besprochen.

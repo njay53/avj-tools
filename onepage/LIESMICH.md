@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 48 · 19.08.2026
+# Onepage-Felder · Stand Version 49 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -50,6 +50,62 @@ wären alle bisherigen Daten und alle Popup-Zeilen ungültig.
 Die **Größenklasse je Fahrzeug** bleibt frei wählbar: ein Sprinter Tourer
 214 ist weiter ein 9-Sitzer, eine V-Klasse wäre ein Van. Beides steht
 jetzt in der Klassenliste des Tools.
+
+---
+
+## WhatsApp mit vorausgefüllter Nachricht (v49)
+
+Der grüne Knopf im Rechner führt jetzt auf
+
+```
+https://wa.me/49555154545?text=<Nachricht>
+```
+
+WhatsApp legt den Text dem Kunden **ins Eingabefeld** — abgeschickt wird
+er erst mit seinem Fingertipp. Es geht also nichts heimlich raus, und er
+kann vorher noch etwas dazuschreiben. Funktioniert auf iPhone, Android
+und am Rechner (web.whatsapp.com) gleich.
+
+So sieht die Nachricht aus:
+
+```
+Hallo, ich habe euren Preisrechner benutzt und hätte gern ein Angebot.
+
+Fahrzeug: Vito Tourer (9-Sitzer · Bus · Diesel · Automatik · 119 extralang)
+Abholung: Mo 17.08.2026, 09:00 Uhr
+Rückgabe: Mo 24.08.2026, 09:00 Uhr
+Dauer: 7 Tage
+Geplante Kilometer: 800 km
+Selbstbeteiligung: 1.000 €
+
+Richtpreis laut Rechner: 1.050 € (Wochentarif)
+Frei-Kilometer: 1.800 km
+
+Ist das Fahrzeug in dem Zeitraum frei?
+```
+
+Drin steht **nur, was ohnehin im Rechner steht**. Nach Name oder
+Telefonnummer wird nicht gefragt — das wäre ein Formular, und beides
+steht in WhatsApp ohnehin dran.
+
+Zwei Sonderfälle:
+
+* **Nichts eingetragen** → nur „Hallo, ich interessiere mich für ein
+  Fahrzeug bei euch." Kein Gerüst mit Lücken.
+* **Ab 29 Tagen** → kein Preis, sondern „Für diese Mietdauer nennt der
+  Rechner keinen Preis — bitte um ein Angebot." Zeitraum und Kilometer
+  stehen trotzdem drin, gerade dort sind sie wichtig.
+
+Die Adresse wird bei **jeder** Eingabe neu gesetzt (`waLink(r)` steht
+direkt hinter `quote()`), auch beim Wechsel von Fahrzeug oder
+Selbstbeteiligung. Länge bei einer vollen Anfrage: rund 630 Zeichen,
+weit unter jeder Grenze.
+
+Die Nummer steht als `var WA_NUMMER = "49555154545";` oben in der
+WhatsApp-Funktion — an einer Stelle je Feld.
+
+Geprüft mit `pruefwa49.js`: 26 Proben über alle drei Rechner, unter
+anderem dass der Preis in der Nachricht mit dem im Kasten übereinstimmt.
 
 ---
 

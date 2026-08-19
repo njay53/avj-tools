@@ -3938,14 +3938,14 @@ function AVJ_RECHNER(CFG){
            Bis Build 45 stieg der Rechner schon ab Tag 8 aus, dann
            musste fuer jedes Fahrzeug erst ein Monatspreis stehen,
            bevor ueberhaupt etwas rechenbar war. */
-        return { anfrage:true, car:car, d:d, tage:d.days };
+        return { anfrage:true, car:car, d:d, tage:d.days, km:km };
       }
       if(d.days > LZ_TAGE){
         /* Ueber vier Wochen gibt es keinen Automatikpreis. Frueher
            wurde hier einfach fortgeschrieben — was bei drei Monaten
            eine Zahl ergab, die mit Nirans Wirklichkeit nichts zu tun
            hat. Jetzt sagt der Rechner ehrlich, dass er hier aussteigt. */
-        return { anfrage:true, car:car, d:d, tage:d.days };
+        return { anfrage:true, car:car, d:d, tage:d.days, km:km };
       }
       if(d.days > 7){
         /* Zwei Anker, dazwischen linear — dieselbe Logik wie ueberall
@@ -6226,7 +6226,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 48;
+var AVJ_BUILD = 49;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
