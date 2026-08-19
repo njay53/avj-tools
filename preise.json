@@ -1,7 +1,7 @@
 {
   "version": 1,
   "stand": "19.08.2026",
-  "erzeugtVon": "AVJ Tools Build 45",
+  "erzeugtVon": "AVJ Tools Build 47",
   "lb": {
     "yaris": {
       "name": "Low-Budget",
@@ -44,7 +44,7 @@
   },
   "pkw": {
     "golf": {
-      "name": "Golf",
+      "name": "VW Golf",
       "merkmale": {
         "klasse": "Kompaktklasse",
         "karosserie": "Limousine",
@@ -148,7 +148,7 @@
       "lzAnfrage": true
     },
     "golfvariant": {
-      "name": "Golf Variant",
+      "name": "VW Golf Variant",
       "merkmale": {
         "klasse": "Kompaktklasse",
         "karosserie": "Kombi",
@@ -252,15 +252,15 @@
       "lzAnfrage": true
     },
     "vwtouran": {
-      "name": "VW Touran",
+      "name": "VW Touran Energy",
       "merkmale": {
         "klasse": "Mittelklasse",
         "karosserie": "Van",
         "kraftstoff": "Benzin",
         "getriebe": "Automatik",
-        "zusatz": "Energy 7-Sitzer"
+        "zusatz": "7-Sitzer"
       },
-      "example": "Mittelklasse · Van · Benzin · Automatik · Energy 7-Sitzer",
+      "example": "Mittelklasse · Van · Benzin · Automatik · 7-Sitzer",
       "planKm": 0.35,
       "overKm": 0.35,
       "dayMoDo": [
@@ -353,7 +353,8 @@
             115
           ]
         }
-      ]
+      ],
+      "lzAnfrage": true
     },
     "skodaoctavia": {
       "name": "Skoda Octavia",
