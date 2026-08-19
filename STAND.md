@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 43 · Onepage v43 · 19.08.2026**
+**Stand: Build 44 · Onepage v44 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1841,3 +1841,78 @@ identisch.
 
 `pruefweb41.js` (240 Fälle Tool gegen Website) und `pruefschalter.js`
 unverändert grün.
+
+---
+
+## 33. Build 44 / Onepage v44 — vier Sachen aus dem Skoda-Durchgang
+
+Niran hat den Skoda Octavia angelegt und dabei vier Dinge gefunden.
+
+### 33.1 Der Kraftstoff fehlte in der Kopfzeile
+
+`AVJ_ZEILE.vorschlag()` baute Klasse, Karosserie und Getriebe zusammen —
+**Diesel fiel hinten runter**. In der Kurzbeschreibung unter dem Namen
+stand er, in der Kopfzeile der Tabelle nicht. Jetzt dieselbe Reihenfolge
+wie in der Kurzbeschreibung.
+
+**Der eigentliche Fallstrick liegt aber tiefer:** `data-titel` steht fest
+bei Onepage. Ändert Niran im Tool eine Angabe, wandert das *nicht* mit —
+die Zeile müsste neu kopiert werden. Deshalb baut die Tabelle die
+Kopfzeile ohne `data-titel` jetzt **im gleichen Stil selbst**, mit rotem
+Modellnamen:
+
+```
+*Skoda Octavia* (Kompaktklasse · Kombi · Diesel · Automatik)
+```
+
+Wer `data-titel` weglässt, hat eine Kopfzeile, die dauerhaft aus
+`preise.json` kommt und mitwandert. Wer eine eigene Verkaufszeile will,
+setzt `data-titel` und pflegt sie von Hand.
+
+### 33.2 Wochenende mit zwei km-Stufen sah schief aus
+
+Vier Wertspalten stehen zur Verfügung. Die Aufteilung war „erste Stufe
+kriegt den Rest": bei zwei Stufen also **3 + 1**. Jetzt gleichmäßig,
+Rest nach vorn:
+
+| Stufen | vorher | jetzt |
+|---|---|---|
+| 2 | 3 + 1 | **2 + 2** |
+| 3 | 2 + 1 + 1 | 2 + 1 + 1 |
+| 4 | 1 + 1 + 1 + 1 | 1 + 1 + 1 + 1 |
+
+Nur der Zwei-Stufen-Fall ändert sich, drei und vier bleiben wie sie
+waren — an den Transportern also nichts.
+
+### 33.3 Der Wochenendanker sagte nicht, welche Stufe gemeint ist
+
+Es ist immer die **kleinste**. Steht jetzt unter der Beschriftung, mit
+der km-Zahl der gewählten Vorlage: *„kleinste Stufe, bei der Vorlage
+600 km"*. Beim Frei-km-Anker entsprechend *„am ersten Tag"*.
+
+### 33.4 Geplante Mehrkilometer waren nicht setzbar
+
+Bisher gab man nur den **ungeplanten** Satz an; der geplante wurde aus
+dem Verhältnis der Vorlage abgeleitet (`planKm / overKm`, ersatzweise
+0,62). Jetzt ein zweites, **freiwilliges** Feld daneben. Leer heißt
+weiterhin: abgeleitet — und der abgeleitete Wert steht als Platzhalter
+im Feld, man sieht also, womit gerechnet würde.
+
+### Geprüft
+
+`pruefanker.js`: Octavia nach Golf-Vorlage anlegen, Merkmale setzen,
+geplanten Satz von Hand auf 0,22 — acht Proben, alle grün. Dazu die
+Tabellenbilder bei zwei und drei Wochenendstufen gegengesehen.
+
+Goldstandard: **identisch mit Build 43**. Die Änderungen betreffen nur
+neu angelegte Fahrzeuge und Beschriftungen, keine bestehende Rechnung.
+
+### Offen — von Niran angesprochen
+
+**Weitere km-Stufe beim Wochenende hinzufügen.** Niran: *„eigentlich
+könnte man da auch ein drittes Paket mit 1200 km dazu packen."* Die
+Tabelle kann drei Stufen längst darstellen, aber im Tool lässt sich
+**keine Stufe hinzufügen oder entfernen** — weder beim Wochenende noch
+bei den Tagespaketen. Das wäre ein eigener kleiner Umbau im Reiter
+*Tarif Config.*: je Raster ein „+ Stufe" und ein „−" an der letzten.
+Noch nicht gebaut.

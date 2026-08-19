@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 43 · 19.08.2026
+   Version 44 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -1165,14 +1165,18 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
       + zelle('avjtab-rot','je extra km') + '</div>';
     h += '<div class="avjtab-reihe">';
     h += zelle('avjtab-gelb','ab<br>Freitag 12:00 Uhr<br>bis<br>Montag 10:00 Uhr','grid-column:1');
-    /* Vier Wertspalten stehen zur Verfuegung: 2,3,4,5. Hat das Fahrzeug
-       weniger Stufen, wird die erste breiter — die extra-km-Spalte
-       bleibt unangetastet. */
-    var we = c.weekend, frei = 4 - we.length, sp = 2;
-    if(frei < 0) frei = 0;
-    for(var w=0; w<we.length && sp < 6; w++){
-      var breite = (w === 0 ? frei + 1 : 1);
-      if(sp + breite > 6) breite = 6 - sp;
+    /* Vier Wertspalten stehen zur Verfuegung: 2,3,4,5. Sie werden
+       gleichmaessig auf die Stufen verteilt, Rest nach vorn:
+
+         2 Stufen  ->  2 + 2      (frueher 3 + 1, sah schief aus)
+         3 Stufen  ->  2 + 1 + 1
+         4 Stufen  ->  1 + 1 + 1 + 1
+
+       Die extra-km-Spalte bleibt unangetastet. */
+    var we = c.weekend, n = Math.min(we.length, 4), sp = 2;
+    var basis = Math.floor(4 / n), rest = 4 % n;
+    for(var w=0; w<n; w++){
+      var breite = basis + (w < rest ? 1 : 0);
       h += zelle('avjtab-grau', wert(we[w][0], we[w][1]),
                  'grid-column:' + sp + '/' + (sp + breite));
       sp += breite;
@@ -1332,7 +1336,13 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
     var c = d.c;
     var titel = el.getAttribute("data-titel");
     if(!titel){
-      titel = (c.name || d.key) + (c.example ? " — " + c.example : "");
+      /* Ohne data-titel baut die Tabelle die Kopfzeile selbst — im
+         gleichen Stil, also Modellname rot. Der Vorteil: sie kommt dann
+         aus preise.json und wandert mit, wenn im Tool eine Angabe
+         geaendert wird. Eine eingetragene data-titel-Zeile tut das
+         nicht, die steht fest bei Onepage. */
+      titel = "*" + (c.name || d.key) + "*"
+        + (c.example ? " (" + c.example + ")" : "");
     }
 
     var h = '<div class="avjtab-blatt"><div class="avjtab-in">';

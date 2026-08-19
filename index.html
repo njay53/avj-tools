@@ -1529,6 +1529,14 @@
 .avjt-schalter span{display:block;font-size:12px;line-height:1.5;color:#40505E;}
 .avjt-schalter em{display:block;font-style:normal;font-size:11px;color:#8A96A3;margin-top:2px;}
 .avjt-schalter:has(input:checked){border-color:#B8892E;background:#FFFBF0;}
+/* ══════════════════════════════════════════════════════════════
+   Build 44 · Hinweise an den Ankern
+   ══════════════════════════════════════════════════════════════ */
+.nf-a > span > em{
+  display:block;font-style:normal;font-weight:400;
+  font-size:10.5px;color:#8A96A3;letter-spacing:0;text-transform:none;
+  margin-top:1px;line-height:1.35;
+}
 </style>
 </head>
 <body>
@@ -2286,9 +2294,12 @@ var AVJ_ZEILE = (function(){
      Ueberschreiben ist der Normalfall, nicht die Ausnahme. */
   function vorschlag(a, key){
     var m = a.merkmale || {};
+    /* Dieselbe Reihenfolge wie in der Kurzbeschreibung unter dem Namen —
+       der Kraftstoff fehlte hier und damit in der Kopfzeile der Tabelle. */
     var klammer = [];
     if(m.klasse)     klammer.push(m.klasse);
     if(m.karosserie) klammer.push(m.karosserie);
+    if(m.kraftstoff) klammer.push(m.kraftstoff);
     if(m.getriebe)   klammer.push(m.getriebe);
     return "*" + (a.name || key) + "*"
       + (m.zusatz ? " " + m.zusatz : "")
@@ -2485,8 +2496,13 @@ var AVJ_NEUFZ = (function(){
     for(var i=1;i<7;i++) if(satz.tierKm[i] <= satz.tierKm[i-1]) satz.tierKm[i] = satz.tierKm[i-1] + 50;
 
     satz.overKm = v.mehrKm;
-    satz.planKm = Math.round(v.mehrKm * (vorlage && vorlage.overKm
-                    ? (vorlage.planKm / vorlage.overKm) : 0.62) * 100) / 100;
+    /* Ist der geplante Satz eingetippt, gilt er. Sonst wird er aus dem
+       Verhaeltnis der Vorlage abgeleitet — beim Bestand liegt er
+       durchweg unter dem ungeplanten, das ist ja der Anreiz. */
+    satz.planKm = v.mehrKmGeplant > 0
+      ? v.mehrKmGeplant
+      : Math.round(v.mehrKm * (vorlage && vorlage.overKm
+          ? (vorlage.planKm / vorlage.overKm) : 0.62) * 100) / 100;
 
     var pf = (vorlage && vorlage.tier && vorlage.tier[0]) ? v.tag / vorlage.tier[0] : 1;
     var kf2 = (vorlage && vorlage.tierKm && vorlage.tierKm[0]) ? v.freiKm / vorlage.tierKm[0] : 1;
@@ -2593,9 +2609,10 @@ var AVJ_NEUFZ = (function(){
       + '<div class="nf-anker">'
       +   feld("nfTag",   "Tagespreis Mo–Do", "€", 5)
       +   feld("nfWoche", "Wochenpreis (7 Tage)",  "€", 5)
-      +   feld("nfWe",    "Wochenendpreis Fr–Mo", "€", 5)
-      +   feld("nfKm",    "Frei-km pro Tag",       "km", 50)
+      +   feld("nfWe",    "Wochenendpreis Fr–Mo", "€", 5, "nfWeHin")
+      +   feld("nfKm",    "Frei-km pro Tag",       "km", 50, "nfKmHin")
       +   feld("nfMehr",  "Mehrkilometer ungeplant", "€/km", 0.01)
+      +   feld("nfMehrGep", "Mehrkilometer vorab geplant", "€/km", 0.01, "nfGepHin")
       + '</div>'
 
       + '<div class="nf-ampeln" id="nfAmpeln"></div>'
@@ -2665,8 +2682,12 @@ var AVJ_NEUFZ = (function(){
     return m;
   }
 
-  function feld(id, beschriftung, einheit, schritt){
-    return '<label class="nf-a"><span>' + beschriftung + '</span>'
+  /* hinweisId: ein leeres <em> in der Beschriftung, das spaeter mit der
+     km-Zahl der gewaehlten Vorlage gefuellt wird. platzhalter: ein
+     freiwilliges Feld zeigt den abgeleiteten Wert grau vor. */
+  function feld(id, beschriftung, einheit, schritt, hinweisId){
+    return '<label class="nf-a"><span>' + beschriftung
+         + (hinweisId ? ' <em id="' + hinweisId + '"></em>' : '') + '</span>'
          + '<span class="nf-in"><input type="number" step="' + schritt + '" id="' + id
          + '" inputmode="decimal"><em>' + einheit + '</em></span></label>';
   }
@@ -2725,6 +2746,38 @@ var AVJ_NEUFZ = (function(){
     vorbelegt[id] = e.value;
   }
 
+  /* Was die Anker im Einzelnen bedeuten, haengt an der Vorlage: der
+     Wochenendpreis gilt fuer deren erste km-Stufe, die Frei-km fuer den
+     ersten Tag. Ohne das dranzuschreiben muss man raten. */
+  function hinweise(){
+    var s = document.getElementById("nfVorlage");
+    var g = offen && offen[s && s.value];
+    var a = g ? g.auto : null;
+    var we  = document.getElementById("nfWeHin");
+    var km  = document.getElementById("nfKmHin");
+    var gep = document.getElementById("nfGepHin");
+    if(we)  we.textContent  = (a && a.weekend && a.weekend[0])
+      ? "kleinste Stufe, bei der Vorlage " + a.weekend[0][0] + " km" : "kleinste km-Stufe";
+    if(km)  km.textContent  = "am ersten Tag";
+    if(gep){
+      gep.textContent = "freiwillig \u2014 leer heisst: aus der Vorlage abgeleitet";
+      var e = document.getElementById("nfMehrGep");
+      if(e) e.placeholder = String(abgeleiteterGeplanter());
+    }
+  }
+
+  /* Der geplante Satz ist der guenstigere. Fehlt eine Vorlage, gilt das
+     Verhaeltnis, das sich ueber den Bestand eingespielt hat. */
+  function abgeleiteterGeplanter(){
+    var s = document.getElementById("nfVorlage");
+    var g = offen && offen[s && s.value];
+    var a = g ? g.auto : null;
+    var roh = zahl("nfMehr");
+    if(!roh) return "";
+    var faktor = (a && a.overKm) ? (a.planKm / a.overKm) : 0.62;
+    return Math.round(roh * faktor * 100) / 100;
+  }
+
   /* Nur die Vorbelegung auffrischen, ohne die Liste neu zu bauen */
   function vorbelegen(){
     var s = document.getElementById("nfVorlage");
@@ -2750,6 +2803,7 @@ var AVJ_NEUFZ = (function(){
       merkmale: merkmaleLesen(),
       tag: zahl("nfTag"), woche: zahl("nfWoche"), wochenende: zahl("nfWe"),
       freiKm: zahl("nfKm"), mehrKm: zahl("nfMehr"),
+      mehrKmGeplant: zahl("nfMehrGep"),
       vorlageEintrag: v,
       vorlage: v ? v.auto : null,
       formVonVorlage: !!v
@@ -2757,6 +2811,7 @@ var AVJ_NEUFZ = (function(){
   }
 
   function rechne(){
+    hinweise();
     var v = eingaben();
     var ampeln = document.getElementById("nfAmpeln");
     var vor    = document.getElementById("nfVorschau");
@@ -6016,7 +6071,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 43;
+var AVJ_BUILD = 44;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

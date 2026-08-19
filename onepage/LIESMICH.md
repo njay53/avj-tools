@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 43 · 19.08.2026
+# Onepage-Felder · Stand Version 44 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -87,7 +87,14 @@ Einbau in zwei Schritten, ausführlich in `tariftabelle-3-EINBAU.txt`:
 ```
 
 `data-titel` ist die blaue Kopfzeile, `*Sternchen*` machen den
-Modellnamen rot. Lässt man es weg, kommt der Titel aus dem Tool.
+Modellnamen rot.
+
+**Lässt man `data-titel` weg**, baut die Tabelle die Kopfzeile im
+gleichen Stil selbst — `*Name* (Klasse · Karosserie · Kraftstoff ·
+Getriebe)`. Der Vorteil: sie kommt dann aus `preise.json` und wandert
+mit, wenn im Tool eine Angabe geändert wird. Eine eingetragene
+`data-titel`-Zeile tut das **nicht**, die steht fest bei Onepage und
+müsste nach jeder Änderung neu kopiert werden.
 
 **Abtippen muss man die Zeile nicht:** im Tool unter *Tarif Config.* das
 Fahrzeug auswählen, Knopf **Popup-Zeile** — dort steht sie fertig und geht
