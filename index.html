@@ -3905,10 +3905,11 @@ function AVJ_RECHNER(CFG){
       var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
       base = stW.price; freeKm = stW.km;
       sbCost = hatSb ? car.sb[sbIdx].we : 0;
-      tarifLabel = "Wochenendtarif";
-      /* Nicht den Tarifnamen wiederholen — der steht ueber der Zahl.
-         Hier gehoert hin, was der Kunde sonst nachlesen muesste. */
-      badge = "Fr 12:00 \u2013 Mo 10:00";
+      /* Links die Dauer — beim Wochenende ist der Zeitrahmen die
+         nuetzlichere Angabe als "3 Tage und 21 Std.". Rechts, wie
+         ueberall, die Tarifart. */
+      tarifLabel = "Fr 12:00 \u2013 Mo 10:00";
+      badge = "Wochenendtarif";
 
     } else if(hatPkt && d.days <= 2){
       /* 1-2 Tage: Tagespakete, km pro Tag, auf naechste Stufe aufgerundet */
@@ -3918,9 +3919,11 @@ function AVJ_RECHNER(CFG){
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
       sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
-      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
-      /* Ohne eigenes Fr/Sa-Raster gibt es auch nichts zu unterscheiden */
-      badge = hatFrSaRaster(car) ? (frSa ? "Fr/Sa" : "Mo-Do") : "";
+      /* Ohne eigenes Fr/Sa-Raster gibt es auch nichts zu unterscheiden;
+         mit Raster gehoert die Angabe zur Dauer, nicht zur Tarifart. */
+      tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage")
+                 + (hatFrSaRaster(car) ? (frSa ? " \u00B7 Fr/Sa" : " \u00B7 Mo\u2013Do") : "");
+      badge = "Tagestarif";
 
     } else {
       /* Staffel Richtung Wochentarif */
@@ -3966,6 +3969,9 @@ function AVJ_RECHNER(CFG){
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
+      /* Drei bis sechs Tage standen bisher ohne Kennzeichnung da —
+         gerechnet wird dort nach der Tagesstaffel. */
+      badge = "Tagestarif";
       if(d.days === 7)                   badge = "Wochentarif";
       if(d.days > 7 && d.days < LZ_TAGE) badge = "Mehrwochentarif";
       if(d.days === LZ_TAGE)             badge = "Monatstarif";
@@ -4022,20 +4028,37 @@ function AVJ_RECHNER(CFG){
   /* Die Kennzeichnung traegt mal zwei Zeichen ("Fr/Sa"), mal zwanzig
      ("Fr 12:00 - Mo 10:00"). Die lange Fassung braucht kleinere
      Schrift und normale Schreibung, sonst schiebt sie den Preis weg. */
+  /* Im gelben Feld steht seit Build 48 ausnahmslos die Tarifart. Damit
+     entfaellt die alte Sonderbehandlung fuer lange Texte — es bleibt
+     durchgehend bei Versalien, nur die Schriftgroesse gibt bei
+     "Mehrwochentarif" und "Wochenendtarif" etwas nach, damit auf dem
+     iPhone nichts umbricht. */
   function setzeKennzeichnung(txt){
     var el = $("Badge");
     if(!el) return;
     el.textContent = txt || "";
-    var lang = String(txt || "").length > 12;
-    el.style.textTransform = lang ? "none"  : "";
-    el.style.letterSpacing = lang ? ".01em" : "";
-    el.style.fontWeight    = lang ? "700"   : "";
-    el.style.fontSize      = lang ? "11px"  : "";
+    var n = String(txt || "").length;
+    el.style.textTransform = "";
+    el.style.letterSpacing = "";
+    el.style.fontWeight    = "";
+    el.style.fontSize      = n > 13 ? "10.5px" : (n > 11 ? "11.5px" : "");
     el.style.whiteSpace    = "nowrap";
+  }
+
+  /* Vor einer Zahl gehoert das Eurozeichen, vor "auf Anfrage" nicht. */
+  function euroZeichen(an){
+    var p = $("Price");
+    if(!p || !p.parentNode) return;
+    var c = p.parentNode.querySelector(".c");
+    if(c) c.style.display = an ? "" : "none";
+    /* "auf Anfrage" ist kein Betrag — in voller Preisgroesse bricht es
+       auf dem iPhone um. */
+    p.style.fontSize = an ? "" : "0.6em";
   }
 
   function render(){
     renderDur();
+    euroZeichen(true);
     var q = $("Out");
     var r = quote();
 
@@ -4052,13 +4075,14 @@ function AVJ_RECHNER(CFG){
 
     if(r.anfrage){
       /* Kein Preis, aber auch keine Sackgasse: die Nummer steht da. */
+      euroZeichen(false);
       $("Price").textContent = "auf Anfrage";
       syncDiscount(0);
       /* Hier landet seit Build 46 nur noch, wer vier Wochen oder laenger
          will. Die Wochen davor rechnen immer — deshalb keine Fallunter-
          scheidung mehr. */
-      $("TarifLabel").textContent = "Langzeitmiete";
-      setzeKennzeichnung(r.tage + " Tage");
+      $("TarifLabel").textContent = r.tage + " Tage";
+      setzeKennzeichnung("Langzeitmiete");
       $("Lines").innerHTML =
         '<li class="hint"><b>Ab vier Wochen machen wir dir ein '
         + 'pers\u00F6nliches Angebot.</b> Der Preis h\u00E4ngt von Fahrzeug, '
@@ -6202,7 +6226,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 47;
+var AVJ_BUILD = 48;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

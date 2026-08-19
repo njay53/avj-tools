@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 47 · 19.08.2026
+# Onepage-Felder · Stand Version 48 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -50,6 +50,43 @@ wären alle bisherigen Daten und alle Popup-Zeilen ungültig.
 Die **Größenklasse je Fahrzeug** bleibt frei wählbar: ein Sprinter Tourer
 214 ist weiter ein 9-Sitzer, eine V-Klasse wäre ein Van. Beides steht
 jetzt in der Klassenliste des Tools.
+
+---
+
+## Die beiden Felder über dem Preis (v48)
+
+Sie haben feste Rollen:
+
+| | |
+|---|---|
+| **links**, klein und grau | die **Dauer** — „4 Tage", „1 Tag · Mo–Do" |
+| **rechts**, gelb | die **Tarifart** — „Tagestarif", „Wochentarif", … |
+
+Einzige Ausnahme links: beim Wochenende steht dort der Zeitrahmen
+**Fr 12:00 – Mo 10:00** statt „3 Tage und 21 Std." — das ist die Angabe,
+die der Kunde sonst nachfragen müsste.
+
+| Dauer | gelbes Feld |
+|---|---|
+| 1–6 Tage | Tagestarif |
+| Wochenende | Wochenendtarif |
+| 7 Tage | Wochentarif |
+| 8–27 Tage | Mehrwochentarif |
+| 28 Tage | Monatstarif |
+| ab 29 Tagen | Langzeitmiete *(ohne Preis)* |
+
+Vorher war es gemischt: beim Wochentarif stand der Name rechts, beim
+Wochenende links, bei drei bis sechs Tagen nirgends. Man konnte also
+nicht ablesen, nach welchem Tarif gerechnet wurde, ohne zu wissen, wo
+man hinschauen muss.
+
+Das gelbe Feld bleibt durchgehend in Versalien; nur die Schriftgröße
+gibt bei „Mehrwochentarif" und „Wochenendtarif" etwas nach, damit auf
+dem iPhone nichts umbricht. Geprüft mit `bildbadge.js` bei 390 px und
+900 px Breite.
+
+Nebenbei: vor **„auf Anfrage"** steht kein Eurozeichen mehr, und der
+Text ist kleiner gesetzt — in Preisgröße brach er auf dem iPhone um.
 
 ---
 

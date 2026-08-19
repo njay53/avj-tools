@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 47 · Onepage v47 · 19.08.2026**
+**Stand: Build 48 · Onepage v48 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2219,3 +2219,75 @@ neuen Fahrzeug stehengeblieben.
   selbst weg — bewusst so, aber es wäre denkbar, dass die Tabelle bei
   einem Fahrzeug, das der Server nicht mehr kennt, still verschwindet
   statt den Störungshinweis zu zeigen.
+
+---
+
+## 37. Build 48 / Onepage v48 — feste Rollen für die zwei Felder über dem Preis
+
+### Was falsch war
+
+Niran: *„wenn jmd tage, wochenende oder woche oder mehrwochen anklickt,
+dass das über dem Preis auch als gelber Button steht. und bei
+Tagestarifen rechts dann Tagestarif, so wie bei Woche dann
+Wochentarif."*
+
+Es war gemischt:
+
+| Fall | links | rechts (gelb) |
+|---|---|---|
+| 7 Tage | 7 Tage | **Wochentarif** |
+| Wochenende | **Wochenendtarif** | Fr 12:00 – Mo 10:00 |
+| 4 Tage | 4 Tage | *(leer)* |
+| 1 Tag | **Tagestarif** | Mo-Do |
+| ab 29 Tagen | **Langzeitmiete** | 29 Tage |
+
+Mal stand der Tarifname links, mal rechts, mal nirgends. Man konnte
+nicht ablesen, nach welchem Tarif gerechnet wurde, ohne zu wissen, wo
+man gerade hinschauen muss.
+
+### Was jetzt gilt
+
+**links** die Dauer · **rechts, gelb** die Tarifart. Ausnahmslos.
+
+| Dauer | links | rechts |
+|---|---|---|
+| 1 Tag (mit Fr/Sa-Raster) | 1 Tag · Mo–Do | Tagestarif |
+| 2 Tage | 2 Tage · Mo–Do | Tagestarif |
+| 3–6 Tage | 4 Tage | Tagestarif |
+| Wochenende | **Fr 12:00 – Mo 10:00** | Wochenendtarif |
+| 7 Tage | 7 Tage | Wochentarif |
+| 8–27 Tage | 14 Tage | Mehrwochentarif |
+| 28 Tage | 28 Tage | Monatstarif |
+| ab 29 Tagen | 29 Tage | Langzeitmiete |
+
+Einzige Ausnahme links: beim Wochenende der Zeitrahmen statt „3 Tage
+und 21 Std." — das ist die Angabe, die der Kunde sonst nachfragen
+müsste. Die Mo–Do/Fr–Sa-Angabe wandert zur Dauer, denn sie sagt etwas
+über den Zeitraum, nicht über die Tarifart.
+
+`setzeKennzeichnung()` hat keine Sonderbehandlung für lange Texte mehr
+(vorher: ab 13 Zeichen Kleinschreibung). Es bleibt durchgehend bei
+Versalien, nur die Schriftgröße gibt nach: ab 12 Zeichen 11,5 px, ab 14
+Zeichen 10,5 px.
+
+### Nebenbei
+
+Vor **„auf Anfrage"** stand ein Eurozeichen — „€ auf Anfrage" — und der
+Text brach auf dem iPhone in Preisgröße um. Jetzt kein Eurozeichen und
+0,6 em. Fiel beim Durchsehen der Kennzeichnungen auf.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `gold.js` | 676 Fälle, **kein einziger Preis geändert**. 572 Zeilen unterscheiden sich, alle nur in der Beschriftung — die Zuordnung alt→neu wurde einzeln aufgelistet und stimmt mit der Tabelle oben überein |
+| `pruefnamen.js` | 8 Dauern × links und rechts, Tool und Website identisch, kein Feld bleibt leer, Versalien durchgehend |
+| `bildbadge.js` | Bilder bei 390 px (iPhone) und 900 px: alle Kennzeichnungen einzeilig, auch „MEHRWOCHENTARIF" und „WOCHENENDTARIF" |
+| übrige Tests | grün, drei Erwartungen auf die neue Aufteilung nachgezogen (`pruefnamen`, `pruefschalter46`, `prueflangzeit`) |
+
+### Neues Werkzeug
+
+`bildbadge.js` fährt den Kundenrechner über sechs Mietdauern und zwei
+Bildschirmbreiten, macht von jedem Ergebniskasten ein Bild und meldet,
+ob die Kennzeichnung umbricht. Nützlich bei jeder Textänderung an dieser
+Stelle.

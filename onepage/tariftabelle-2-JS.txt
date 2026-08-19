@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 47 · 19.08.2026
+   Version 48 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben

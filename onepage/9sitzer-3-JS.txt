@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 47;
+var AVJ_WEB_BUILD = 48;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
@@ -416,9 +416,11 @@ function avjTrack(name, params){
       var stW = pickStep(gridFor(car, "weekend"), km, car.planKm);
       base = stW.price; freeKm = stW.km;
       sbCost = hatSb ? car.sb[sbIdx].we : 0;
-      tarifLabel = "Wochenendtarif";
+      /* Links die Dauer — beim Wochenende ist der Zeitrahmen die
+         nuetzlichere Angabe. Rechts, wie ueberall, die Tarifart. */
+      tarifLabel = "Fr 12:00 \u2013 Mo 10:00";
       /* Nicht den Tarifnamen wiederholen — der steht ueber der Zahl. */
-      badge = "Fr 12:00 \u2013 Mo 10:00";
+      badge = "Wochenendtarif";
 
     } else if(hatPkt && d.days <= 2){
       mode = "pkg";
@@ -427,8 +429,9 @@ function avjTrack(name, params){
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
       sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
-      tarifLabel = d.days === 1 ? "Tagestarif" : "2 Tage";
-      badge = hatFrSa ? (frSa ? "Fr/Sa" : "Mo-Do") : "";
+      tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage")
+                 + (hatFrSa ? (frSa ? " \u00B7 Fr/Sa" : " \u00B7 Mo\u2013Do") : "");
+      badge = "Tagestarif";
 
     } else {
       mode = "tier";
@@ -461,6 +464,8 @@ function avjTrack(name, params){
         sbCost = 0;
       }
       tarifLabel = d.days + (d.days === 1 ? " Tag" : " Tage");
+      /* Drei bis sechs Tage standen bisher ohne Kennzeichnung da. */
+      badge = "Tagestarif";
       if(d.days === 7)                   badge = "Wochentarif";
       if(d.days > 7 && d.days < LZ_TAGE) badge = "Mehrwochentarif";
       if(d.days === LZ_TAGE)             badge = "Monatstarif";
@@ -521,26 +526,42 @@ function avjTrack(name, params){
     var el = $("avjBadge");
     if(!el) return;
     el.textContent = txt || "";
-    var lang = String(txt || "").length > 12;
-    el.style.textTransform = lang ? "none"  : "";
-    el.style.letterSpacing = lang ? ".01em" : "";
-    el.style.fontWeight    = lang ? "700"   : "";
-    el.style.fontSize      = lang ? "11px"  : "";
+    /* Seit v48 steht hier ausnahmslos eine Tarifart — durchgehend
+       Versalien, nur die Schriftgroesse gibt bei den langen Namen
+       etwas nach, damit auf dem iPhone nichts umbricht. */
+    var n = String(txt || "").length;
+    el.style.textTransform = "";
+    el.style.letterSpacing = "";
+    el.style.fontWeight    = "";
+    el.style.fontSize      = n > 13 ? "10.5px" : (n > 11 ? "11.5px" : "");
     el.style.whiteSpace    = "nowrap";
+  }
+
+  /* Vor einer Zahl gehoert das Eurozeichen, vor "auf Anfrage" nicht. */
+  function euroZeichen(an){
+    var p = $("avjPrice");
+    if(!p || !p.parentNode) return;
+    var c = p.parentNode.querySelector(".c");
+    if(c) c.style.display = an ? "" : "none";
+    /* "auf Anfrage" ist kein Betrag — in voller Preisgroesse bricht es
+       auf dem iPhone um. */
+    p.style.fontSize = an ? "" : "0.6em";
   }
 
   function render(){
     renderDur();
+    euroZeichen(true);
     var q = $("avjOut");
     var r = quote();
 
     if(r.anfrage){
       /* Kein Preis, aber die Nummer steht da — keine Sackgasse. */
+      euroZeichen(false);
       $("avjPrice").textContent = "auf Anfrage";
       /* Hier landet seit v46 nur noch, wer vier Wochen oder laenger
          will. Die Wochen davor rechnen immer. */
-      $("avjTarifLabel").textContent = "Langzeitmiete";
-      setzeKennzeichnung(r.tage + " Tage");
+      $("avjTarifLabel").textContent = r.tage + " Tage";
+      setzeKennzeichnung("Langzeitmiete");
       $("avjLines").innerHTML =
         '<li class="hint"><b>Ab vier Wochen machen wir dir ein '
         + 'pers\u00F6nliches Angebot.</b> Der Preis h\u00E4ngt von Fahrzeug, '
