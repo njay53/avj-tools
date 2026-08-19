@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 41 · 19.08.2026
+# Onepage-Felder · Stand Version 42 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -13,9 +13,9 @@ in den CSS-Kasten, `…-3-JS.txt` in den JS-Kasten.
 
 | Feld | Dateien | wohin | eingebaut |
 |---|---|---|---|
-| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
-| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
-| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v41** |
+| Rechner 9-Sitzer | `9sitzer-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v42** |
+| Rechner Transporter | `transporter-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v42** |
+| Rechner PKW | `pkw-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite | ja — **JS neu ab v42** |
 | **Tariftabellen · Motor** | `tariftabelle-1-CSS` `-2-JS` | Fahrzeugseite, einmal | neu |
 | **Tariftabellen · je Popup** | siehe `tariftabelle-3-EINBAU.txt` | in jedes Fahrzeug-Popup | neu |
 | **Notfallhinweis** | `stoerung-1-HTML` `-2-CSS` `-3-JS` | Fahrzeugseite, einmal | neu |
@@ -140,6 +140,12 @@ Frei-km 2 × Wochen-km, Haftung 3 × Wochensatz. Diese Regel steht
 **wortgleich an vier Stellen** — im Tool und in den drei Rechner-Feldern,
 und noch einmal im Tariftabellen-Motor. Wer sie ändert, ändert sie
 überall, sonst rechnet die Website anders als der Betrieb.
+
+**Schalter je Fahrzeug (ab v42):** im Tool gibt es unter den
+Langzeitfeldern den Haken *„Langzeit nicht anzeigen"*. Ist er gesetzt,
+zeigen Rechner und Tabelle ab Tag 8 nur noch „Preis auf Anfrage" mit der
+Telefonnummer. Der Haken (`lzAnfrage`) steht im Fahrzeugdatensatz und geht
+mit der Freigabe raus.
 
 Geprüft wird das mit `pruefweb41.js`: Tool und Website laufen
 nebeneinander, 240 Fälle über alle Fahrzeuge, SB-Stufen, Mietdauern und

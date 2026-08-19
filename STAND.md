@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 41 · Onepage v41 · 19.08.2026**
+**Stand: Build 42 · Onepage v42 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1683,3 +1683,47 @@ Die Vorbelegung ist eine Schätzung, kein Preis. Die vier-Wochen-Werte
 gehören durchgesehen — er sagte selbst, die Mehrwochenpreise seien
 generell noch zu hoch. Das Feld dafür steht in *Tarif Config.* unter
 „Langzeit – vier Wochen (28 Tage)", die Haftung daneben unter „28 T".
+
+---
+
+## 30. Build 42 / Onepage v42 — Schalter: Langzeit zeigen oder auf Anfrage
+
+v41 war schon hochgeladen, als Niran auffiel, dass die Vier-Wochen-Preise
+noch zu niedrig sind. Er braucht sie also **sofort unsichtbar**, ohne die
+eingegebenen Werte wegzuwerfen und ohne Zeit für eine Neukalkulation.
+
+Ein Haken je Fahrzeug, direkt unter den Langzeitfeldern:
+
+> **Langzeit nicht anzeigen — „Preis auf Anfrage"**
+
+Ist er gesetzt, greift **ab Tag 8** dasselbe „Preis auf Anfrage", das es
+bisher erst ab Tag 29 gab — im Tool, im Kundenrechner und in der
+Tariftabelle. Die hinterlegten Werte bleiben stehen, sie werden nur nicht
+gezeigt. Bis sieben Tage ändert sich nichts.
+
+In der Tariftabelle tritt an die Stelle der Monatszeile eine Zeile
+*„ab 8 Tagen · Langzeitmiete · Preis auf Anfrage"* mit Telefonnummer, und
+die Haftungszeile *pro Monat* entfällt.
+
+Der Haken heißt `lzAnfrage` und steht im Fahrzeugdatensatz — er geht also
+mit *Für Kunden freigeben* raus, wie jeder andere Wert auch.
+
+### Eine Kleinigkeit, die auffiel
+
+`onSettingInput` fängt ganz oben mit `parseFloat(el.value)` an und steigt
+bei `NaN` aus. Ein Kästchen hat keinen Zahlenwert und wäre nie
+angekommen. Der Zweig für den Schalter steht deshalb **vor** der
+Zahlenprüfung, und weil ein Kästchen sich über `change` meldet und nicht
+über `input`, hängt daran ein zweiter Zuhörer.
+
+### Geprüft
+
+`pruefschalter.js`, sechzehn Proben über alle drei Stellen: im Tool Haken
+setzen → 8/14/28 Tage auf Anfrage, 7 Tage unverändert, Haken raus →
+Preise wieder da. Danach dieselbe Prüfung auf der Website, wo der Haken
+aus `preise.json` kommt — Rechner und Tabelle. Zum Schluss die
+Gegenprobe mit einer Datei ohne Haken: Monatsbetrag und Haftungszeile
+sind wieder da.
+
+Goldstandard: identisch mit Build 41 — ohne gesetzten Haken ändert sich
+nichts.

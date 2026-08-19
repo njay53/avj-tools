@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 41;
+var AVJ_WEB_BUILD = 42;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjPVer");
@@ -419,6 +419,11 @@ function avjpTrack(name, params){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
+      if(d.days > 7 && car.lzAnfrage){
+        /* Solange der Vier-Wochen-Anker nicht steht, gibt es fuer
+           Kunden gar keinen Langzeitpreis. */
+        return { anfrage:true, car:car, d:d, tage:d.days };
+      }
       if(d.days > LZ_TAGE){
         /* Ueber vier Wochen kein Automatikpreis mehr — das verhandelt
            Niran persoenlich. */

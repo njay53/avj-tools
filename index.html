@@ -1517,6 +1517,18 @@
   line-height:1.7;
 }
 .avjt-fuell:hover{border-color:#1B2FC4;color:#1B2FC4;}
+/* ══════════════════════════════════════════════════════════════
+   Build 42 · Schalter Langzeit
+   ══════════════════════════════════════════════════════════════ */
+.avjt-schalter{
+  display:flex;align-items:flex-start;gap:9px;margin:2px 0 14px;
+  padding:9px 11px;border:1px solid #DCE3EA;border-radius:9px;
+  background:#F7F9FB;cursor:pointer;
+}
+.avjt-schalter input{margin:2px 0 0;width:16px;height:16px;flex:0 0 auto;cursor:pointer;}
+.avjt-schalter span{display:block;font-size:12px;line-height:1.5;color:#40505E;}
+.avjt-schalter em{display:block;font-style:normal;font-size:11px;color:#8A96A3;margin-top:2px;}
+.avjt-schalter:has(input:checked){border-color:#B8892E;background:#FFFBF0;}
 </style>
 </head>
 <body>
@@ -3787,6 +3799,12 @@ function AVJ_RECHNER(CFG){
       var i = Math.min(d.days, 7) - 1;
       base   = car.tier[i];
       freeKm = car.tierKm[i];
+      if(d.days > 7 && car.lzAnfrage){
+        /* Solange der Vier-Wochen-Anker nicht steht, gibt es fuer
+           Kunden gar keinen Langzeitpreis — lieber ein Anruf als eine
+           Zahl, die noch nicht stimmt. */
+        return { anfrage:true, car:car, d:d, tage:d.days };
+      }
       if(d.days > LZ_TAGE){
         /* Ueber vier Wochen gibt es keinen Automatikpreis. Frueher
            wurde hier einfach fortgeschrieben — was bei drei Monaten
@@ -5009,7 +5027,14 @@ function AVJ_RECHNER(CFG){
       +  '<div class="avjt-scol"><div class="d">Frei-km 28 T</div>'
       +  '<input type="number" step="50" data-rate="monthKm" placeholder="'
       +    lzKm(car) + '" value="'+(car.monthKm||"")+'"></div>'
-      +  '</div>';
+      +  '</div>'
+      +  '<label class="avjt-schalter"><input type="checkbox" '
+      +    'data-schalter="lzAnfrage"' + (car.lzAnfrage ? " checked" : "") + '>'
+      +    '<span><b>Langzeit nicht anzeigen \u2014 "Preis auf Anfrage"</b>'
+      +    '<em>Gilt ab Tag 8, im Rechner und in der Tariftabelle. Die Werte '
+      +    'oben bleiben gespeichert, sie werden nur nicht gezeigt. Haken '
+      +    'setzen, solange der Vier-Wochen-Preis noch nicht steht.</em></span>'
+      +  '</label>';
 
     for(var s=1;car.sb && s<car.sb.length;s++){
       h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
@@ -5079,6 +5104,20 @@ function AVJ_RECHNER(CFG){
 
   function onSettingInput(e){
     var el = e.target, car = CARS[carKey];
+
+    /* Der Haken kommt vor der Zahlenpruefung — ein Kaestchen hat keinen
+       Zahlenwert und waere sonst gleich wieder rausgeflogen. */
+    var schalter = el.getAttribute && el.getAttribute("data-schalter");
+    if(schalter){
+      takeSnapshot();
+      if(el.checked) car[schalter] = true;
+      else           delete car[schalter];
+      _gridCache = {};
+      saveCfg(); renderSb(); render(); zeichneKundenstand();
+      flashSaved(el.checked ? "Langzeit: auf Anfrage" : "Langzeit: Preis sichtbar");
+      return;
+    }
+
     var v  = parseFloat(el.value);
     if(isNaN(v)) return;
 
@@ -5122,6 +5161,12 @@ function AVJ_RECHNER(CFG){
   }
 
   $("SetBody").addEventListener("input", onSettingInput);
+  /* Ein Kaestchen meldet sich ueber change, nicht ueber input */
+  $("SetBody").addEventListener("change", function(e){
+    if(e.target && e.target.getAttribute && e.target.getAttribute("data-schalter")){
+      onSettingInput(e);
+    }
+  });
   /* Bezugspunkt fuer die Farbe der Markierung: der Stand, den
      Kunden gerade sehen. Wird erst beim Aufruf gelesen, damit ein
      nachtraeglich eintreffender Serverstand mitzaehlt. */
@@ -5944,7 +5989,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 41;
+var AVJ_BUILD = 42;
 var AVJ_BUILD_DATE = "18.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
