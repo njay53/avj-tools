@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Motor
-   Version 42 · 19.08.2026
+   Version 43 · 19.08.2026
 
    Ersetzt die Preistabellen, die bisher als JPG in den Fahrzeug-
    Popups lagen. Der Vorteil: die Tabelle kommt aus derselben
@@ -1186,14 +1186,19 @@ window.AVJ_TABELLE = window.AVJ_TABELLE || (function(){
      es Tagespakete gibt. */
   function langzeit(c){
     if(!c.tier || !c.tier[6]) return "";
+    /* "Langzeit" passt erst ab vier Wochen. Ist der Schalter gesetzt,
+       faengt der Abschnitt schon bei acht Tagen an — dann heisst er
+       auch so. */
     var h = '<div class="avjtab-reihe">'
-      + '<div class="avjtab-z avjtab-band">Langzeit</div>'
+      + '<div class="avjtab-z avjtab-band">'
+      + (c.lzAnfrage ? 'Mehrwochen- und Langzeitmiete' : 'Langzeit')
+      + '</div>'
       + zelle('avjtab-rot','je extra km') + '</div>';
     if(c.lzAnfrage){
       /* Der Schalter im Tool: Langzeitpreise sind hinterlegt, aber noch
          nicht freigegeben. Dann steht hier kein Betrag. */
       h += '<div class="avjtab-reihe">'
-        + zelle('avjtab-gelb','ab 8 Tagen<br><span class="kl2">Langzeitmiete</span>',
+        + zelle('avjtab-gelb','ab 8 Tagen<br><span class="kl2">l\u00E4nger als eine Woche</span>',
                 'grid-column:1')
         + zelle('avjtab-grau','<b>Preis auf Anfrage</b>', 'grid-column:2/6')
         + zelle('avjtab-grau', extraKm(c), 'grid-column:6')

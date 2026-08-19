@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 42;
+var AVJ_WEB_BUILD = 43;
 var AVJ_WEB_DATE  = "19.08.2026";
 (function(){
   var el = document.getElementById("avjTVer");
@@ -404,7 +404,8 @@ function avjtTrack(name, params){
       base = stW.price; freeKm = stW.km;
       sbCost = hatSb ? car.sb[sbIdx].we : 0;
       tarifLabel = "Wochenendtarif";
-      badge = "Fr-Mo";
+      /* Nicht den Tarifnamen wiederholen — der steht ueber der Zahl. */
+      badge = "Fr 12:00 \u2013 Mo 10:00";
 
     } else if(hatPkt && d.days <= 2){
       mode = "pkg";
@@ -497,6 +498,22 @@ function avjtTrack(name, params){
     el.innerHTML = f(d.from) + " \u2192 " + f(d.to) + " \u00B7 " + lbl;
   }
 
+  /* Die Kennzeichnung traegt mal zwei Zeichen ("Fr/Sa"), mal zwanzig
+     ("Fr 12:00 - Mo 10:00"). Die lange Fassung braucht kleinere Schrift
+     und normale Schreibung, sonst schiebt sie den Preis weg. Bewusst als
+     Inline-Stil, damit die CSS-Felder unangetastet bleiben. */
+  function setzeKennzeichnung(txt){
+    var el = $("avjTBadge");
+    if(!el) return;
+    el.textContent = txt || "";
+    var lang = String(txt || "").length > 12;
+    el.style.textTransform = lang ? "none"  : "";
+    el.style.letterSpacing = lang ? ".01em" : "";
+    el.style.fontWeight    = lang ? "700"   : "";
+    el.style.fontSize      = lang ? "11px"  : "";
+    el.style.whiteSpace    = "nowrap";
+  }
+
   function render(){
     renderDur();
     var q = $("avjTOut");
@@ -505,11 +522,16 @@ function avjtTrack(name, params){
     if(r.anfrage){
       /* Kein Preis, aber die Nummer steht da — keine Sackgasse. */
       $("avjTPrice").textContent = "auf Anfrage";
-      $("avjTTarifLabel").textContent = "Langzeitmiete";
-      $("avjTBadge").textContent = r.tage + " Tage";
+      /* "Langzeitmiete" passt erst ab vier Wochen. Darunter greift
+         der Schalter, das ist ein Mehrwochentarif. */
+      var lang = r.tage >= LZ_TAGE;
+      $("avjTTarifLabel").textContent = lang ? "Langzeitmiete" : "Mehrwochentarif";
+      setzeKennzeichnung(r.tage + " Tage");
       $("avjTLines").innerHTML =
-        '<li class="hint"><b>Ab vier Wochen machen wir dir ein pers\u00F6nliches '
-        + 'Angebot.</b> Bei Langzeitmieten h\u00E4ngt der Preis von Fahrzeug, '
+        '<li class="hint"><b>' + (lang
+          ? "Ab vier Wochen machen wir dir ein pers\u00F6nliches Angebot."
+          : "F\u00FCr diese Mietdauer machen wir dir ein pers\u00F6nliches Angebot.")
+        + '</b> Der Preis h\u00E4ngt von Fahrzeug, '
         + 'Laufzeit und Kilometern ab \u2014 das rechnen wir dir gern durch.</li>'
         + '<li class="hint">Ruf uns an oder schreib per WhatsApp: '
         + '<b>05551-54545</b></li>';
@@ -520,7 +542,7 @@ function avjtTrack(name, params){
     if(r.empty || r.invalid){
       $("avjTPrice").textContent = "\u2014";
       $("avjTTarifLabel").textContent = "Richtpreis";
-      $("avjTBadge").textContent = "";
+      setzeKennzeichnung("");
       $("avjTLines").innerHTML =
         '<li class="hint">'+(r.invalid
           ? "Bitte R\u00FCckgabe nach der Abholung w\u00E4hlen."
@@ -531,7 +553,7 @@ function avjtTrack(name, params){
 
     $("avjTPrice").textContent = eur(r.total);
     $("avjTTarifLabel").textContent = r.tarifLabel;
-    $("avjTBadge").textContent = r.badge;
+    setzeKennzeichnung(r.badge);
 
     var L = "";
     L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
@@ -577,7 +599,7 @@ function avjtTrack(name, params){
       +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
 
     if(r.mode === "tier" && r.d.days > 7){
-      L += '<li class="hint">Langzeittarif: je l\u00E4nger die Miete, desto '
+      L += '<li class="hint">Mehrwochentarif: je l\u00E4nger die Miete, desto '
         +  'g\u00FCnstiger die Woche. Ab vier Wochen machen wir dir ein '
         +  'pers\u00F6nliches Angebot.</li>';
     }

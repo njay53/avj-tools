@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 42 · Onepage v42 · 19.08.2026**
+**Stand: Build 43 · Onepage v43 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1727,3 +1727,117 @@ sind wieder da.
 
 Goldstandard: identisch mit Build 41 — ohne gesetzten Haken ändert sich
 nichts.
+
+---
+
+## 31. ~~Offen~~ — Benennungen (erledigt in Build 43, siehe Abschnitt 32)
+
+### 31.1 „Langzeit" erst ab 28 Tagen
+
+Nirans Einwand nach Build 42: *„langzeit würde ich erst ab 28 tagen so
+benennen nicht ab 8 tagen"*. Stimmt — acht Tage sind keine Langzeitmiete,
+das ist etwas mehr als eine Woche.
+
+Betroffen sind vier Textstellen, keine Rechenlogik:
+
+| wo | heute | Vorschlag |
+|---|---|---|
+| Tariftabelle, Bandüberschrift | „Langzeit" | „Langzeit" nur über der Monatszeile lassen |
+| Tariftabelle bei gesetztem Haken | „ab 8 Tagen · Langzeitmiete" | „ab 8 Tagen · Mehrwochentarif" |
+| Rechner, `tarifLabel` bei `anfrage` | „Langzeitmiete" | ab 8 Tagen „Mehrwochentarif", ab 28 „Langzeitmiete" |
+| Rechner, Hinweiszeile über 7 Tage | „Langzeittarif: je länger …" | „Mehrwochentarif: je länger …" |
+
+Zu ändern in `index.html`, den drei Onepage-Rechnern und im
+Tariftabellen-Motor. Reine Zeichenketten — der Goldstandard darf sich
+dabei nicht bewegen, das ist die Probe.
+
+Niran hat es vorerst zurückgestellt („erstmal reicht das so").
+
+### 31.2 Kennzeichnung beim Wochenendtarif
+
+Im Ergebniskasten steht oben rechts als Kennzeichnung **„FR-MO"**. Das ist
+die technische Beschreibung des Zeitfensters, nicht der Tarifname. Niran
+möchte dort **„WE-Tarif"**.
+
+Die Stelle: in `quote()` setzt der Wochenendzweig `badge = "Fr-Mo"`. Zu
+ändern in `index.html` und in den drei Onepage-Rechnern — vier Mal
+dieselbe Zeichenkette, keine Rechenlogik.
+
+Zu bedenken: über der Zahl steht bereits „WOCHENENDTARIF" als
+`tarifLabel`. Mit „WE-Tarif" daneben stünde es doppelt. Vielleicht besser
+die Kennzeichnung ganz weglassen, wenn ohnehin „Wochenendtarif" darüber
+steht — oder dort das Zeitfenster ausschreiben („Fr 12:00 – Mo 10:00").
+Beim Umsetzen einmal kurz abstimmen.
+
+**Der Goldstandard enthält die Kennzeichnung** — er wird sich also
+bewegen. Das ist bei dieser Änderung erwartet und kein Fehler; die Probe
+ist, dass sich ausschließlich das Feld `badge` unterscheidet und keine
+einzige Zahl.
+
+---
+
+## 32. Build 43 / Onepage v43 — die zwei Benennungen
+
+Beide offenen Punkte aus Abschnitt 31 abgearbeitet. Reine Zeichenketten,
+keine Rechenlogik.
+
+### 32.1 „Langzeit" erst ab vier Wochen
+
+Der Schalter aus Build 42 kann schon ab Tag 8 greifen, die harte Grenze
+ab Tag 29 — beides landete im selben Zweig und hieß dort pauschal
+**Langzeitmiete**. Acht Tage sind aber keine Langzeitmiete.
+
+Jetzt entscheidet die Dauer:
+
+| Dauer | Tarifname |
+|---|---|
+| 8–27 Tage | **Mehrwochentarif** |
+| ab 28 Tagen | **Langzeitmiete** |
+
+Der Begleittext geht mit: unter vier Wochen *„Für diese Mietdauer machen
+wir dir ein persönliches Angebot"*, ab vier Wochen *„Ab vier Wochen …"*.
+In den Onepage-Rechnern heißt die Hinweiszeile über sieben Tagen jetzt
+ebenfalls „Mehrwochentarif". In der Tariftabelle heißt das Band bei
+gesetztem Schalter **„Mehrwochen- und Langzeitmiete"** statt „Langzeit",
+und die Zeile *„ab 8 Tagen · Langzeitmiete"* wurde zu *„ab 8 Tagen ·
+länger als eine Woche"*.
+
+### 32.2 Kennzeichnung beim Wochenendtarif
+
+Stand **„FR-MO"** — über der Zahl steht aber ohnehin schon
+WOCHENENDTARIF. Die Kennzeichnung wiederholte also den Tarifnamen,
+statt etwas beizutragen. Jetzt steht dort der Zeitrahmen:
+
+> **Fr 12:00 – Mo 10:00**
+
+Das ist deutlich länger als „Fr-Mo". Die Kennzeichnung ist normalerweise
+in Großbuchstaben mit weiter Sperrung gesetzt — so hätte sie auf dem
+Telefon den Preis weggeschoben. Ab zwölf Zeichen schaltet
+`setzeKennzeichnung()` deshalb auf normale Schreibung, engere Sperrung
+und 11 px.
+
+**Bewusst als Inline-Stil, nicht als CSS-Klasse.** Eine Klasse hätte
+bedeutet, dass Niran auch die drei CSS-Felder der Rechner bei Onepage neu
+einsetzen muss. So genügen die JS-Felder. Gemessen bei 390 px Breite:
+Kennzeichnung 124 px, passt neben „WOCHENENDTARIF".
+
+### Geprüft
+
+**Goldstandard, 832 Fälle gegen Build 42:**
+
+- **Preise geändert: 0** ✓
+- Tarifnamen geändert: 0 — im Goldstandard greift der Schalter nirgends,
+  und ab 28 Tagen bleibt es „Langzeitmiete"
+- Kennzeichnungen geändert: 120 × `Fr-Mo → Fr 12:00 – Mo 10:00` ✓
+
+Genau das war die Probe: es durfte sich ausschließlich die Kennzeichnung
+bewegen.
+
+`pruefnamen.js` prüft zusätzlich die Fälle, die der Goldstandard nicht
+abdeckt — mit gesetztem Schalter: Wochenende, 14 Tage, 29 Tage, jeweils
+im Tool **und** auf der Website, plus die Schriftumschaltung und die
+beiden Textstellen in der Tariftabelle. Alles grün, Tool und Website
+identisch.
+
+`pruefweb41.js` (240 Fälle Tool gegen Website) und `pruefschalter.js`
+unverändert grün.
