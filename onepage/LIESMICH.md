@@ -1,4 +1,4 @@
-# Onepage-Felder · Stand Version 52 · 19.08.2026
+# Onepage-Felder · Stand Version 53 · 19.08.2026
 
 Alles, was bei Onepage in ein Custom-Code-Feld eingesetzt wird.
 Ein Feld hat drei Kästen: **HTML**, **CSS**, **JS**. Die Dateien sind
@@ -237,6 +237,10 @@ deshalb gibt es jetzt `kurzzeit.overKm`.
 Im Tool: *Tarif Config.* → Fahrzeug → Abschnitt **Kurzzeittarife**,
 Feld **Mehr-km bei KZ**. Leer heißt „wie beim Fahrzeug"; der Platzhalter
 zeigt, welcher Satz das gerade ist.
+
+**Frei-km je Stundenpaket (v53):** `kurzzeit.km` gilt für 3 Std.,
+`kurzzeit.km6` für 6 Std. Feld **Frei-km 6 Std.**, leer heißt „wie
+3 Std.". Alte `preise.json` ohne `km6` sehen also aus wie vorher.
 
 Betrifft **nur** die Kurzzeitzeile der Tabelle. Tages-, Wochenend- und
 Langzeitzeilen behalten den Satz des Fahrzeugs. Der Kundenrechner ist

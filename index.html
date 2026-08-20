@@ -5498,21 +5498,28 @@ function AVJ_RECHNER(CFG){
       /* Der eigene Mehrkilometer-Satz ist freiwillig. Leer = der Satz
          des Fahrzeugs, und genau der steht als Platzhalter drin — man
          sieht also immer, womit gerechnet wird. */
+      /* Zwei freiwillige Felder, beide nach demselben Muster: leer
+         heisst "wie der Standard daneben", und der Platzhalter zeigt
+         welcher das ist. Damit bleiben alte preise.json gueltig. */
       var kzOver = (car.kurzzeit.overKm > 0) ? car.kurzzeit.overKm : "";
+      var kzKm6  = (car.kurzzeit.km6 > 0)    ? car.kurzzeit.km6    : "";
       h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle. '
-        +  'Mehr-km leer: wie beim Fahrzeug ('
+        +  'Leere Felder: Frei-km 6 Std. wie 3 Std., Mehr-km wie beim Fahrzeug ('
         +  (car.overKm || 0).toFixed(2).replace(".", ",") + ' \u20AC/km)</div>'
         +  '<div class="avjt-sgrid p4">'
-        +  '<div class="avjt-scol"><div class="d">Frei-km</div>'
+        +  '<div class="avjt-scol"><div class="d">Frei-km 3 Std.</div>'
         +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
+        +  '<div class="avjt-scol"><div class="d">Frei-km 6 Std.</div>'
+        +  '<input type="number" step="50" data-pfad="kurzzeit.km6" data-leer="weg" '
+        +    'placeholder="'+car.kurzzeit.km+'" value="'+kzKm6+'"></div>'
         +  '<div class="avjt-scol"><div class="d">3 Std. Mo\u2013Do</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
         +  '<div class="avjt-scol"><div class="d">6 Std. Mo\u2013Do</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
-        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
         +  '</div>'
         +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Fr/Sa</div>'
+        +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.0" value="'+car.kurzzeit.frSa[0]+'"></div>'
         +  '<div class="avjt-scol"><div class="d">6 Std. Fr/Sa</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.frSa.1" value="'+car.kurzzeit.frSa[1]+'"></div>'
         +  '<div class="avjt-scol"><div class="d">Mehr-km bei KZ</div>'
@@ -6522,7 +6529,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 53;
+var AVJ_BUILD = 54;
 var AVJ_BUILD_DATE = "19.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

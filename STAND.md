@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 53 · Onepage v52 · 19.08.2026**
+**Stand: Build 54 · Onepage v53 · 19.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2700,3 +2700,43 @@ Anzeige verschweigt es.
 
 `index.html` und `tariftabelle-2-JS.txt`. Die drei Rechner-Felder sind
 weiterhin unverändert (v50).
+
+---
+
+## 43. Build 54 / Onepage v53 — Frei-km für 3 und 6 Stunden getrennt
+
+Niran: *„kannst du aber bei den transporter KZ zu den neuen km preis noch
+die frei km für 3 und 6 std. seperieren? aktuell ist ja nur eine km stufe
+drin für beide kz tarife."*
+
+Stimmt — `kurzzeit.km` galt für beide Spalten. Sechs Stunden mit
+denselben Frei-km wie drei ist auch schwer zu begründen.
+
+**Neu:** `kurzzeit.km6`, freiwillig.
+
+| Feld | gilt für | leer heißt |
+|---|---|---|
+| `kurzzeit.km` | 3 Std. | — (Pflicht) |
+| `kurzzeit.km6` | 6 Std. | wie 3 Std. |
+| `kurzzeit.overKm` | beide | wie beim Fahrzeug |
+
+Damit bleiben alle bisher erzeugten `preise.json` gültig: ohne `km6`
+sieht die Tabelle aus wie vorher.
+
+Der Abschnitt im Tool ist jetzt zweizeilig — oben Frei-km 3 Std.,
+Frei-km 6 Std., 3 Std. Mo–Do, 6 Std. Mo–Do; unten 3 Std. Fr/Sa,
+6 Std. Fr/Sa, Mehr-km bei KZ.
+
+### Geprüft
+
+`pruefkz53.js` um sechs Proben erweitert: ohne `km6` zeigen beide
+Spalten dieselben Frei-km; mit `km6 = 100` steht in der 3-Std.-Spalte
+weiter 50 und in der 6-Std.-Spalte 100; das Feld hat die 3-Std.-km als
+Platzhalter, Eintippen landet in `km6`, Leeren entfernt es wieder, und
+`kurzzeit.km` bleibt dabei unangetastet.
+
+`gold.js` identisch mit Build 53, alle übrigen Tests grün.
+
+### Geändert
+
+`index.html` und `tariftabelle-2-JS.txt`. Rechner-Felder weiterhin v50.
