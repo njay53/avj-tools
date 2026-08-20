@@ -720,6 +720,18 @@
 .avjt-abs-in{ padding:0 14px 14px; }
 .avjt-abs-in .avjt-slabel{ margin-top:14px; }
 
+/* Bezugsgroesse fuer den geplanten Mehrkilometersatz */
+.avjt-kmzeile{
+  font-size:10.5px;line-height:1.6;color:#8A96A3;margin:6px 0 2px;
+}
+.avjt-kmzeile b{color:#5A6675;font-weight:700;}
+.avjt-kmvor{
+  border:1px solid #C9D2DC;background:#fff;color:#1B2FC4;border-radius:999px;
+  padding:2px 9px;margin:0 1px;font:inherit;font-size:10.5px;font-weight:800;
+  cursor:pointer;-webkit-appearance:none;
+}
+.avjt-kmvor:hover{background:#1B2FC4;border-color:#1B2FC4;color:#fff;}
+
 /* Zwei Felder behaupten dasselbe — Hinweis mit Angleichen-Knopf */
 .avjt-sabgleich{margin:2px 0 4px;}
 .avjt-sabgleich:empty{display:none;}
@@ -5334,8 +5346,14 @@ function AVJ_RECHNER(CFG){
     }
     L += '<li class="sum"><span class="k">Richtpreis gesamt</span><span class="v">'+eur(_gesamt - _rab)+' \u20AC</span></li>';
 
+    /* Der zweite Satz stimmt nur, solange der geplante Satz wirklich
+       niedriger ist. Bei Golf, Golf Variant und Yaris war er gleich —
+       dort stand ein Versprechen, das der Rechner nicht einhielt. */
     L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
-      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
+      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km.'
+      +  (r.car.planKm < r.car.overKm
+          ? ' Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.' : '')
+      +  '</li>';
 
     if(r.mode === "tier" && r.d.days > 7){
       L += CFG.langzeit === "monat"
@@ -6046,6 +6064,21 @@ function AVJ_RECHNER(CFG){
         flashSaved(meldung || "Zwischenwerte gesetzt");
         return;
       }
+      if(t.getAttribute("data-kmfix")){
+        var kv = parseFloat(t.getAttribute("data-kmfix"));
+        var kc = CARS[carKey];
+        if(kc && isFinite(kv) && kv > 0){
+          takeSnapshot();
+          kc.planKm = kv;
+          _gridCache = {};
+          saveCfg();
+          renderSettings(); renderSb(); render();
+          try{ AVJ_EDITOR.neuZeichnen(); }catch(e2){}
+          try{ zeichneKundenstand(); }catch(e2){}
+          flashSaved("Geplante Mehrkilometer gesetzt");
+        }
+        return;
+      }
       if(t.getAttribute("data-fix")){
         var fm = gleicheAn(t.getAttribute("data-fix"));
         flashSaved(fm || "Angeglichen");
@@ -6079,6 +6112,71 @@ function AVJ_RECHNER(CFG){
       +  '1T + 7T \u2192 Rest</button>';
   }
 
+  /* ─── Wie steil steigen die Kilometerpakete? ─────────────────────
+     Gemessen wird an den TAGESPAKETEN: (Preis2 - Preis1) / (km2 - km1).
+     Die Wochenendpakete bleiben draussen — sie decken drei Tage ab,
+     ihre Stufen sind viel grober und ihre Steigung ist keine
+     vergleichbare Groesse. Nur wenn es gar keine Tagespakete gibt,
+     wird das Wochenende als Ersatz genommen. Die Staffel 1-7 Tage
+     zaehlt nie mit: dort steigen Preis und Kilometer gemeinsam mit der
+     Mietdauer, das ist kein Kilometerpreis. */
+  function kmSteigung(car){
+    var s = [], quelle = "Tagespakete";
+    ["dayMoDo","dayFrSa"].forEach(function(k){
+      var p = car[k];
+      if(!p || p.length < 2) return;
+      for(var i=1;i<p.length;i++){
+        var dk = p[i][0] - p[i-1][0], dp = p[i][1] - p[i-1][1];
+        if(dk > 0 && dp >= 0) s.push(dp / dk);
+      }
+    });
+    if(!s.length && car.weekend && car.weekend.length > 1){
+      quelle = "Wochenendpakete";
+      for(var j=1;j<car.weekend.length;j++){
+        var wk = car.weekend[j][0] - car.weekend[j-1][0];
+        var wp = car.weekend[j][1] - car.weekend[j-1][1];
+        if(wk > 0 && wp >= 0) s.push(wp / wk);
+      }
+    }
+    if(!s.length) return null;
+    var summe = 0, min = s[0], max = s[0];
+    for(var q=0;q<s.length;q++){
+      summe += s[q];
+      if(s[q] < min) min = s[q];
+      if(s[q] > max) max = s[q];
+    }
+    return { min:min, max:max, mittel:summe/s.length, quelle:quelle };
+  }
+
+  /* Doppelte mittlere Paketsteigung, eingehegt zwischen der steilsten
+     Stufe und dem ungeplanten Satz. 0 heisst: kein Vorschlag moeglich. */
+  function kmVorschlag(car){
+    var st = kmSteigung(car), ov = car.overKm || 0;
+    if(!(ov > 0)) return 0;
+    var v;
+    if(st){
+      var unten = st.max + 0.01, oben = ov - 0.01;
+      if(oben < unten) return 0;          /* dazwischen ist kein Platz */
+      v = st.mittel * 2;
+      if(v < unten) v = unten;
+      if(v > oben)  v = oben;
+    } else {
+      v = ov * 0.62;                      /* wie im Anlegen-Dialog */
+    }
+    v = Math.round(v * 100) / 100;
+    return (v > 0 && v < ov) ? v : 0;
+  }
+
+  /* Was nicht stimmt — "" heisst: alles in Ordnung. */
+  function kmBefund(car){
+    var pl = car.planKm || 0, ov = car.overKm || 0;
+    if(!(ov > 0) || !(pl > 0)) return "";
+    if(pl >= ov) return "gleich";
+    var st = kmSteigung(car);
+    if(st && pl <= st.max) return "flach";
+    return "";
+  }
+
   /* Welche Abschnitte offen sind. renderSettings() laeuft nach jeder
      Aenderung — ohne Gedaechtnis klappte alles wieder zu, sobald man
      eine Zahl tippt. */
@@ -6104,7 +6202,8 @@ function AVJ_RECHNER(CFG){
       var von = (car.dayMoDo && car.dayMoDo.length) ? car.tier[2] : car.tier[0];
       z.staffel = n(von) + " \u2026 " + n(car.tier[6]) + " \u20AC";
     }
-    z.km = e2(car.planKm) + " / " + e2(car.overKm) + " \u20AC/km";
+    z.km = e2(car.planKm) + " / " + e2(car.overKm) + " \u20AC/km"
+         + (kmBefund(car) ? "  \u00B7  pr\u00FCfen" : "");
     z.lz = car.lzAnfrage ? "auf Anfrage"
          : n(lzPreis(car)) + " \u20AC \u00B7 " + n(lzKm(car)) + " km";
     if(car.sb && car.sb.length > 1){
@@ -6191,6 +6290,53 @@ function AVJ_RECHNER(CFG){
      gleich sind, faellt das niemandem auf. Sobald man eins von beiden
      aendert, steht im Tool eine Zahl, die der Kunde nie sieht.
      Genau das ist Niran passiert. */
+  /* ─── Was der geplante Satz mit den Paketen zu tun hat ────────────
+     Er ist die Bruecke zwischen zwei Stufen und die Fortsetzung nach
+     der letzten. Ohne Bezugsgroesse ist er eine geratene Zahl — hier
+     steht, woran er gemessen wird und was herauskaeme. */
+  function zeichneKm(){
+    var el = $("KmInfo");
+    if(!el || !hatAuto()) return;
+    var car = CARS[carKey];
+    var st  = kmSteigung(car), vor = kmVorschlag(car), befund = kmBefund(car);
+    var h = "";
+
+    function eur(n){ return Number(n).toFixed(2).replace(".", ",") + " \u20AC"; }
+
+    if(st){
+      h += '<div class="avjt-kmzeile">Deine <b>' + st.quelle + '</b> steigen mit <b>'
+        +  eur(st.min) + '</b> bis <b>' + eur(st.max) + '</b> je km.'
+        +  (vor ? ' Dazu passt geplant <button type="button" class="avjt-kmvor" '
+        +         'data-kmfix="' + vor + '" title="Klick setzt den Wert">'
+        +         eur(vor) + '</button>' : '')
+        +  '</div>';
+    } else if(vor){
+      h += '<div class="avjt-kmzeile">Ohne Kilometerpakete gibt es keine Steigung zu '
+        +  'messen. Nach dem Verh\u00E4ltnis im \u00FCbrigen Bestand w\u00E4re geplant '
+        +  '<button type="button" class="avjt-kmvor" data-kmfix="' + vor + '" '
+        +  'title="Klick setzt den Wert">' + eur(vor) + '</button></div>';
+    }
+
+    if(befund === "gleich"){
+      h += '<div class="avjt-swarn"><span class="tx"><b>Vorausplanen bringt dem Kunden '
+        +  'nichts</b> \u2014 geplant und ungeplant sind gleich hoch. Der Satz im '
+        +  'Ergebnis, dass man mit Vorausplanen g\u00FCnstiger f\u00E4hrt, wird '
+        +  'deshalb gar nicht erst angezeigt.</span>'
+        +  (vor ? '<button type="button" class="avjt-sfix" data-kmfix="' + vor + '">auf '
+        +         eur(vor) + ' setzen</button>' : '')
+        +  '</div>';
+    } else if(befund === "flach"){
+      h += '<div class="avjt-swarn"><span class="tx"><b>Der geplante Satz liegt unter der '
+        +  'Steigung deiner Pakete</b> (' + eur(st.max) + '). Dann lohnt sich f\u00FCr '
+        +  'den Kunden kein gr\u00F6\u00DFeres Paket mehr \u2014 er nimmt das kleinste '
+        +  'und kauft die Kilometer einzeln dazu.</span>'
+        +  (vor ? '<button type="button" class="avjt-sfix" data-kmfix="' + vor + '">auf '
+        +         eur(vor) + ' setzen</button>' : '')
+        +  '</div>';
+    }
+    el.innerHTML = h;
+  }
+
   function zeichneAbgleich(){
     var el = $("Abgleich");
     if(!el) return;
@@ -6256,6 +6402,7 @@ function AVJ_RECHNER(CFG){
     try{ zeichneKennzahlen(); }catch(e){}
     try{ zeichneAbgleich();   }catch(e){}
     try{ zeichneZusammen();   }catch(e){}
+    try{ zeichneKm();         }catch(e){}
   }
 
   /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
@@ -6612,7 +6759,8 @@ function AVJ_RECHNER(CFG){
       +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
       +  '<div class="avjt-scol"><div class="d">ungeplant</div>'
       +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
-      +  '</div>';
+      +  '</div>'
+      +  '<div class="avjt-sabgleich" id="' + P + 'KmInfo"></div>';
     absZu();
 
     /* ── Langzeit ─────────────────────────────────────────────────── */
@@ -7723,7 +7871,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 60;
+var AVJ_BUILD = 61;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

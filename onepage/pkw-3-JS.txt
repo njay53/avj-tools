@@ -1,5 +1,5 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 55;
+var AVJ_WEB_BUILD = 56;
 var AVJ_WEB_DATE  = "20.08.2026";
 (function(){
   var el = document.getElementById("avjPVer");
@@ -721,8 +721,14 @@ function avjpTrack(name, params){
       +  'oder niedriger ausfallen.'
       +  '</li>';
 
+    /* Der zweite Satz stimmt nur, solange der geplante Satz wirklich
+       niedriger ist. Bei Golf, Golf Variant und Yaris war er gleich —
+       dort stand ein Versprechen, das der Rechner nicht einhielt. */
     L += '<li class="hint">Ungeplante Mehrkilometer bei R\u00FCckgabe: '
-      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km. Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.</li>';
+      +  r.car.overKm.toFixed(2).replace(".",",")+' \u20AC/km.'
+      +  (r.car.planKm < r.car.overKm
+          ? ' Wer seine Strecke vorab angibt, f\u00E4hrt g\u00FCnstiger.' : '')
+      +  '</li>';
 
     if(r.mode === "tier" && r.d.days > 7){
       L += '<li class="hint">Mehrwochentarif: je l\u00E4nger die Miete, desto '

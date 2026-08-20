@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 60 · Onepage v55 · 20.08.2026**
+**Stand: Build 61 · Onepage v56 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -3370,3 +3370,117 @@ nicht. Jede Probe hängt jetzt einen Zähler an die Adresse.
 bleibt unverändert.
 
 Bauskripte: `/tmp/build60.js`, `/tmp/bauonepage60.js`.
+
+---
+
+## 50. Build 61 — der geplante Mehrkilometersatz bekommt einen Bezugspunkt
+
+Niran: *„als wir die ersten fahrzeuge gerechnet haben hast du ja anhand
+meiner erstellten mietpreise die 'geplanten' mehrkilometer preise
+kalkuliert. jetzt habe ich neu angelegte fahrzeuge und da ist erstmal
+der standard, dass ich nur die 'ungeplanten' habe … dann weicht das
+natürlich von der harmonie der kilometer pakete ab."*
+
+### Was der Satz eigentlich ist
+
+Der geplante Satz ist die **Brücke zwischen zwei Kilometerpaketen** und
+die **Fortsetzung nach dem größten**. `pickStep()` rechnet für jede
+Stufe „Paketpreis + überzählige km × planKm" und nimmt die günstigste.
+An dieser einen Zahl hängt also, ob die Pakete überhaupt Sinn ergeben.
+
+| planKm | Folge |
+|---|---|
+| unter der Paketsteigung | Der Kunde nimmt **immer das kleinste Paket** und kauft km einzeln — die Pakete sind Zierde |
+| über dem ungeplanten Satz | Vorausplanen bringt nichts |
+| dazwischen | Die Pakete tragen, und wer vorher plant, spart |
+
+### Woran gemessen wird
+
+An der Steigung der **Tagespakete**: (Preis₂ − Preis₁) / (km₂ − km₁),
+über `dayMoDo` **und** `dayFrSa`. Die Wochenendpakete zählen bewusst
+**nicht** mit: sie decken drei Tage ab, ihre Stufen sind viel gröber,
+ihre Steigung ist keine vergleichbare Größe. Nur wenn es gar keine
+Tagespakete gibt, springt das Wochenende ein. Die Staffel 1–7 Tage zählt
+nie mit — dort steigen Preis und Kilometer gemeinsam mit der Mietdauer,
+das ist kein Kilometerpreis.
+
+### Der Vorschlag
+
+**Doppelte mittlere Paketsteigung**, eingehegt zwischen der steilsten
+Stufe und dem ungeplanten Satz. Das Verhältnis steckt in den Fahrzeugen,
+die seinerzeit von Hand austariert wurden — die Regel trifft sie auf ein
+bis drei Cent, und die drei Fahrzeuge, die Niran gerade nach Gefühl
+angelegt hat, praktisch exakt:
+
+| | tatsächlich | Vorschlag |
+|---|---|---|
+| Sprinter | 0,18 | 0,19 |
+| Vito | 0,22 | 0,25 |
+| Transporter M | 0,20 | 0,23 |
+| Transporter XL | 0,26 | 0,27 |
+| **VW Touran** *(neu)* | **0,26** | **0,26** |
+| **Skoda Octavia** *(neu)* | **0,24** | **0,24** |
+| **VW T-Roc** *(neu)* | **0,23** | **0,22** |
+
+Ohne Kilometerpakete (Low Budget) gibt es nichts zu messen; dann gilt
+das Verhältnis, das der Anlegen-Dialog schon benutzt (0,62 × ungeplant).
+
+### Was im Tool dazukommt
+
+Im Abschnitt **Mehrkilometer**, unter den beiden Feldern:
+
+> Deine **Tagespakete** steigen mit **0,07 €** bis **0,15 €** je km.
+> Dazu passt geplant [ 0,19 € ]
+
+Der Vorschlag ist selbst der Knopf. Dazu eine Warnung, wenn etwas nicht
+stimmt — mit „auf X € setzen". Der zugeklappte Abschnitt meldet
+`0,30 / 0,30 €/km · prüfen`, damit man es nicht suchen muss.
+
+### Nebenbefund, der mitkam
+
+Bei **Golf, Golf Variant und Yaris** ist geplant = ungeplant. Der
+Rechner behauptete in jeder Ergebnisliste *„Wer seine Strecke vorab
+angibt, fährt günstiger."* — dort stimmte das nicht. Der Satz erscheint
+jetzt nur noch, wenn er zutrifft (`planKm < overKm`), im Tool **und** in
+den drei Kundenrechnern.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefkm61.js` | **neu**, 21 Proben. Der Kern ist eine Behauptung über die Rechenlogik, also wird sie **mit dem Rechner nachgerechnet**: bei flachem Satz (0,05) kostet 1 Tag / 800 km **115 €** — das kleinste Paket plus Einzelkilometer, das 800er-Paket wird nie gewählt; bei 0,20 sind es **155 €**, also eine echte Paketstufe. Genau das behauptet die Warnung. Dazu: Warnung erscheint und nennt die steilste Stufe, der Knopf setzt den Vorschlag zwischen Steigung und ungeplantem Satz, danach ist sie weg; bei geplant = ungeplant verschwindet das Versprechen aus der Liste; LB sagt, dass es nichts zu messen gibt, und schlägt trotzdem etwas vor |
+| `gold.js` | 44 geänderte Zeilen — **ausschließlich** der entfernte Satz, ausschließlich beim LB-Rechner (dort ist geplant = ungeplant). Kein einziger Preis hat sich geändert; maschinell geprüft, nicht per Auge |
+| übrige 25 Tests | grün |
+
+### Die Testsuite auf den neuen Datenstand gezogen
+
+Nach Nirans Preisrunde („sie sind jetzt alle online") schlugen sieben
+Tests an. **Erst die Ursache geklärt:** dieselben Tests scheiterten
+genauso an Build 60 — also lag es an den Daten, nicht am Build. Im
+Einzelnen:
+
+| Ursache | betroffen | Behandlung |
+|---|---|---|
+| **Langzeit-Schalter jetzt überall an** — es gibt keinen Monatspreis mehr | `pruefweb41`, `pruefschalter46`, `prueflangzeit`, `prueftab` | Eingefrorener Prüfstand `preise-lz.json` (seine Datei ohne `lzAnfrage`). Die Tests prüfen das Verhalten **mit** Monatspreis; dafür brauchen sie einen Stand, der einen hat |
+| **Testfahrzeug `transporter.testl` gelöscht** | `prueftab` | Das Fahrzeug, „das es nur auf dem Server gibt", wird jetzt **gesucht** statt abgetippt |
+| **Preise und Namen geändert** (Woche 425 → 430, „Golf Variant" → „VW Golf 8 Energy Variant") | `pruefzeile`, `pruefabs58` | Erwartungen kommen aus der Preisdatei |
+| **Wochenfaktor rechnet seit Build 57 gegen den Tagespaketpreis** | `pruefanker56` | Der Test rechnete noch mit `tier[0]`. Fiel nie auf, solange beide gleich waren — bei M sind es jetzt 75 gegen 80 |
+
+> **Für den nächsten Chat:** Kein Test darf einen Betrag oder Namen aus
+> Nirans Preisdatei abtippen. Er ändert Preise regelmäßig; ein Test, der
+> daran hängt, meldet dann einen Fehler, den es nicht gibt — und im
+> schlimmsten Fall glaubt man ihm.
+
+### Noch offen in den Daten
+
+**Transporter M:** `tier[0]` = 75, kleinstes Tagespaket = 80. Die
+Warnung aus Build 57 steht deshalb im Tool. Kein Fehler — der Kunde
+zahlt korrekt 80 —, aber der Anker der Staffel und die Kennzahlen
+rechnen mit 75. Ein Klick auf „auf 80 € angleichen" räumt das auf.
+
+### Geändert
+
+`index.html` **und** die drei Rechner-Felder (der Satz, der nicht mehr
+stimmte). Die Tariftabelle bleibt unverändert.
+
+Bauskripte: `/tmp/build61.js`, `/tmp/bauonepage61.js`.
