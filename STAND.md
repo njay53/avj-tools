@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 56 · Onepage v54 · 20.08.2026**
+**Stand: Build 57 · Onepage v54 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2954,3 +2954,115 @@ Nur `index.html`. Die Onepage-Felder bleiben **v54** — hier ändert sich
 nichts, was der Kunde sieht.
 
 Bauskript: `/tmp/build56.js`.
+
+---
+
+## 46. Build 57 — welches Feld gilt wofür, und der Abgleich mit dem Tagespaket
+
+Niran: *„wenn ich unten bei den tagestarifen einen preis ändere im
+beispiel auf 80, dann bleibt es bei der 7 tages zeile bei tag 1 noch auf
+75. auf der webseite in der tabelle ist die 80 zu sehen. das heißt ich
+weiß nicht ohne ausprobieren was wo hochgeladen wird."*
+
+Er hat einen echten Fallstrick gefunden, keinen Anzeigefehler.
+
+### Die Sache dahinter
+
+In `quote()` steht:
+
+```js
+} else if(hatPkt && d.days <= 2){
+  var stD = pickStep(gridFor(car, paketRaster(car, frSa)), perDayKm, car.planKm);
+  base = stD.price * d.days;
+```
+
+Bei Fahrzeugen **mit** Tagespaketen rechnen ein und zwei Tage
+ausschließlich über `dayMoDo`/`dayFrSa`. **`tier[0]` und `tier[1]`
+werden dort nie angefasst.** Ab drei Tagen greift `tier[i]`.
+
+Wertlos sind sie trotzdem nicht:
+
+| Feld | wofür es zählt |
+|---|---|
+| `tier[0]` | Anker, aus dem *1T + 7T → Rest* die Werte 2T–6T füllt; Bezugsgröße der Kennzahlen |
+| `tier[2]`…`tier[6]` | Preis für 3–7 Tage, direkt |
+| `dayMoDo[0][1]` | **der Preis, den der Kunde für einen Tag zahlt** — und der, der in der Tariftabelle unter *Tagestarife* steht |
+| `sb[x].tier[0]`, `[1]` | zählen sehr wohl — die Haftungsreduzierung rechnet auch bei 1–2 Tagen über die Staffel |
+
+Bei **Low Budget** (kein `dayMoDo`) ist es andersherum: dort ist
+`tier[i]` der Preis für i+1 Tage, auch für den ersten.
+
+Solange beide Zahlen gleich sind — und im Bestand waren sie es überall
+außer beim Testfahrzeug `testl` (tier[0] = 95, Paket = 75) — fällt das
+niemandem auf. Sobald man eine von beiden ändert, steht im Tool eine
+Zahl, die beim Kunden nie ankommt.
+
+### 1. Jede Reihe sagt jetzt, wofür sie gilt
+
+`numRow()` hat einen siebten Parameter `hinweis` bekommen; er wird als
+`.avjt-shint` unter die Überschrift gezeichnet.
+
+| Reihe | Hinweis |
+|---|---|
+| Staffelpreis **mit** Paketen | „Gilt für **3 bis 7 Tage**. Ein und zwei Tage rechnet das **Tagespaket** weiter unten — **1T** und **2T** sind hier nur Anker … In der Tariftabelle taucht aus dieser Reihe nur **7 Tage** auf." |
+| Staffelpreis **ohne** Pakete | „Jeder Wert ist der Preis für genau diese Mietdauer, **1 bis 7 Tage**. In der Tariftabelle: der Block **Mietdauer**." |
+| Tagespaket – Preis | „Gilt für **1 und 2 Tage** … Das ist der Preis, den der Kunde für einen Tag zahlt — in der Tariftabelle der Block **Tagestarife**." |
+| Wochenende – Preis | „Gilt bei Abholung **Freitag ab 12:00** und Rückgabe bis **Montag 10:00** — nicht nach Tagen." |
+| Haftung | „Hier zählen **alle sieben** Werte — auch 1T und 2T, anders als beim Staffelpreis." |
+
+**Nebenwirkung, die auffiel:** `AVJ_EDITOR.bloecke()` fasst Überschrift
+und Raster zu einem `.pr-block` zusammen und beendet den Block bei jedem
+unbekannten Element. Der Hinweis dazwischen hätte das Raster aus seiner
+eigenen Überschrift herauskippen lassen. `bloecke()` nimmt jetzt auch
+`-shint` in den Block.
+
+### 2. Der Abgleich
+
+Weicht `tier[0]` von `dayMoDo[0][1]` ab (oder `tierKm[0]` von
+`dayMoDo[0][0]`), erscheint unter den beiden Reihen ein Kasten:
+
+> **1T Staffelpreis** steht auf **75 €**, gerechnet und in der Tabelle
+> gezeigt werden aber **80 €** aus dem Tagespaket. Der Wert oben ist nur
+> der Anker der Staffel.  · [ auf 80 € angleichen ]
+
+`gleicheAn(feld)` zieht den Anker auf den Paketwert — **außer** die
+Staffel verlöre dadurch ihre Ordnung (`soll >= reihe[1]`). Dann passiert
+nichts und es kommt ein Hinweis; lieber ehrlich als eine stillschweigend
+verbogene Staffel. Der Kasten hängt in `updateDeltas()`, rechnet also
+beim Tippen mit.
+
+### 3. Die Kennzahlen aus Build 56 nachgezogen
+
+Wochenfaktor und *Preis je Frei-km* rechneten gegen `tier[0]` — also
+gegen eine Zahl, die der Kunde bei Fahrzeugen mit Tagespaketen nie
+zahlt. Damit hätte Build 56 denselben Fallstrick in die neue Anzeige
+eingebaut. Neu in `AVJ_NEUFZ`:
+
+```js
+function tagPreis(c){
+  if(c.dayMoDo && c.dayMoDo.length) return c.dayMoDo[0][1];
+  return (c.tier && c.tier.length) ? c.tier[0] : 0;
+}
+function tagKm(c){ … dayMoDo[0][0] … tierKm[0] … }
+```
+
+Beide Stellen — `kennzahlen()` **und** `rechne()` im Anlegen-Dialog —
+benutzen sie jetzt, sonst hätten Anlegen und Bestand zwei verschiedene
+Korridore.
+
+> **Für den nächsten Umbau:** Wer eine neue Kennzahl auf „Tagespreis"
+> baut, nimmt `AVJ_NEUFZ.tagPreis(car)`, nicht `car.tier[0]`.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefgilt57.js` | **neu**, 18 Proben. Zuerst die Behauptung selbst, mit dem Rechner statt mit dem Auge: Paketpreis auf 80 gesetzt, `tier[0]` bleibt 75 → **1 Tag Mo–Di kostet 80** (Tagestarif), **3 Tage kosten `tier[2]`**, und bei LB kostet 1 Tag `tier[0]`. Dann die Anzeige: Warnung erscheint mit beiden Beträgen, Knopf nennt das Ziel, Angleichen setzt `tier[0] = 80`, Staffel bleibt geordnet, Warnung verschwindet; Wochenfaktor rechnet gegen 80 statt 75; jede Reihe trägt den richtigen Hinweis, LB einen anderen als der Transporter; ohne Tagespakete gibt es keinen Abgleich |
+| `gold.js` | identisch mit Build 56 |
+| übrige 21 Tests | grün |
+
+### Geändert
+
+Nur `index.html`. Onepage bleibt **v54**.
+
+Bauskript: `/tmp/build57.js`.

@@ -654,6 +654,33 @@
 /* Kennzahlen im Bestand — dieselben Ampeln wie beim Anlegen */
 .avjt-kenn{margin:6px 0 2px;}
 .avjt-kenn:empty{display:none;}
+
+/* ── Wofuer gilt diese Reihe? ──────────────────────────────────────
+   Steht direkt unter der Ueberschrift, damit man nicht ausprobieren
+   muss, welches Feld beim Kunden ankommt. */
+.avjt-shint{
+  font-size:10.5px;line-height:1.5;color:#8A96A3;
+  margin:-3px 0 7px;
+}
+.avjt-shint b{color:#5A6675;font-weight:700;}
+
+/* Zwei Felder behaupten dasselbe — Hinweis mit Angleichen-Knopf */
+.avjt-sabgleich{margin:2px 0 4px;}
+.avjt-sabgleich:empty{display:none;}
+.avjt-swarn{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:#FEF7E6;border:1px solid #F0DCA8;border-left:4px solid #E0A800;
+  border-radius:8px;padding:9px 12px;margin-bottom:6px;
+  font-size:11.5px;line-height:1.5;color:#6B5A2A;
+}
+.avjt-swarn .tx{flex:1 1 220px;min-width:0;}
+.avjt-swarn b{color:#4A3E14;font-weight:800;}
+.avjt-sfix{
+  flex:0 0 auto;border:1px solid #E0A800;background:#fff;color:#7A6410;
+  font:inherit;font-size:11px;font-weight:700;padding:5px 11px;
+  border-radius:999px;cursor:pointer;-webkit-appearance:none;
+}
+.avjt-sfix:hover{background:#E0A800;color:#fff;}
 @media(max-width:560px){
   .avjt-sgrid.d7{grid-template-columns:repeat(4,1fr);}
   .avjt-xrow{grid-template-columns:1fr 92px 28px;}
@@ -2430,7 +2457,7 @@ var AVJ_EDITOR = (function(){
         block.className = "pr-block";
         b.insertBefore(block, k);
         block.appendChild(k);
-      } else if(block && kl.indexOf("-sgrid") >= 0){
+      } else if(block && (kl.indexOf("-sgrid") >= 0 || kl.indexOf("-shint") >= 0)){
         block.appendChild(k);
       } else {
         block = null;            /* Hinweis, Prozentfeld, Knoepfe: volle Breite */
@@ -3225,21 +3252,21 @@ var AVJ_NEUFZ = (function(){
     if(isFinite(v.tag) && isFinite(v.woche) && v.tag > 0){
       a += ampel("Wochenfaktor", (v.woche / v.tag).toFixed(2),
              korridor(liste.map(function(x){
-               return (x.auto.tier && x.auto.tier[0]) ? x.auto.tier[6] / x.auto.tier[0] : null;
+               return (x.auto.tier && tagPreis(x.auto))
+                 ? x.auto.tier[6] / tagPreis(x.auto) : null;
              }), v.woche / v.tag));
     }
     if(isFinite(v.wochenende) && isFinite(v.tag) && v.tag > 0 && v.wochenende > 0){
       a += ampel("Wochenende je Tagespreis", (v.wochenende / v.tag).toFixed(2),
              korridor(liste.map(function(x){
-               return (x.auto.weekend && x.auto.tier && x.auto.tier[0])
-                 ? x.auto.weekend[0][1] / x.auto.tier[0] : null;
+               return (x.auto.weekend && tagPreis(x.auto))
+                 ? x.auto.weekend[0][1] / tagPreis(x.auto) : null;
              }), v.wochenende / v.tag));
     }
     if(isFinite(v.tag) && isFinite(v.freiKm) && v.freiKm > 0){
       a += ampel("Preis je Frei-km", (v.tag / v.freiKm).toFixed(2) + " €",
              korridor(liste.map(function(x){
-               return (x.auto.tier && x.auto.tierKm && x.auto.tierKm[0])
-                 ? x.auto.tier[0] / x.auto.tierKm[0] : null;
+               return tagKm(x.auto) ? tagPreis(x.auto) / tagKm(x.auto) : null;
              }), v.tag / v.freiKm));
     }
     ampeln.innerHTML = a;
@@ -3406,6 +3433,24 @@ var AVJ_NEUFZ = (function(){
     });
   }
 
+  /* ── Was ein Tag wirklich kostet ──────────────────────────────────
+     Bei Fahrzeugen mit Tagespaketen rechnet der Rechner fuer ein und
+     zwei Tage ueber dayMoDo — tier[0] wird dort nie angefasst. Wer die
+     Kennzahlen auf tier[0] stellt, vergleicht also eine Zahl, die der
+     Kunde nie zahlt. Ohne Tagespakete (Low Budget) ist tier[0] der
+     Tagespreis. Beides steht hier an einer Stelle, damit es im Tool
+     nirgends auseinanderlaeuft. */
+  function tagPreis(c){
+    if(!c) return 0;
+    if(c.dayMoDo && c.dayMoDo.length) return c.dayMoDo[0][1];
+    return (c.tier && c.tier.length) ? c.tier[0] : 0;
+  }
+  function tagKm(c){
+    if(!c) return 0;
+    if(c.dayMoDo && c.dayMoDo.length) return c.dayMoDo[0][0];
+    return (c.tierKm && c.tierKm.length) ? c.tierKm[0] : 0;
+  }
+
   function kennzahlen(a, kat, ausser){
     if(!a || !a.tier || !a.tierKm) return "";
     var liste = ohne(bestand(kat), ausser);
@@ -3425,30 +3470,30 @@ var AVJ_NEUFZ = (function(){
                    korridor(reihe(fn), wert));
     }
 
-    var tag = a.tier[0], woche = a.tier[6], km1 = a.tierKm[0], km7 = a.tierKm[6];
+    var tag = tagPreis(a), woche = a.tier[6], km1 = tagKm(a), km7 = a.tierKm[6];
     var h = "";
     if(tag > 0){
       h += zeile("Wochenfaktor", woche / tag, "\u00D7", function(c){
-             return (c.tier && c.tier[0]) ? c.tier[6] / c.tier[0] : null; });
+             return (c.tier && tagPreis(c)) ? c.tier[6] / tagPreis(c) : null; });
     }
     if(tag > 0 && a.weekend && a.weekend.length){
       h += zeile("Wochenende je Tagespreis", a.weekend[0][1] / tag, "\u00D7", function(c){
-             return (c.weekend && c.tier && c.tier[0])
-               ? c.weekend[0][1] / c.tier[0] : null; });
+             return (c.weekend && tagPreis(c))
+               ? c.weekend[0][1] / tagPreis(c) : null; });
     }
     if(km1 > 0){
       h += zeile("Preis je Frei-km", tag / km1, "\u202F\u20AC", function(c){
-             return (c.tier && c.tierKm && c.tierKm[0])
-               ? c.tier[0] / c.tierKm[0] : null; });
+             return tagKm(c) ? tagPreis(c) / tagKm(c) : null; });
     }
     if(km1 > 0){
       h += zeile("km-Faktor Woche", km7 / km1, "\u00D7", function(c){
-             return (c.tierKm && c.tierKm[0]) ? c.tierKm[6] / c.tierKm[0] : null; });
+             return (c.tierKm && tagKm(c)) ? c.tierKm[6] / tagKm(c) : null; });
     }
     return h;
   }
 
-  return { zeige: zeichne, bearbeite: bearbeite, kennzahlen: kennzahlen };
+  return { zeige: zeichne, bearbeite: bearbeite, kennzahlen: kennzahlen,
+           tagPreis: tagPreis, tagKm: tagKm };
 })();
 
 /* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
@@ -5859,6 +5904,11 @@ function AVJ_RECHNER(CFG){
         flashSaved(meldung || "Zwischenwerte gesetzt");
         return;
       }
+      if(t.getAttribute("data-fix")){
+        var fm = gleicheAn(t.getAttribute("data-fix"));
+        flashSaved(fm || "Angeglichen");
+        return;
+      }
       if(t.getAttribute("data-verwirf")){
         var vk = t.getAttribute("data-verwirf"), vf = t.getAttribute("data-feld");
         if(verwirfFeld(vk, vf)) flashSaved("Zur\u00FCckgesetzt");
@@ -5887,14 +5937,16 @@ function AVJ_RECHNER(CFG){
       +  '1T + 7T \u2192 Rest</button>';
   }
 
-  function numRow(cls, label, arr, key, sub, step){
+  function numRow(cls, label, arr, key, sub, step, hinweis){
     /* Sieben Werte heisst immer dasselbe: 1T und 7T sind die Anker,
        die fuenf dazwischen liegen auf der Linie und kommen notfalls
        aus dem Knopf. Bisher sahen alle sieben Felder gleich aus und
        man musste es wissen. */
     var ankerReihe = (sub === null && arr && arr.length === 7);
     if(ankerReihe) label += fuellKnopf(key, step);
-    var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'" data-deltas="1">';
+    var h = '<div class="avjt-slabel">'+label+'</div>'
+          + (hinweis ? '<div class="avjt-shint">' + hinweis + '</div>' : '')
+          + '<div class="avjt-sgrid '+cls+'" data-deltas="1">';
     for(var i=0;i<arr.length;i++){
       var val = (sub === null) ? arr[i] : arr[i][sub];
       var anker = ankerReihe && (i === 0 || i === 6);
@@ -5933,6 +5985,54 @@ function AVJ_RECHNER(CFG){
     el.innerHTML = h;
   }
 
+  /* ── Weicht der Anker vom Tagespaket ab? ──────────────────────────
+     tier[0] behauptet "Preis fuer einen Tag", dayMoDo[0] auch — bei
+     Fahrzeugen mit Paketen gewinnt immer das Paket. Solange beide
+     gleich sind, faellt das niemandem auf. Sobald man eins von beiden
+     aendert, steht im Tool eine Zahl, die der Kunde nie sieht.
+     Genau das ist Niran passiert. */
+  function zeichneAbgleich(){
+    var el = $("Abgleich");
+    if(!el) return;
+    var car = CARS[carKey];
+    if(!car || !car.dayMoDo || !car.dayMoDo.length){ el.innerHTML = ""; return; }
+    var h = "";
+    function zeile(feld, ist, soll, einheit, was){
+      if(!isFinite(ist) || !isFinite(soll) || ist === soll) return "";
+      return '<div class="avjt-swarn"><span class="tx"><b>' + was + '</b> steht auf <b>'
+        + ist + einheit + '</b>, gerechnet und in der Tabelle gezeigt werden aber <b>'
+        + soll + einheit + '</b> aus dem Tagespaket. Der Wert oben ist nur der Anker '
+        + 'der Staffel.</span>'
+        + '<button type="button" class="avjt-sfix" data-fix="' + feld + '">auf '
+        + soll + einheit + ' angleichen</button></div>';
+    }
+    h += zeile("tier",   car.tier[0],   car.dayMoDo[0][1], "\u202F\u20AC", "1T Staffelpreis");
+    h += zeile("tierKm", car.tierKm[0], car.dayMoDo[0][0], "\u202Fkm",      "1T Frei-km");
+    el.innerHTML = h;
+  }
+
+  /* Den Anker auf das Tagespaket ziehen. Bricht die Reihe dabei ihre
+     Ordnung, wird nichts geaendert — lieber ein ehrlicher Hinweis als
+     eine stillschweigend verbogene Staffel. */
+  function gleicheAn(feld){
+    var car = CARS[carKey];
+    if(!car || !car.dayMoDo || !car.dayMoDo.length) return "Kein Tagespaket vorhanden.";
+    var reihe = (feld === "tier") ? car.tier : car.tierKm;
+    var soll  = (feld === "tier") ? car.dayMoDo[0][1] : car.dayMoDo[0][0];
+    if(!isFinite(soll)) return "Das Tagespaket hat dort keinen Wert.";
+    if(reihe.length > 1 && soll >= reihe[1]){
+      return "Das ginge \u00FCber den 2T-Wert \u2014 erst 2T anheben.";
+    }
+    takeSnapshot();
+    reihe[0] = soll;
+    _gridCache = {};
+    saveCfg();
+    renderSettings(); renderSb(); render();
+    try{ AVJ_EDITOR.neuZeichnen(); }catch(e){}
+    try{ zeichneKundenstand(); }catch(e){}
+    return null;
+  }
+
   function updateDeltas(){
     var grids = $("SetBody").querySelectorAll('[data-deltas]');
     for(var g=0; g<grids.length; g++){
@@ -5954,6 +6054,7 @@ function AVJ_RECHNER(CFG){
       }
     }
     try{ zeichneKennzahlen(); }catch(e){}
+    try{ zeichneAbgleich();  }catch(e){}
   }
 
   /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
@@ -6198,26 +6299,55 @@ function AVJ_RECHNER(CFG){
       +      ' Minuswert senkt die Preise.</div>'
       +  '</div>';
 
-    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier,   "tier",   null, 5);
-    h += numRow("d7", "Frei-km je Mietdauer",              car.tierKm, "tierKm", null, 50);
+    /* Wofuer eine Reihe gilt, haengt am Fahrzeug: mit Tagespaketen
+       rechnet der Rechner die ersten zwei Tage dort, ohne sie steht
+       hier alles. */
+    var hatPakete = !!(car.dayMoDo && car.dayMoDo.length);
+    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier, "tier", null, 5,
+      hatPakete
+        ? 'Gilt f\u00FCr <b>3 bis 7 Tage</b>. Ein und zwei Tage rechnet das '
+          + '<b>Tagespaket</b> weiter unten \u2014 <b>1T</b> und <b>2T</b> sind hier '
+          + 'nur Anker f\u00FCr die Staffel und stehen nirgends beim Kunden. '
+          + 'In der Tariftabelle taucht aus dieser Reihe nur <b>7 Tage</b> auf.'
+        : 'Jeder Wert ist der Preis f\u00FCr genau diese Mietdauer, '
+          + '<b>1 bis 7 Tage</b>. In der Tariftabelle: der Block <b>Mietdauer</b>.');
+    h += numRow("d7", "Frei-km je Mietdauer", car.tierKm, "tierKm", null, 50,
+      hatPakete
+        ? 'Dieselbe Regel: <b>ab 3 Tagen</b>. F\u00FCr ein und zwei Tage z\u00E4hlen '
+          + 'die Kilometer des Tagespakets.'
+        : 'Frei-km f\u00FCr genau diese Mietdauer, <b>1 bis 7 Tage</b>.');
+    h += '<div class="avjt-sabgleich" id="' + P + 'Abgleich"></div>';
 
     function raster(n){ return n <= 2 ? "p2" : (n === 3 ? "p3" : "p4"); }
     if(car.dayMoDo){
       /* Ohne eigenes Fr/Sa-Raster heisst es schlicht "Tagespaket" */
       var tName = hatFrSaRaster(car) ? "Tagespaket Mo\u2013Do" : "Tagespaket";
       var tCls  = raster(car.dayMoDo.length);
-      h += numRow(tCls, tName + " \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50);
-      h += numRow(tCls, tName + " \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5);
+      var tHin = 'Gilt f\u00FCr <b>1 und 2 Tage</b>'
+        + (hatFrSaRaster(car) ? ' mit Abholung <b>Mo bis Do</b>' : '')
+        + '. Das ist der Preis, den der Kunde f\u00FCr einen Tag zahlt \u2014 '
+        + 'in der Tariftabelle der Block <b>Tagestarife</b>.';
+      h += numRow(tCls, tName + " \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50,
+        'Die Kilometerstufen dazu. Zwischen zwei Stufen zieht der Rechner '
+        + 'automatisch eine Mitte ein.');
+      h += numRow(tCls, tName + " \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5, tHin);
     }
     if(hatFrSaRaster(car)){
       var fCls = raster(car.dayFrSa.length);
-      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 km",    car.dayFrSa, "dayFrSa", 0, 50);
-      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 Preis", car.dayFrSa, "dayFrSa", 1, 5);
+      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 km",    car.dayFrSa, "dayFrSa", 0, 50,
+        'Eigenes Raster f\u00FCr Abholungen am <b>Freitag oder Samstag</b>.');
+      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 Preis", car.dayFrSa, "dayFrSa", 1, 5,
+        'Gilt f\u00FCr <b>1 und 2 Tage</b> mit Abholung <b>Fr oder Sa</b> \u2014 '
+        + 'in der Tariftabelle die Zeile <b>1 Tag Fr. - Sa.</b>');
     }
     if(car.weekend){
       var wcls = raster(car.weekend.length);
-      h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50);
-      h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5);
+      h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50,
+        'Die Kilometerstufen des Wochenendtarifs.');
+      h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5,
+        'Gilt bei Abholung <b>Freitag ab 12:00</b> und R\u00FCckgabe bis '
+        + '<b>Montag 10:00</b> \u2014 nicht nach Tagen. In der Tariftabelle: '
+        + '<b>Wochenendtarife</b>.');
     }
 
     h += '<div class="avjt-slabel">Mehrkilometer (\u20AC/km)</div><div class="avjt-sgrid r3">'
@@ -6257,7 +6387,11 @@ function AVJ_RECHNER(CFG){
       +  '</label>';
 
     for(var s=1;car.sb && s<car.sb.length;s++){
-      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)", car.sb[s].tier, "sb"+s, null, 1);
+      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)",
+        car.sb[s].tier, "sb"+s, null, 1,
+        'Aufpreis je Mietdauer. Hier z\u00E4hlen <b>alle sieben</b> Werte \u2014 '
+        + 'auch 1T und 2T, anders als beim Staffelpreis. Bei Kurzzeittarifen '
+        + 'gibt es keine Reduzierung.');
       h += '<div class="avjt-slabel">SB '+car.sb[s].label
         +  " \u2013 Wochenende und vier Wochen (\u20AC)</div>"
         +  '<div class="avjt-sgrid r3">'
@@ -7308,7 +7442,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 56;
+var AVJ_BUILD = 57;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
