@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 55 · Onepage v54 · 20.08.2026**
+**Stand: Build 56 · Onepage v54 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -2864,3 +2864,93 @@ das Tabellen-Feld.
 
 Bauskripte: `/tmp/fixmotor55.js` (zerlegt `tab-motor.js` in Kern und
 Hülle, einmalig), `/tmp/build55.js`, `/tmp/bautabelle.js`.
+
+---
+
+## 45. Build 56 — Anker sichtbar, Kennzahlen auch im Bestand
+
+Niran: *„hier dieser bereich ist doch nur dafür da damit ich zwischen 1
+Tag und 7 tage die zwischenschritte rechne richtig? es geht da nicht
+sooo hervor welche die anker zahlen sind so wie wenn ich ein neues
+fahrzeug anlege … und beim anlegen sieht man ja auch den faktor dann,
+das fehlt hier im bestand dann alles"*
+
+Die Frage zuerst, weil sie eine halbe Fehlvorstellung enthält: Die Reihe
+ist **nicht nur** Rechenhilfe für die Zwischenschritte. `tier[i]` **ist**
+der Preis für i+1 Tage — bei 3 Tagen zahlt der Kunde `tier[2]`, direkt
+aus dem Feld. Der Knopf *1T + 7T → Rest* verteilt nur die fünf
+dazwischen neu. Und die beiden Anker hängen weiter dran als man denkt:
+
+| Anker | wird außerdem gebraucht für |
+|---|---|
+| `tier[0]` | Ausgangspunkt aller Ampeln, Vergleichsbasis im Anlegen-Dialog |
+| `tier[6]` | Zeile „7 Tage" in der Tariftabelle · Interpolation ab Tag 8 · Langzeit-Schätzung (`tier[6] × 3`, wenn kein Monatsanker gesetzt ist) |
+| `tierKm[6]` | Frei-km der 7-Tage-Zeile · km-Schätzung für 28 Tage (`× 2`) |
+
+### 1. Anker sind jetzt zu sehen
+
+In jeder Reihe mit sieben Werten (Staffelpreis, Frei-km, **und** jede
+Haftungsstufe) tragen Feld 1 und Feld 7 die Beschriftung **ANKER**,
+blauen Rahmen und fetten Wert. Die fünf dazwischen sind gedämpft.
+
+Die leere Beschriftung bei den mittleren Feldern ist Absicht — sie hält
+die Zeile hoch, damit alle sieben Eingaben auf einer Höhe stehen
+(`.ank.leer{visibility:hidden}`). Reihen mit vier oder drei Werten
+(Tagespakete, Wochenende) bekommen keine Markierung: dort gibt es keine
+Mitte zu treffen, und genau deshalb hat auch nur die Sieben-Reihe den
+Füllknopf.
+
+### 2. Kennzahlen — dieselben Ampeln wie beim Anlegen
+
+Neu ganz oben in der Tarif Config., über *Alle Preise verschieben*:
+
+| Kennzahl | Rechnung |
+|---|---|
+| Wochenfaktor | `tier[6] / tier[0]` |
+| Wochenende je Tagespreis | `weekend[0][1] / tier[0]` (nur wo es Wochenendstufen gibt) |
+| Preis je Frei-km | `tier[0] / tierKm[0]` |
+| km-Faktor Woche | `tierKm[6] / tierKm[0]` |
+
+Gerechnet wird in `AVJ_NEUFZ.kennzahlen(auto, kat, ausser)` — **dieselbe
+Funktion, die auch der Anlegen-Dialog benutzt**, mit `ampel()` und
+`korridor()`. Kein zweiter Satz Grenzwerte.
+
+**Ein Unterschied zum Anlegen war nötig:** das Fahrzeug selbst muss aus
+dem Vergleichskorridor heraus (`ausser`). Sonst wandern `min`/`max` mit
+dem eigenen Wert mit und die Ampel steht immer auf grün — ein Korridor,
+der den Prüfling enthält, prüft nichts. Bleibt in der eigenen Kategorie
+danach weniger als ein Vergleichsfahrzeug übrig, wird der ganze Bestand
+genommen; ein Korridor aus einem einzigen Fahrzeug wäre keiner.
+
+Die Ampeln rechnen beim Tippen mit — sie hängen in `updateDeltas()`,
+nicht in `renderSettings()`, sonst würde bei jedem Tastendruck der Fokus
+wegspringen.
+
+### Was dabei gleich auffiel (Transporter M, Stand 20.08.)
+
+| Kennzahl | M | Korridor ohne M |
+|---|---|---|
+| Wochenfaktor | 5,67× | 5,63 – 5,86 ✓ |
+| Wochenende je Tagespreis | **2,33×** | 1,84 – 2,05 ⚠ |
+| Preis je Frei-km | **0,75 €** | 0,95 – 1,10 ⚠ |
+| km-Faktor Woche | 15,00× | 15,00 ✓ |
+
+Heißt: der M hat im Verhältnis das teuerste Wochenende und die
+großzügigsten Frei-km der Klasse. Beides kann so gewollt sein —
+angeschaut werden sollte es. (Im Korridor steckt auch das Testfahrzeug
+`testl`; wer es löscht, bekommt engere Werte.)
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefanker56.js` | **neu**, 18 Proben: Markierungsmuster `A.....A` in allen vier Sieben-Reihen, kürzere Reihen unmarkiert, alle sieben Felder auf einer Höhe (±1 px); Wochenfaktor und km-Faktor stimmen rechnerisch; WE-Kennzahl nur wo es Wochenendstufen gibt; Wochenpreis auf 4.000 € → Ampel springt auf **rot** (Beweis, dass das Fahrzeug nicht im eigenen Korridor steckt) und danach zurück; Füllknopf lässt beide Anker stehen, Reihe steigt durchgehend, Markierung überlebt das Neuzeichnen; LB (ohne Wochenendstufen) bekommt drei Kennzahlen und ebenfalls Anker |
+| `gold.js` | identisch mit Build 55 |
+| übrige 20 Tests | grün |
+
+### Geändert
+
+Nur `index.html`. Die Onepage-Felder bleiben **v54** — hier ändert sich
+nichts, was der Kunde sieht.
+
+Bauskript: `/tmp/build56.js`.

@@ -636,6 +636,24 @@
 }
 .avjt-sreset:hover{border-color:#C0392B;color:#C0392B;}
 .avjt-snote{font-size:10.5px;color:#8A96A3;margin-top:10px;line-height:1.45;}
+
+/* ── Anker in den Sieben-Werte-Reihen ──────────────────────────────
+   1T und 7T werden gesetzt, die fuenf dazwischen liegen auf der Linie.
+   Die leere Beschriftung bei den mittleren Feldern ist Absicht: sie
+   haelt die Zeile hoch, damit alle sieben Eingaben auf einer Hoehe
+   stehen. */
+.avjt-scol .d .ank{
+  display:block;font-size:8px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:#1B2FC4;margin-top:1px;line-height:1.3;
+}
+.avjt-scol .d .ank.leer{visibility:hidden;}
+.avjt-scol.ist-anker input{border-color:#1B2FC4;background:#F5F7FF;font-weight:800;}
+.avjt-scol.ist-abgeleitet .d{color:#AEB8C4;}
+.avjt-scol.ist-abgeleitet input{color:#5A6675;}
+
+/* Kennzahlen im Bestand — dieselben Ampeln wie beim Anlegen */
+.avjt-kenn{margin:6px 0 2px;}
+.avjt-kenn:empty{display:none;}
 @media(max-width:560px){
   .avjt-sgrid.d7{grid-template-columns:repeat(4,1fr);}
   .avjt-xrow{grid-template-columns:1fr 92px 28px;}
@@ -3372,7 +3390,65 @@ var AVJ_NEUFZ = (function(){
     zeigeBez();
   }
 
-  return { zeige: zeichne, bearbeite: bearbeite };
+  /* ── Kennzahlen fuer ein Fahrzeug, das es schon gibt ──────────────
+     Dieselben Ampeln wie beim Anlegen, nur mit den Werten aus dem
+     Bestand. `ausser` ist das Fahrzeug selbst: es muss aus dem
+     Korridor heraus, sonst vergleicht es sich mit sich selbst und
+     steht immer im gruenen Bereich.
+
+     Bleibt in der eigenen Kategorie weniger als ein Vergleichsfahrzeug
+     uebrig, wird der ganze Bestand genommen. Ein Korridor aus einem
+     einzigen Fahrzeug waere keiner. */
+  function ohne(liste, ausser){
+    if(!ausser) return liste;
+    return liste.filter(function(x){
+      return !(x.schluessel === ausser.schluessel && x.key === ausser.key);
+    });
+  }
+
+  function kennzahlen(a, kat, ausser){
+    if(!a || !a.tier || !a.tierKm) return "";
+    var liste = ohne(bestand(kat), ausser);
+    if(liste.length < 2) liste = ohne(bestand(null), ausser);
+
+    /* Aus jedem Vergleichsfahrzeug dieselbe Kennzahl ziehen */
+    function reihe(fn){
+      return liste.map(function(x){
+        var v = null;
+        try{ v = fn(x.auto); }catch(e){}
+        return (typeof v === "number" && isFinite(v) && v > 0) ? v : null;
+      });
+    }
+    function zeile(name, wert, einheit, fn){
+      if(!isFinite(wert) || wert <= 0) return "";
+      return ampel(name, wert.toFixed(2).replace(".", ",") + (einheit || ""),
+                   korridor(reihe(fn), wert));
+    }
+
+    var tag = a.tier[0], woche = a.tier[6], km1 = a.tierKm[0], km7 = a.tierKm[6];
+    var h = "";
+    if(tag > 0){
+      h += zeile("Wochenfaktor", woche / tag, "\u00D7", function(c){
+             return (c.tier && c.tier[0]) ? c.tier[6] / c.tier[0] : null; });
+    }
+    if(tag > 0 && a.weekend && a.weekend.length){
+      h += zeile("Wochenende je Tagespreis", a.weekend[0][1] / tag, "\u00D7", function(c){
+             return (c.weekend && c.tier && c.tier[0])
+               ? c.weekend[0][1] / c.tier[0] : null; });
+    }
+    if(km1 > 0){
+      h += zeile("Preis je Frei-km", tag / km1, "\u202F\u20AC", function(c){
+             return (c.tier && c.tierKm && c.tierKm[0])
+               ? c.tier[0] / c.tierKm[0] : null; });
+    }
+    if(km1 > 0){
+      h += zeile("km-Faktor Woche", km7 / km1, "\u00D7", function(c){
+             return (c.tierKm && c.tierKm[0]) ? c.tierKm[6] / c.tierKm[0] : null; });
+    }
+    return h;
+  }
+
+  return { zeige: zeichne, bearbeite: bearbeite, kennzahlen: kennzahlen };
 })();
 
 /* ═══ Geaenderte Felder kurz gruen aufleuchten lassen ═══════════
@@ -5806,18 +5882,29 @@ function AVJ_RECHNER(CFG){
   function fuellKnopf(key, step){
     return ' <button type="button" class="avjt-fuell" data-fuell="' + key + '"'
       +  ' data-schritt="' + (step || 1) + '"'
-      +  ' title="Die f\u00FCnf Werte zwischen 1T und 7T neu verteilen">'
+      +  ' title="Die f\u00FCnf Werte zwischen den Ankern 1T und 7T neu verteilen \u2014'
+      +    ' die Anker selbst bleiben stehen">'
       +  '1T + 7T \u2192 Rest</button>';
   }
 
   function numRow(cls, label, arr, key, sub, step){
-    if(sub === null && arr && arr.length === 7) label += fuellKnopf(key, step);
+    /* Sieben Werte heisst immer dasselbe: 1T und 7T sind die Anker,
+       die fuenf dazwischen liegen auf der Linie und kommen notfalls
+       aus dem Knopf. Bisher sahen alle sieben Felder gleich aus und
+       man musste es wissen. */
+    var ankerReihe = (sub === null && arr && arr.length === 7);
+    if(ankerReihe) label += fuellKnopf(key, step);
     var h = '<div class="avjt-slabel">'+label+'</div><div class="avjt-sgrid '+cls+'" data-deltas="1">';
     for(var i=0;i<arr.length;i++){
       var val = (sub === null) ? arr[i] : arr[i][sub];
-      h += '<div class="avjt-scol"><div class="d">'+
+      var anker = ankerReihe && (i === 0 || i === 6);
+      h += '<div class="avjt-scol'
+        +  (ankerReihe ? (anker ? ' ist-anker' : ' ist-abgeleitet') : '') + '">'
+        +  '<div class="d">'+
            (sub === null ? (i+1)+"T" :
-            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))+'</div>'
+            (sub === 1 ? arr[i][0]+"km" : "Stufe "+(i+1)))
+        +  (ankerReihe ? '<span class="ank' + (anker ? '' : ' leer') + '">Anker</span>' : '')
+        +  '</div>'
         +  '<input type="number" step="'+(step||1)+'" data-set="'+key+'" data-i="'+i+'"'+
            (sub === null ? "" : ' data-sub="'+sub+'"')+' value="'+val+'">'
         +  '<div class="avjt-dlt"></div></div>';
@@ -5832,6 +5919,20 @@ function AVJ_RECHNER(CFG){
     var s = (r < 0 ? "\u2212" : "+") + String(Math.abs(r)).replace(".", ",");
     return s;
   }
+  /* Die Ampeln haengen an tier, tierKm und weekend — also an genau den
+     Feldern, die man hier bearbeitet. Sie werden deshalb bei jeder
+     Aenderung neu gerechnet, nicht nur beim Aufbau. */
+  function zeichneKennzahlen(){
+    var el = $("Kenn");
+    if(!el) return;
+    var h = "";
+    try{
+      h = AVJ_NEUFZ.kennzahlen(CARS[carKey], CFG.kategorie,
+            { schluessel: CFG.schluessel, key: carKey }) || "";
+    }catch(e){}
+    el.innerHTML = h;
+  }
+
   function updateDeltas(){
     var grids = $("SetBody").querySelectorAll('[data-deltas]');
     for(var g=0; g<grids.length; g++){
@@ -5852,6 +5953,7 @@ function AVJ_RECHNER(CFG){
         prev = v;
       }
     }
+    try{ zeichneKennzahlen(); }catch(e){}
   }
 
   /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
@@ -6069,6 +6171,11 @@ function AVJ_RECHNER(CFG){
            + '<span class="avjt-sstate" id="' + P + 'SaveState"></span>'
            + '<span class="avj-quelle">Preise: \u2026</span></div>'
            + '<div class="avj-kstand" id="' + P + 'KStand"></div>';
+
+    /* Die Verhaeltniszahlen, die es beim Anlegen schon gab. Sie
+       aktualisieren sich beim Tippen mit — siehe updateDeltas. */
+    h += '<div class="avjt-slabel">Kennzahlen \u2013 gegen den eigenen Bestand</div>'
+      +  '<div class="nf-ampeln avjt-kenn" id="' + P + 'Kenn"></div>';
 
     h += '<div class="avjt-scale">'
       +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
@@ -7201,7 +7308,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 55;
+var AVJ_BUILD = 56;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
