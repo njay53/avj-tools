@@ -1,7 +1,7 @@
 {
   "version": 1,
   "stand": "20.08.2026",
-  "erzeugtVon": "AVJ Tools Build 54",
+  "erzeugtVon": "AVJ Tools Build 59",
   "lb": {
     "yaris": {
       "name": "Low-Budget",
@@ -403,6 +403,110 @@
         405,
         455,
         490
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "kaution": {
+        "stunden": 0,
+        "tag": 300
+      },
+      "sb": [
+        {
+          "label": "1.500 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 25,
+          "tier": [
+            10,
+            20,
+            28,
+            35,
+            41,
+            47,
+            50
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 40,
+          "tier": [
+            15,
+            35,
+            51,
+            64,
+            78,
+            88,
+            95
+          ]
+        }
+      ],
+      "lzAnfrage": true
+    },
+    "vwtroc": {
+      "name": "VW T-Roc",
+      "merkmale": {
+        "klasse": "Kompaktklasse",
+        "karosserie": "SUV",
+        "kraftstoff": "Benzin",
+        "getriebe": "Automatik"
+      },
+      "example": "Kompaktklasse · SUV · Benzin · Automatik",
+      "planKm": 0.32,
+      "overKm": 0.32,
+      "dayMoDo": [
+        [
+          100,
+          100
+        ],
+        [
+          300,
+          135
+        ],
+        [
+          600,
+          155
+        ],
+        [
+          900,
+          180
+        ]
+      ],
+      "weekend": [
+        [
+          600,
+          215
+        ],
+        [
+          900,
+          255
+        ]
+      ],
+      "tier": [
+        100,
+        175,
+        250,
+        315,
+        370,
+        415,
+        450
       ],
       "tierKm": [
         100,
