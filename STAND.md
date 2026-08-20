@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 57 · Onepage v54 · 20.08.2026**
+**Stand: Build 58 · Onepage v54 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -3066,3 +3066,124 @@ Korridore.
 Nur `index.html`. Onepage bleibt **v54**.
 
 Bauskript: `/tmp/build57.js`.
+
+---
+
+## 47. Build 58 — Abschlag bei zwei Tagen, Fr/Sa-Zuschlag raus, Tarif Config. in Abschnitten
+
+Drei Sachen aus einem Durchgang.
+
+### 1. Abschlag bei zwei Tagen
+
+Niran: *„wenn man z.b. einen tag mit 75 € hat und will schon bei dem
+jeweiligen fahrzeug bei zwei tagen schon einen rabatt haben, z.b. statt
+150€ dann 145."* — und auf Rückfrage: **in Euro, nur im Rechner, nicht
+in der Tariftabelle.**
+
+Neues Feld `tag2Ab`, je Fahrzeug, im Abschnitt *Tagestarife*. In
+`quote()`, im Paketzweig:
+
+```js
+if(d.days === 2 && car.tag2Ab > 0) abschlag = Math.min(car.tag2Ab, base);
+…
+var total = base + sbCost + overCost - abschlag;
+```
+
+| 2 Tage | ohne | mit −5 € |
+|---|---|---|
+| ohne km-Angabe | 150 | **145** |
+| 200 km | 150 | **145** |
+| 800 km | 230 | **225** |
+| 1200 km | 270 | **265** |
+
+Bewusst **nicht** in den Paketpreis hineingerechnet, sondern als eigener
+Posten: so steht im Ergebnis (und damit im Kopiertext), warum es 145
+statt 150 sind. Die Frei-km bleiben, wie sie sind — der Paketvorteil für
+Vielfahrer geht nicht verloren. Ein Tag und drei Tage bleiben unberührt;
+ab drei Tagen trägt man den Nachlass ohnehin direkt in die Staffel ein.
+
+`Math.min(…, base)` verhindert einen negativen Preis, falls jemand 9999
+einträgt. „Alle Preise verschieben" fasst `tag2Ab` **nicht** an.
+
+### 2. `frSaPlus` fliegt raus — das Feld tat nichts
+
+Niran: *„ist damit gemeint dass der rechner wenn ich da bei Fr/Sa
+zuschlag eine 10 eingebe der tagespreis von Mo. z.b. 10 euro teurer?
+weil ich noch nicht festgestellt habe was sich ändert."*
+
+Er hat richtig beobachtet. `frSaPlus` wurde an genau zwei Stellen
+angefasst, beide beim prozentualen Verschieben — **`quote()` liest es
+nirgends.** Seit die Fahrzeuge ihre eigene `dayFrSa`-Zeile haben (M: 80
+statt 75), ist der Zuschlag überflüssig; das Feld war ein Überbleibsel.
+
+Entfernt: das Eingabefeld, beide Skalierungsstellen, die Vorgaben in den
+vier `AVJ_RECHNER`-Konfigurationen. **Nicht** entfernt: der Wert in
+bereits erzeugten `preise.json`. Er kommt über `legeAuf(_kundenstand,
+diff)` weiter in `CARS` und wandert in neue Dateien mit — gelesen wird
+er nirgends, das ist reiner Ballast. Wer ihn loswerden will, müsste ihn
+beim Erzeugen abstreifen; dafür gab es keinen Anlass.
+
+> **Nebenbefund, offen:** Die beiden PKW haben **weder** ein
+> `dayFrSa`-Raster **noch** einen Zuschlag. Wer den Golf am Freitag für
+> einen Tag holt, zahlt exakt den Montagspreis; beim Transporter zahlt
+> er 5 € mehr. Das ist keine Entscheidung gewesen, sondern
+> durchgerutscht. Niran weiß Bescheid — vier Preise eintragen, dann
+> hätten die PKW ihre Fr/Sa-Zeile.
+
+### 3. Die Tarif Config. steht in Abschnitten
+
+Niran: *„wir haben jetzt so unglaublich viele einstellmöglichkeiten das
+man als Mensch wenn man da länger nicht drauf geguckt hat erstmal
+überlegen und testen muss was was war."*
+
+Berechtigt — rund 60 Felder in einer Spalte. Er hat sich für zugeklappte
+Abschnitte entschieden. Acht Stück, nach Häufigkeit sortiert:
+
+| Abschnitt | zeigt zugeklappt |
+|---|---|
+| Tagestarife | `75 / 115 / 155 / 200 €` (plus `−5 € ab 2 T`, wenn gesetzt) |
+| Wochenende | `ab 175 € · 200 km` |
+| Staffel ab 3 Tagen | `225 … 425 €` |
+| Mehrkilometer | `0,20 / 0,30 €/km` |
+| Langzeit | `1.275 € · 3.000 km` bzw. `auf Anfrage` |
+| Haftungsreduzierung | `2 Stufen · 1.000 € / 500 €` |
+| Kurzzeittarife | `50 / 65 € · nur Tabelle` |
+| Zubehör und Kaution | `AHK 15 € · Kaution 300 €` |
+
+Ohne Tagespakete (Low Budget) heißt der dritte Abschnitt *Preis je
+Mietdauer* und die Abschnitte, die es dort nicht gibt, fehlen ganz.
+
+Gebaut mit `<details>`/`<summary>` — nativ, ohne eigenes Auf-und-Zu,
+tastaturbedienbar. Drei Dinge waren dabei zu beachten:
+
+- **`toggle` steigt nicht auf.** Delegation am Körper funktioniert
+  nicht; die Zuhörer werden nach jedem `innerHTML` pro Abschnitt
+  gesetzt.
+- **Der Zustand muss überleben.** `renderSettings()` läuft nach jeder
+  Änderung — ohne `_absOffen` klappte beim Tippen alles wieder zu.
+- **`bloecke()` musste hineinschauen.** Es gruppiert Überschrift,
+  Hinweis und Raster zu einem `.pr-block`; die Reihen stehen jetzt eine
+  Ebene tiefer. Aufgeteilt in `bloecke()` (findet die Räume) und
+  `gruppiere()` (macht die Arbeit), aufgerufen für den Körper und jedes
+  `.avjt-abs-in`.
+
+Die Zusammenfassungen hängen in `updateDeltas()`, rechnen also beim
+Tippen mit. Am Breitbild bleibt das mehrspaltige Raster erhalten —
+`.avjt-akk` nimmt die volle Breite, `.avjt-abs-in` ist innen selbst
+wieder ein `auto-fit`-Raster.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefabs58.js` | **neu**, 19 Proben. Abschlag: bei jeder km-Stufe genau −5 €, ein Tag und drei Tage unverändert, eigene Zeile im Ergebnis und im Kopiertext, Leeren nimmt ihn zurück, 9999 macht den Preis nicht negativ. Fr/Sa: Feld weg, Verschieben lässt `frSaPlus` in Ruhe, wirkt aber weiter auf die Preise. Abschnitte: acht Stück, alle zugeklappt, jeder mit Zusammenfassung; ein geöffneter bleibt nach dem Neuzeichnen offen, die anderen zu; `bloecke()` gruppiert auch drinnen. Und eine Liste von **22 Pflichtfeldern**, die den Umbau überlebt haben müssen |
+| `gold.js` | identisch mit Build 57 — der Abschlag ist per Vorgabe nicht gesetzt |
+| übrige 22 Tests | grün |
+
+### Geändert
+
+Nur `index.html`. Onepage bleibt **v54**.
+
+Bauskript: `/tmp/build58.js`. Der große Umbau von `renderSettings()`
+liegt als `/tmp/rs-alt.txt` → `/tmp/rs-neu.txt` daneben, damit im
+Bauskript nichts abgetippt wird.

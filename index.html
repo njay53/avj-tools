@@ -664,6 +664,40 @@
 }
 .avjt-shint b{color:#5A6675;font-weight:700;}
 
+/* ── Zugeklappte Abschnitte ────────────────────────────────────────
+   Der Umfang bleibt, die Wand nicht: acht Kacheln statt 60 Feldern in
+   einer Spalte. Zugeklappt zeigt jede ihre wichtigsten Werte. */
+.avjt-akk{ margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+.avjt-abs{
+  border:1px solid #DCE3EA; border-radius:10px; background:#fff;
+}
+.avjt-abs > summary{
+  list-style:none; cursor:pointer; display:flex; align-items:center;
+  gap:12px; padding:11px 14px; -webkit-user-select:none; user-select:none;
+  border-radius:9px;
+}
+.avjt-abs > summary::-webkit-details-marker{ display:none; }
+.avjt-abs > summary .t{
+  flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.06em;
+  text-transform:uppercase; color:#26313B;
+}
+.avjt-abs > summary .z{
+  flex:1 1 auto; min-width:0; text-align:right; font-size:11.5px;
+  font-family:ui-monospace,monospace; color:#8A96A3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.avjt-abs > summary::after{
+  content:""; flex:0 0 auto; width:7px; height:7px; margin-left:1px;
+  border-right:2px solid #AEB8C4; border-bottom:2px solid #AEB8C4;
+  transform:rotate(-45deg); transition:transform .15s;
+}
+.avjt-abs[open] > summary::after{ transform:rotate(45deg); }
+.avjt-abs[open] > summary{ background:#F7F9FB; border-bottom:1px solid #ECF0F4;
+  border-radius:9px 9px 0 0; }
+.avjt-abs > summary:hover .t{ color:#1B2FC4; }
+.avjt-abs-in{ padding:0 14px 14px; }
+.avjt-abs-in .avjt-slabel{ margin-top:14px; }
+
 /* Zwei Felder behaupten dasselbe — Hinweis mit Angleichen-Knopf */
 .avjt-sabgleich{margin:2px 0 4px;}
 .avjt-sabgleich:empty{display:none;}
@@ -945,6 +979,14 @@
     gap:2px 26px;align-items:start;padding:16px 22px 22px;
   }
   #tool-preise .pr-block{min-width:0;}
+  /* Die Abschnitte nehmen die ganze Breite; INNERHALB eines offenen
+     Abschnitts stehen die Reihen weiter nebeneinander wie bisher. */
+  #tool-preise .avjt-akk{grid-column:1 / -1;}
+  #tool-preise .avjt-abs-in{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:2px 26px;align-items:start;
+  }
+  #tool-preise .avjt-abs-in > *:not(.pr-block){grid-column:1 / -1;}
   #tool-preise .avj-snote,#tool-preise .avjt-snote,
   #tool-preise .avj-scale,#tool-preise .avjt-scale,
   #tool-preise .avj-kstand,
@@ -2448,6 +2490,14 @@ var AVJ_EDITOR = (function(){
   function bloecke(bodyId){
     var b = document.getElementById(bodyId);
     if(!b) return;
+    /* Seit Build 58 stehen die Reihen in zugeklappten Abschnitten.
+       Gruppiert wird deshalb im Koerper UND in jedem Abschnitt. */
+    gruppiere(b);
+    var innen = b.querySelectorAll(".avjt-abs-in");
+    for(var q=0;q<innen.length;q++) gruppiere(innen[q]);
+  }
+
+  function gruppiere(b){
     var kinder = Array.prototype.slice.call(b.children), block = null;
     for(var i=0;i<kinder.length;i++){
       var k = kinder[i], kl = String(k.className || "");
@@ -2951,7 +3001,6 @@ var AVJ_NEUFZ = (function(){
         if(satz.weekend[w][1] <= satz.weekend[w-1][1]) satz.weekend[w][1] = satz.weekend[w-1][1] + 5;
       }
     }
-    if(satz.frSaPlus) satz.frSaPlus = Math.max(1, Math.round(satz.frSaPlus * pf));
     if(satz.kurzzeit){
       satz.kurzzeit = tief(satz.kurzzeit);
       satz.kurzzeit.km   = r50(satz.kurzzeit.km * kf2);
@@ -3990,7 +4039,6 @@ AVJ_RECHNER({
       name: "Sprinter Tourer",
       merkmale: { klasse:"9-Sitzer", karosserie:"Bus", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"214 kurz" },
       example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Handschaltung \u00B7 214 kurz",
-      frSaPlus: 20,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.18,   // vorab geplante Mehrkilometer
       overKm: 0.33,   // ungeplant bei R\u00FCckgabe
       // Wochenendtarif Fr 12:00 bis Mo 10:00
@@ -4014,7 +4062,6 @@ AVJ_RECHNER({
       name: "Vito Tourer",
       merkmale: { klasse:"9-Sitzer", karosserie:"Bus", kraftstoff:"Diesel", getriebe:"Automatik", zusatz:"119 extralang" },
       example: "9-Sitzer \u00B7 Bus \u00B7 Diesel \u00B7 Automatik \u00B7 119 extralang",
-      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.22,   // vorab geplante Mehrkilometer
       overKm: 0.37,   // ungeplant bei R\u00FCckgabe
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -4774,6 +4821,7 @@ function AVJ_RECHNER(CFG){
     var km    = kmRaw === "" ? null : Math.max(0, parseInt(kmRaw,10) || 0);
 
     var mode, base, freeKm, sbCost, tarifLabel, badge = "";
+    var abschlag = 0;      /* Nachlass fuer die Zwei-Tage-Miete */
 
     var wd   = d.from.getDay();
     var frSa = (wd === 5 || wd === 6);
@@ -4804,6 +4852,11 @@ function AVJ_RECHNER(CFG){
       var stD = pickStep(gridFor(car, paketRaster(car, frSa)), perDayKm, car.planKm);
       base   = stD.price * d.days;
       freeKm = stD.km    * d.days;
+      /* Zwei Tage sind zweimal ein Tag — das muss nicht so bleiben.
+         Bewusst als eigener Posten und nicht in den Paketpreis
+         hineingerechnet: so steht im Ergebnis, warum es 145 statt 150
+         sind. Die Frei-km bleiben, wie sie sind. */
+      if(d.days === 2 && car.tag2Ab > 0) abschlag = Math.min(car.tag2Ab, base);
       sbCost = hatSb ? car.sb[sbIdx].tier[d.days - 1] : 0;
       /* Ohne eigenes Fr/Sa-Raster gibt es auch nichts zu unterscheiden;
          mit Raster gehoert die Angabe zur Dauer, nicht zur Tarifart. */
@@ -4865,11 +4918,11 @@ function AVJ_RECHNER(CFG){
 
     var overKm   = km === null ? 0 : Math.max(0, km - freeKm);
     var overCost = overKm * car.planKm;
-    var total    = base + sbCost + overCost;
+    var total    = base + sbCost + overCost - abschlag;
 
     return {
       car: car, d: d, mode: mode, km: km,
-      base: base, freeKm: freeKm, sbCost: sbCost,
+      base: base, freeKm: freeKm, sbCost: sbCost, abschlag: abschlag,
       overKm: overKm, overCost: overCost, total: total,
       tarifLabel: tarifLabel, badge: badge
     };
@@ -5165,6 +5218,10 @@ function AVJ_RECHNER(CFG){
 
     var L = "";
     L += '<li><span class="k">Mietpreis '+r.car.name+'</span><span class="v">'+eur(r.base)+' \u20AC</span></li>';
+    if(r.abschlag > 0){
+      L += '<li class="disc"><span class="k">Abschlag zwei Tage</span>'
+        +  '<span class="v">\u2212 '+eur(r.abschlag)+' \u20AC</span></li>';
+    }
     L += '<li class="km"><span class="k">Frei-Kilometer inklusive</span><span class="v">'+num(r.freeKm)+' km</span></li>';
 
     if(r.km !== null){
@@ -5937,6 +5994,64 @@ function AVJ_RECHNER(CFG){
       +  '1T + 7T \u2192 Rest</button>';
   }
 
+  /* Welche Abschnitte offen sind. renderSettings() laeuft nach jeder
+     Aenderung — ohne Gedaechtnis klappte alles wieder zu, sobald man
+     eine Zahl tippt. */
+  var _absOffen = {};
+
+  /* Was ein zugeklappter Abschnitt verraet: die Zahl, die man dort am
+     haeufigsten sucht. Absichtlich knapp — die Kopfzeile ist eine
+     Zeile, kein zweites Formular. */
+  function absZusammen(car){
+    function n(v){ return Number(v).toLocaleString("de-DE"); }
+    function e2(v){ return (Number(v)||0).toFixed(2).replace(".", ","); }
+    var z = {};
+    if(car.dayMoDo && car.dayMoDo.length){
+      var pr = [];
+      for(var i=0;i<car.dayMoDo.length;i++) pr.push(n(car.dayMoDo[i][1]));
+      z.tag = pr.join(" / ") + " \u20AC"
+            + (car.tag2Ab > 0 ? "  \u00B7  \u2212" + n(car.tag2Ab) + " \u20AC ab 2 T" : "");
+    }
+    if(car.weekend && car.weekend.length){
+      z.we = "ab " + n(car.weekend[0][1]) + " \u20AC \u00B7 " + n(car.weekend[0][0]) + " km";
+    }
+    if(car.tier && car.tier.length === 7){
+      var von = (car.dayMoDo && car.dayMoDo.length) ? car.tier[2] : car.tier[0];
+      z.staffel = n(von) + " \u2026 " + n(car.tier[6]) + " \u20AC";
+    }
+    z.km = e2(car.planKm) + " / " + e2(car.overKm) + " \u20AC/km";
+    z.lz = car.lzAnfrage ? "auf Anfrage"
+         : n(lzPreis(car)) + " \u20AC \u00B7 " + n(lzKm(car)) + " km";
+    if(car.sb && car.sb.length > 1){
+      var st = [];
+      for(var s=1;s<car.sb.length;s++) st.push(car.sb[s].label);
+      z.sb = (car.sb.length - 1) + (car.sb.length === 2 ? " Stufe \u00B7 " : " Stufen \u00B7 ")
+           + st.join(" / ");
+    }
+    if(car.kurzzeit){
+      z.kz = n(car.kurzzeit.moDo[0]) + " / " + n(car.kurzzeit.moDo[1])
+           + " \u20AC \u00B7 nur Tabelle";
+    }
+    if(car.ahk || car.kaution){
+      var zt = [];
+      if(car.ahk && car.ahk.tag)          zt.push("AHK " + n(car.ahk.tag) + " \u20AC");
+      if(car.kaution && car.kaution.tag)  zt.push("Kaution " + n(car.kaution.tag) + " \u20AC");
+      z.zub = zt.join(" \u00B7 ");
+    }
+    return z;
+  }
+
+  function zeichneZusammen(){
+    var body = $("SetBody");
+    if(!body || !hatAuto()) return;
+    var z = absZusammen(CARS[carKey]);
+    var l = body.querySelectorAll("[data-zus]");
+    for(var i=0;i<l.length;i++){
+      var k = l[i].getAttribute("data-zus");
+      l[i].textContent = (z[k] === undefined || z[k] === null) ? "" : z[k];
+    }
+  }
+
   function numRow(cls, label, arr, key, sub, step, hinweis){
     /* Sieben Werte heisst immer dasselbe: 1T und 7T sind die Anker,
        die fuenf dazwischen liegen auf der Linie und kommen notfalls
@@ -6054,7 +6169,8 @@ function AVJ_RECHNER(CFG){
       }
     }
     try{ zeichneKennzahlen(); }catch(e){}
-    try{ zeichneAbgleich();  }catch(e){}
+    try{ zeichneAbgleich();   }catch(e){}
+    try{ zeichneZusammen();   }catch(e){}
   }
 
   /* ── Alle Mietpreise um einen Prozentsatz verschieben ──────
@@ -6075,7 +6191,6 @@ function AVJ_RECHNER(CFG){
         if(cfg[k][j][1] <= cfg[k][j-1][1]) cfg[k][j][1] = cfg[k][j-1][1] + 5;
       }
     });
-    if(cfg.frSaPlus) cfg.frSaPlus = Math.max(1, Math.round(cfg.frSaPlus*f));
     /* Der Monatsanker muss ueber dem Wochenpreis bleiben, sonst kippt
        die Interpolation ab Tag 8 ins Negative. */
     if(cfg.monthPrice) cfg.monthPrice = Math.max(cfg.tier[6] + 5, r5(cfg.monthPrice));
@@ -6291,82 +6406,134 @@ function AVJ_RECHNER(CFG){
       +    '</div>'
       +    '<div class="avjt-scale-prev" id="' + P + 'ScalePrev"></div>'
       +    '<div class="avjt-scale-note">' + (car.weekend
-      ?      'Verschiebt Staffel, Tagespakete, Wochenende und den Fr/Sa-Zuschlag; '
-      +      'gerundet auf 5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze und '
-      +      'Haftungsreduzierung bleiben unver\u00E4ndert.'
+      ?      'Verschiebt Staffel, Tagespakete und Wochenende; gerundet auf '
+      +      '5\u202F\u20AC. Frei-km, Mehrkilometer-S\u00E4tze, der Abschlag bei '
+      +      'zwei Tagen und die Haftungsreduzierung bleiben unver\u00E4ndert.'
       :      'Verschiebt die Tagespreise und den Monatsanker; gerundet auf '
       +      '5\u202F\u20AC. Frei-km und Mehrkilometer-S\u00E4tze bleiben unver\u00E4ndert.')
       +      ' Minuswert senkt die Preise.</div>'
       +  '</div>';
 
-    /* Wofuer eine Reihe gilt, haengt am Fahrzeug: mit Tagespaketen
-       rechnet der Rechner die ersten zwei Tage dort, ohne sie steht
-       hier alles. */
+    /* ── Die Einstellungen stehen in zugeklappten Abschnitten ─────────
+       Niran: "wir haben jetzt so unglaublich viele einstellmoeglichkeiten
+       das man als Mensch wenn man da laenger nicht drauf geguckt hat
+       erstmal ueberlegen und testen muss was was war."
+
+       Er hat recht: rund 60 Felder in einer einzigen Spalte. Der Umfang
+       bleibt, die Wand nicht. Jeder Abschnitt zeigt zugeklappt seine
+       wichtigsten Werte (absZusammen), aufgeklappt sieht er aus wie
+       vorher. Reihenfolge nach Haeufigkeit: was man staendig anfasst,
+       steht oben.
+
+       _absOffen merkt sich, was offen war — renderSettings() laeuft nach
+       jeder Aenderung, ohne das Gedaechtnis klappte alles wieder zu. */
+    function raster(n){ return n <= 2 ? "p2" : (n === 3 ? "p3" : "p4"); }
     var hatPakete = !!(car.dayMoDo && car.dayMoDo.length);
-    h += numRow("d7", "Staffelpreis je Mietdauer (\u20AC)", car.tier, "tier", null, 5,
+
+    function absAuf(id, titel){
+      h += '<details class="avjt-abs" data-abs="' + id + '"'
+        +  (_absOffen[id] ? " open" : "") + '>'
+        +  '<summary><span class="t">' + titel + '</span>'
+        +  '<span class="z" data-zus="' + id + '"></span></summary>'
+        +  '<div class="avjt-abs-in">';
+    }
+    function absZu(){ h += '</div></details>'; }
+
+    h += '<div class="avjt-akk">';
+
+    /* ── Tagestarife ──────────────────────────────────────────────── */
+    if(hatPakete){
+      absAuf("tag", "Tagestarife");
+      /* Ohne eigenes Fr/Sa-Raster heisst es schlicht "Tagespaket" */
+      var tName = hatFrSaRaster(car) ? "Tagespaket Mo–Do" : "Tagespaket";
+      var tCls  = raster(car.dayMoDo.length);
+      var tHin = 'Gilt für <b>1 und 2 Tage</b>'
+        + (hatFrSaRaster(car) ? ' mit Abholung <b>Mo bis Do</b>' : '')
+        + '. Das ist der Preis, den der Kunde für einen Tag zahlt — '
+        + 'in der Tariftabelle der Block <b>Tagestarife</b>.';
+      h += numRow(tCls, tName + " – km",    car.dayMoDo, "dayMoDo", 0, 50,
+        'Die Kilometerstufen dazu. Zwischen zwei Stufen zieht der Rechner '
+        + 'automatisch eine Mitte ein.');
+      h += numRow(tCls, tName + " – Preis", car.dayMoDo, "dayMoDo", 1, 5, tHin);
+
+      if(hatFrSaRaster(car)){
+        var fCls = raster(car.dayFrSa.length);
+        h += numRow(fCls, "Tagespaket Fr/Sa – km",    car.dayFrSa, "dayFrSa", 0, 50,
+          'Eigenes Raster für Abholungen am <b>Freitag oder Samstag</b>.');
+        h += numRow(fCls, "Tagespaket Fr/Sa – Preis", car.dayFrSa, "dayFrSa", 1, 5,
+          'Gilt für <b>1 und 2 Tage</b> mit Abholung <b>Fr oder Sa</b> — '
+          + 'in der Tariftabelle die Zeile <b>1 Tag Fr. - Sa.</b>');
+      }
+
+      /* Zwei Tage sind zweimal ein Tag — das muss nicht so bleiben. */
+      h += '<div class="avjt-slabel">Abschlag bei zwei Tagen (€)</div>'
+        +  '<div class="avjt-shint">Zieht bei <b>genau zwei Tagen</b> einmalig '
+        +  'diesen Betrag ab, von jeder Kilometerstufe. Ein Tag bleibt '
+        +  'unberührt, ab drei Tagen rechnet die Staffel — den Nachlass '
+        +  'trägst du dort direkt in die Felder ein. Steht nur im Rechner, '
+        +  'nicht in der Tariftabelle. Leer: kein Abschlag.</div>'
+        +  '<div class="avjt-sgrid r3">'
+        +  '<div class="avjt-scol"><div class="d">2 Tage</div>'
+        +  '<input type="number" step="5" min="0" data-rate="tag2Ab" data-leer="weg" '
+        +    'placeholder="0" value="'+(car.tag2Ab || "")+'"></div>'
+        +  '</div>';
+      absZu();
+    }
+
+    /* ── Wochenende ───────────────────────────────────────────────── */
+    if(car.weekend){
+      absAuf("we", "Wochenende");
+      var wcls = raster(car.weekend.length);
+      h += numRow(wcls, "Wochenende – km",    car.weekend, "weekend", 0, 50,
+        'Die Kilometerstufen des Wochenendtarifs.');
+      h += numRow(wcls, "Wochenende – Preis", car.weekend, "weekend", 1, 5,
+        'Gilt bei Abholung <b>Freitag ab 12:00</b> und Rückgabe bis '
+        + '<b>Montag 10:00</b> — nicht nach Tagen. In der Tariftabelle: '
+        + '<b>Wochenendtarife</b>.');
+      absZu();
+    }
+
+    /* ── Staffel ──────────────────────────────────────────────────── */
+    absAuf("staffel", hatPakete ? "Staffel ab 3 Tagen" : "Preis je Mietdauer");
+    h += numRow("d7", "Staffelpreis je Mietdauer (€)", car.tier, "tier", null, 5,
       hatPakete
-        ? 'Gilt f\u00FCr <b>3 bis 7 Tage</b>. Ein und zwei Tage rechnet das '
-          + '<b>Tagespaket</b> weiter unten \u2014 <b>1T</b> und <b>2T</b> sind hier '
-          + 'nur Anker f\u00FCr die Staffel und stehen nirgends beim Kunden. '
+        ? 'Gilt für <b>3 bis 7 Tage</b>. Ein und zwei Tage rechnet das '
+          + '<b>Tagespaket</b> weiter oben — <b>1T</b> und <b>2T</b> sind hier '
+          + 'nur Anker für die Staffel und stehen nirgends beim Kunden. '
           + 'In der Tariftabelle taucht aus dieser Reihe nur <b>7 Tage</b> auf.'
-        : 'Jeder Wert ist der Preis f\u00FCr genau diese Mietdauer, '
+        : 'Jeder Wert ist der Preis für genau diese Mietdauer, '
           + '<b>1 bis 7 Tage</b>. In der Tariftabelle: der Block <b>Mietdauer</b>.');
     h += numRow("d7", "Frei-km je Mietdauer", car.tierKm, "tierKm", null, 50,
       hatPakete
-        ? 'Dieselbe Regel: <b>ab 3 Tagen</b>. F\u00FCr ein und zwei Tage z\u00E4hlen '
+        ? 'Dieselbe Regel: <b>ab 3 Tagen</b>. Für ein und zwei Tage zählen '
           + 'die Kilometer des Tagespakets.'
-        : 'Frei-km f\u00FCr genau diese Mietdauer, <b>1 bis 7 Tage</b>.');
+        : 'Frei-km für genau diese Mietdauer, <b>1 bis 7 Tage</b>.');
     h += '<div class="avjt-sabgleich" id="' + P + 'Abgleich"></div>';
+    absZu();
 
-    function raster(n){ return n <= 2 ? "p2" : (n === 3 ? "p3" : "p4"); }
-    if(car.dayMoDo){
-      /* Ohne eigenes Fr/Sa-Raster heisst es schlicht "Tagespaket" */
-      var tName = hatFrSaRaster(car) ? "Tagespaket Mo\u2013Do" : "Tagespaket";
-      var tCls  = raster(car.dayMoDo.length);
-      var tHin = 'Gilt f\u00FCr <b>1 und 2 Tage</b>'
-        + (hatFrSaRaster(car) ? ' mit Abholung <b>Mo bis Do</b>' : '')
-        + '. Das ist der Preis, den der Kunde f\u00FCr einen Tag zahlt \u2014 '
-        + 'in der Tariftabelle der Block <b>Tagestarife</b>.';
-      h += numRow(tCls, tName + " \u2013 km",    car.dayMoDo, "dayMoDo", 0, 50,
-        'Die Kilometerstufen dazu. Zwischen zwei Stufen zieht der Rechner '
-        + 'automatisch eine Mitte ein.');
-      h += numRow(tCls, tName + " \u2013 Preis", car.dayMoDo, "dayMoDo", 1, 5, tHin);
-    }
-    if(hatFrSaRaster(car)){
-      var fCls = raster(car.dayFrSa.length);
-      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 km",    car.dayFrSa, "dayFrSa", 0, 50,
-        'Eigenes Raster f\u00FCr Abholungen am <b>Freitag oder Samstag</b>.');
-      h += numRow(fCls, "Tagespaket Fr/Sa \u2013 Preis", car.dayFrSa, "dayFrSa", 1, 5,
-        'Gilt f\u00FCr <b>1 und 2 Tage</b> mit Abholung <b>Fr oder Sa</b> \u2014 '
-        + 'in der Tariftabelle die Zeile <b>1 Tag Fr. - Sa.</b>');
-    }
-    if(car.weekend){
-      var wcls = raster(car.weekend.length);
-      h += numRow(wcls, "Wochenende \u2013 km",    car.weekend, "weekend", 0, 50,
-        'Die Kilometerstufen des Wochenendtarifs.');
-      h += numRow(wcls, "Wochenende \u2013 Preis", car.weekend, "weekend", 1, 5,
-        'Gilt bei Abholung <b>Freitag ab 12:00</b> und R\u00FCckgabe bis '
-        + '<b>Montag 10:00</b> \u2014 nicht nach Tagen. In der Tariftabelle: '
-        + '<b>Wochenendtarife</b>.');
-    }
-
-    h += '<div class="avjt-slabel">Mehrkilometer (\u20AC/km)</div><div class="avjt-sgrid r3">'
+    /* ── Mehrkilometer ────────────────────────────────────────────── */
+    absAuf("km", "Mehrkilometer");
+    h += '<div class="avjt-slabel">Mehrkilometer (€/km)</div>'
+      +  '<div class="avjt-shint">Gilt für jeden Tarif. <b>Geplant</b> ist der '
+      +  'günstigere Satz für Kilometer, die der Kunde vorher angibt — '
+      +  'damit rechnet der Rechner. <b>Ungeplant</b> steht in der Tariftabelle und '
+      +  'gilt bei der Rückgabe.</div>'
+      +  '<div class="avjt-sgrid r3">'
       +  '<div class="avjt-scol"><div class="d">geplant</div>'
       +  '<input type="number" step="0.01" data-rate="planKm" value="'+car.planKm+'"></div>'
       +  '<div class="avjt-scol"><div class="d">ungeplant</div>'
       +  '<input type="number" step="0.01" data-rate="overKm" value="'+car.overKm+'"></div>'
-      +  (car.weekend
-        ? '<div class="avjt-scol"><div class="d">Fr/Sa-Zuschlag</div>'
-        + '<input type="number" step="1" data-rate="frSaPlus" value="'+(car.frSaPlus||0)+'"></div>'
-        : '')
       +  '</div>';
+    absZu();
 
-    /* Monatsanker \u2014 seit Build 41 fuer jede Kategorie. Ab Tag 8
+    /* ── Langzeit ─────────────────────────────────────────────────── */
+    /* Monatsanker — seit Build 41 fuer jede Kategorie. Ab Tag 8
        wird zwischen Wochen- und Monatswert interpoliert, ab Tag 29
        gibt es "Preis auf Anfrage". Leer heisst: geschaetzt aus dem
        Wochenwert, der Platzhalter im Feld zeigt womit. */
-    h += '<div class="avjt-slabel">Langzeit \u2013 vier Wochen (28 Tage). '
-      +  'Leer lassen sch\u00E4tzt aus dem Wochenwert. Ab Tag 29: Preis auf Anfrage</div>'
+    absAuf("lz", "Langzeit");
+    h += '<div class="avjt-slabel">Langzeit – vier Wochen (28 Tage). '
+      +  'Leer lassen schätzt aus dem Wochenwert. Ab Tag 29: Preis auf Anfrage</div>'
       +  '<div class="avjt-sgrid r3">'
       +  '<div class="avjt-scol"><div class="d">Preis 28 T</div>'
       +  '<input type="number" step="5" data-rate="monthPrice" data-leer="weg" '
@@ -6378,56 +6545,62 @@ function AVJ_RECHNER(CFG){
       +  '<div class="avjt-lzv" id="' + P + 'LzVorschau"></div>'
       +  '<label class="avjt-schalter"><input type="checkbox" '
       +    'data-schalter="lzAnfrage"' + (car.lzAnfrage ? " checked" : "") + '>'
-      +    '<span><b>Vier-Wochen-Preis nicht anzeigen \u2014 "auf Anfrage"</b>'
+      +    '<span><b>Vier-Wochen-Preis nicht anzeigen — "auf Anfrage"</b>'
       +    '<em>Gilt ab 28 Tagen, im Rechner und in der Tariftabelle. Zwei und '
-      +    'drei Wochen rechnen weiter \u2014 der Monatswert ist dort nur '
+      +    'drei Wochen rechnen weiter — der Monatswert ist dort nur '
       +    'Zwischenziel der Staffel und wird nie gezeigt. Die Werte oben '
       +    'bleiben gespeichert. Haken setzen, solange der Vier-Wochen-Preis '
       +    'noch nicht steht.</em></span>'
       +  '</label>';
+    absZu();
 
-    for(var s=1;car.sb && s<car.sb.length;s++){
-      h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (\u20AC)",
-        car.sb[s].tier, "sb"+s, null, 1,
-        'Aufpreis je Mietdauer. Hier z\u00E4hlen <b>alle sieben</b> Werte \u2014 '
-        + 'auch 1T und 2T, anders als beim Staffelpreis. Bei Kurzzeittarifen '
-        + 'gibt es keine Reduzierung.');
-      h += '<div class="avjt-slabel">SB '+car.sb[s].label
-        +  " \u2013 Wochenende und vier Wochen (\u20AC)</div>"
-        +  '<div class="avjt-sgrid r3">'
-        +  '<div class="avjt-scol"><div class="d">WE</div>'
-        +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">28 T</div>'
-        +  '<input type="number" step="5" data-pfad="sb.'+s+'.monat" data-leer="weg" placeholder="'
-        +    lzSb(car.sb[s]) + '" value="'
-        +    (car.sb[s].monat === undefined || car.sb[s].monat === null ? "" : car.sb[s].monat)
-        +  '"></div>'
-        +  '</div>';
+    /* ── Haftungsreduzierung ──────────────────────────────────────── */
+    if(car.sb && car.sb.length > 1){
+      absAuf("sb", "Haftungsreduzierung");
+      for(var s=1;s<car.sb.length;s++){
+        h += numRow("d7", "Haftung SB "+car.sb[s].label+" je Mietdauer (€)",
+          car.sb[s].tier, "sb"+s, null, 1,
+          'Aufpreis je Mietdauer. Hier zählen <b>alle sieben</b> Werte — '
+          + 'auch 1T und 2T, anders als beim Staffelpreis. Bei Kurzzeittarifen '
+          + 'gibt es keine Reduzierung.');
+        h += '<div class="avjt-slabel">SB '+car.sb[s].label
+          +  " – Wochenende und vier Wochen (€)</div>"
+          +  '<div class="avjt-sgrid r3">'
+          +  '<div class="avjt-scol"><div class="d">WE</div>'
+          +  '<input type="number" step="1" data-sbwe="'+s+'" value="'+car.sb[s].we+'"></div>'
+          +  '<div class="avjt-scol"><div class="d">28 T</div>'
+          +  '<input type="number" step="5" data-pfad="sb.'+s+'.monat" data-leer="weg" placeholder="'
+          +    lzSb(car.sb[s]) + '" value="'
+          +    (car.sb[s].monat === undefined || car.sb[s].monat === null ? "" : car.sb[s].monat)
+          +  '"></div>'
+          +  '</div>';
+      }
+      absZu();
     }
 
-
+    /* ── Kurzzeit ─────────────────────────────────────────────────── */
     /* Werte, die nur die Preistabelle auf der Website braucht */
     if(car.kurzzeit){
-      /* Der eigene Mehrkilometer-Satz ist freiwillig. Leer = der Satz
-         des Fahrzeugs, und genau der steht als Platzhalter drin — man
-         sieht also immer, womit gerechnet wird. */
+      absAuf("kz", "Kurzzeittarife");
       /* Zwei freiwillige Felder, beide nach demselben Muster: leer
          heisst "wie der Standard daneben", und der Platzhalter zeigt
          welcher das ist. Damit bleiben alte preise.json gueltig. */
       var kzOver = (car.kurzzeit.overKm > 0) ? car.kurzzeit.overKm : "";
       var kzKm6  = (car.kurzzeit.km6 > 0)    ? car.kurzzeit.km6    : "";
-      h += '<div class="avjt-slabel">Kurzzeittarife \u2013 nur f\u00FCr die Preistabelle. '
+      h += '<div class="avjt-slabel">Kurzzeittarife – nur für die Preistabelle. '
         +  'Leere Felder: Frei-km 6 Std. wie 3 Std., Mehr-km wie beim Fahrzeug ('
-        +  (car.overKm || 0).toFixed(2).replace(".", ",") + ' \u20AC/km)</div>'
+        +  (car.overKm || 0).toFixed(2).replace(".", ",") + ' €/km)</div>'
+        +  '<div class="avjt-shint">Der Rechner kennt keine Stundenmieten — '
+        +  'diese Preise stehen ausschließlich in der Tariftabelle.</div>'
         +  '<div class="avjt-sgrid p4">'
         +  '<div class="avjt-scol"><div class="d">Frei-km 3 Std.</div>'
         +  '<input type="number" step="50" data-pfad="kurzzeit.km" value="'+car.kurzzeit.km+'"></div>'
         +  '<div class="avjt-scol"><div class="d">Frei-km 6 Std.</div>'
         +  '<input type="number" step="50" data-pfad="kurzzeit.km6" data-leer="weg" '
         +    'placeholder="'+car.kurzzeit.km+'" value="'+kzKm6+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">3 Std. Mo\u2013Do</div>'
+        +  '<div class="avjt-scol"><div class="d">3 Std. Mo–Do</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.0" value="'+car.kurzzeit.moDo[0]+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">6 Std. Mo\u2013Do</div>'
+        +  '<div class="avjt-scol"><div class="d">6 Std. Mo–Do</div>'
         +  '<input type="number" step="5" data-pfad="kurzzeit.moDo.1" value="'+car.kurzzeit.moDo[1]+'"></div>'
         +  '</div>'
         +  '<div class="avjt-sgrid r3">'
@@ -6439,34 +6612,54 @@ function AVJ_RECHNER(CFG){
         +  '<input type="number" step="0.01" data-pfad="kurzzeit.overKm" data-leer="weg" '
         +    'placeholder="'+(car.overKm || 0)+'" value="'+kzOver+'"></div>'
         +  '</div>';
+      absZu();
     }
-    if(car.ahk){
-      h += '<div class="avjt-slabel">Anh\u00E4ngerkupplung \u2013 0 hei\u00DFt: keine AHK am Fahrzeug</div>'
-        +  '<div class="avjt-sgrid p4">'
-        +  '<div class="avjt-scol"><div class="d">Kurzzeit</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Tag</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Wochenende</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Woche</div>'
-        +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
-        +  '</div>';
+
+    /* ── Zubehoer und Kaution ─────────────────────────────────────── */
+    if(car.ahk || car.kaution){
+      absAuf("zub", "Zubehör und Kaution");
+      if(car.ahk){
+        h += '<div class="avjt-slabel">Anhängerkupplung – 0 heißt: keine AHK am Fahrzeug</div>'
+          +  '<div class="avjt-shint">Aufpreis je Tarifart. Steht in der '
+          +  'Tariftabelle hinter der jeweiligen Zeile.</div>'
+          +  '<div class="avjt-sgrid p4">'
+          +  '<div class="avjt-scol"><div class="d">Kurzzeit</div>'
+          +  '<input type="number" step="5" data-pfad="ahk.kurz" value="'+(car.ahk.kurz||0)+'"></div>'
+          +  '<div class="avjt-scol"><div class="d">Tag</div>'
+          +  '<input type="number" step="5" data-pfad="ahk.tag" value="'+(car.ahk.tag||0)+'"></div>'
+          +  '<div class="avjt-scol"><div class="d">Wochenende</div>'
+          +  '<input type="number" step="5" data-pfad="ahk.we" value="'+(car.ahk.we||0)+'"></div>'
+          +  '<div class="avjt-scol"><div class="d">Woche</div>'
+          +  '<input type="number" step="5" data-pfad="ahk.woche" value="'+(car.ahk.woche||0)+'"></div>'
+          +  '</div>';
+      }
+      if(car.kaution){
+        h += '<div class="avjt-slabel">Kaution – 0 blendet die Zeile in der Tabelle aus</div>'
+          +  '<div class="avjt-sgrid r3">'
+          +  '<div class="avjt-scol"><div class="d">Kurzzeittarife</div>'
+          +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
+          +  '<div class="avjt-scol"><div class="d">Tag / Wochenende</div>'
+          +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
+          +  '</div>';
+      }
+      absZu();
     }
-    if(car.kaution){
-      h += '<div class="avjt-slabel">Kaution \u2013 0 blendet die Zeile in der Tabelle aus</div>'
-        +  '<div class="avjt-sgrid r3">'
-        +  '<div class="avjt-scol"><div class="d">Kurzzeittarife</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.stunden" value="'+(car.kaution.stunden||0)+'"></div>'
-        +  '<div class="avjt-scol"><div class="d">Tag / Wochenende</div>'
-        +  '<input type="number" step="50" data-pfad="kaution.tag" value="'+(car.kaution.tag||0)+'"></div>'
-        +  '</div>';
-    }
+
+    h += '</div>';
     h += '<div class="avjt-sactions">'
       +    '<button type="button" class="avjt-sundo" id="' + P + 'SUndo">\u00C4nderungen verwerfen</button>'
       +    '<button type="button" class="avjt-sreset" id="' + P + 'SReset">Auf Kundenstand zur\u00FCcksetzen</button>'
       +  '</div>';
     $("SetBody").innerHTML = h;
+    /* toggle steigt nicht auf, deshalb pro Abschnitt einzeln. */
+    (function(){
+      var ds = $("SetBody").querySelectorAll("details.avjt-abs");
+      for(var i=0;i<ds.length;i++){
+        ds[i].addEventListener("toggle", function(){
+          _absOffen[this.getAttribute("data-abs")] = this.open;
+        });
+      }
+    })();
     updateDeltas();
     zeichneLzVorschau();
     try{ AVJ_EDITOR.bloecke(P + "SetBody"); }catch(e){}
@@ -6713,7 +6906,6 @@ AVJ_RECHNER({
       name: "Transporter M",
       merkmale: { klasse:"Transporter bis 3,5 t", karosserie:"Kastenwagen", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"z. B. Renault Trafic L2H1" },
       example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Renault Trafic L2H1",
-      frSaPlus: 5,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.20,   // vorab geplante Mehrkilometer
       overKm: 0.30,   // ungeplant bei R\u00FCckgabe
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -6735,7 +6927,6 @@ AVJ_RECHNER({
       name: "Transporter XL",
       merkmale: { klasse:"Transporter bis 3,5 t", karosserie:"Kastenwagen", kraftstoff:"Diesel", getriebe:"Handschaltung", zusatz:"z. B. Mercedes Sprinter L3" },
       example: "Transporter bis 3,5 t \u00B7 Kastenwagen \u00B7 Diesel \u00B7 Handschaltung \u00B7 z. B. Mercedes Sprinter L3",
-      frSaPlus: 10,   // Zuschlag/Tag bei Abholung Fr oder Sa (1-2 Tage)
       planKm: 0.26,
       overKm: 0.37,
       // Tagespakete 1-2 Tage; Zwischenstufen werden automatisch erzeugt
@@ -7442,7 +7633,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 57;
+var AVJ_BUILD = 58;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
