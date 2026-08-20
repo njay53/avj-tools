@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "stand": "20.08.2026",
-  "erzeugtVon": "AVJ Tools Build 59",
+  "stand": "21.08.2026",
+  "erzeugtVon": "AVJ Tools Build 61",
   "lb": {
     "yaris": {
       "name": "Low-Budget",
       "example": "Kleinwagen · Limousine · Benzin · Handschaltung · z. B. Toyota Yaris",
-      "planKm": 0.15,
+      "planKm": 0.09,
       "overKm": 0.15,
       "tier": [
         45,
@@ -52,7 +52,7 @@
         "getriebe": "Automatik"
       },
       "example": "Kompaktklasse · Limousine · Benzin · Automatik",
-      "planKm": 0.3,
+      "planKm": 0.19,
       "overKm": 0.3,
       "dayMoDo": [
         [
@@ -156,7 +156,7 @@
         "getriebe": "Automatik"
       },
       "example": "Kompaktklasse · Kombi · Benzin · Automatik",
-      "planKm": 0.32,
+      "planKm": 0.19,
       "overKm": 0.32,
       "dayMoDo": [
         [
@@ -570,7 +570,7 @@
     "sprinter": {
       "name": "Sprinter Tourer",
       "frSaPlus": 20,
-      "planKm": 0.18,
+      "planKm": 0.19,
       "overKm": 0.33,
       "dayMoDo": [
         [
@@ -708,7 +708,7 @@
     "vito": {
       "name": "Vito Tourer",
       "frSaPlus": 10,
-      "planKm": 0.22,
+      "planKm": 0.25,
       "overKm": 0.37,
       "dayMoDo": [
         [
@@ -849,7 +849,7 @@
       "name": "Transporter M / L2H1",
       "frSaPlus": 5,
       "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Renault Trafic L2H1",
-      "planKm": 0.2,
+      "planKm": 0.23,
       "overKm": 0.3,
       "dayMoDo": [
         [
@@ -902,7 +902,7 @@
         ]
       ],
       "tier": [
-        75,
+        80,
         150,
         230,
         295,
@@ -995,7 +995,7 @@
       "name": "Transporter XL / L3H2",
       "frSaPlus": 10,
       "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Mercedes Sprinter o. MAN TGE",
-      "planKm": 0.26,
+      "planKm": 0.27,
       "overKm": 0.37,
       "dayMoDo": [
         [
