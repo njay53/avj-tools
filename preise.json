@@ -261,7 +261,7 @@
         "zusatz": "7-Sitzer"
       },
       "example": "Mittelklasse · Van · Benzin · Automatik · 7-Sitzer",
-      "planKm": 0.35,
+      "planKm": 0.26,
       "overKm": 0.35,
       "dayMoDo": [
         [
@@ -284,11 +284,11 @@
       "weekend": [
         [
           600,
-          210
+          230
         ],
         [
           900,
-          250
+          270
         ]
       ],
       "tier": [
@@ -365,8 +365,8 @@
         "getriebe": "Automatik"
       },
       "example": "Kompaktklasse · Kombi · Diesel · Automatik",
-      "planKm": 0.3,
-      "overKm": 0.3,
+      "planKm": 0.24,
+      "overKm": 0.33,
       "dayMoDo": [
         [
           100,
@@ -458,7 +458,8 @@
           ]
         }
       ],
-      "lzAnfrage": true
+      "lzAnfrage": true,
+      "tag2Ab": 5
     },
     "vwtroc": {
       "name": "VW T-Roc",
@@ -469,7 +470,7 @@
         "getriebe": "Automatik"
       },
       "example": "Kompaktklasse · SUV · Benzin · Automatik",
-      "planKm": 0.32,
+      "planKm": 0.23,
       "overKm": 0.32,
       "dayMoDo": [
         [
@@ -496,7 +497,7 @@
         ],
         [
           900,
-          255
+          245
         ]
       ],
       "tier": [
