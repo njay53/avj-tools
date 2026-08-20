@@ -652,6 +652,7 @@
 .avjt-scol.ist-abgeleitet input{color:#5A6675;}
 
 /* Kennzahlen im Bestand — dieselben Ampeln wie beim Anlegen */
+.avjt-kennwrap{margin-top:2px;}
 .avjt-kenn{margin:6px 0 2px;}
 .avjt-kenn:empty{display:none;}
 
@@ -982,6 +983,14 @@
   /* Die Abschnitte nehmen die ganze Breite; INNERHALB eines offenen
      Abschnitts stehen die Reihen weiter nebeneinander wie bisher. */
   #tool-preise .avjt-akk{grid-column:1 / -1;}
+  /* Die Kennzahlen ueber die volle Breite, die vier Ampeln als 2x2 in
+     der Mitte. In einer Rasterspalte standen sie untereinander und
+     rechts daneben blieb die halbe Seite leer. */
+  #tool-preise .avjt-kennwrap{grid-column:1 / -1;}
+  #tool-preise .avjt-kennwrap .avjt-slabel{text-align:center;margin-top:6px;}
+  #tool-preise .avjt-kennwrap .avjt-kenn{
+    grid-template-columns:repeat(2,minmax(0,360px));justify-content:center;
+  }
   #tool-preise .avjt-abs-in{
     display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
     gap:2px 26px;align-items:start;
@@ -1455,7 +1464,15 @@
   border-radius:9px;padding:8px 11px;border:1px solid #DCE3EA;background:#F7F9FB;
   display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;
 }
-.nf-ampel .n{font-size:11px;font-weight:700;color:#40505E;flex:1 1 100%;}
+.nf-ampel .nk{
+  flex:1 1 100%;display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+}
+.nf-ampel .n{font-size:11px;font-weight:700;color:#40505E;flex:0 1 auto;}
+/* Die Erklaerung sitzt in der Namenszeile, im freien Platz rechts */
+.nf-ampel .hw{
+  flex:0 1 auto;font-size:10px;font-weight:600;color:#9AA5B1;
+  text-align:right;line-height:1.35;
+}
 .nf-ampel .w{font-family:ui-monospace,monospace;font-size:15px;font-weight:800;}
 .nf-ampel .t{font-size:10.5px;color:#5A6675;}
 .nf-ampel.gruen{background:#EAF7EE;border-color:#9FD6B2;}
@@ -3371,8 +3388,21 @@ var AVJ_NEUFZ = (function(){
     vor.innerHTML = h;
   }
 
+  /* Was hoch und was niedrig bedeutet, steht neben dem Namen — in
+     derselben Zeile, rechtsbuendig, in dem Platz, der dort ohnehin frei
+     ist. Die Ampel wird dadurch keinen Millimeter hoeher. */
+  var AMPEL_HINWEIS = {
+    "Wochenfaktor":             "niedrig = mehr Wochenrabatt",
+    "Wochenende je Tagespreis": "niedrig = WE g\u00FCnstiger",
+    "Preis je Frei-km":         "hoch = wenig km inklusive",
+    "km-Faktor Woche":          "hoch = viele km in der Woche"
+  };
+
   function ampel(name, wert, k){
-    return '<div class="nf-ampel ' + k.stufe + '"><span class="n">' + name + '</span>'
+    var hw = AMPEL_HINWEIS[name];
+    return '<div class="nf-ampel ' + k.stufe + '">'
+         + '<span class="nk"><span class="n">' + name + '</span>'
+         + (hw ? '<span class="hw">' + hw + '</span>' : '') + '</span>'
          + '<span class="w">' + wert + '</span><span class="t">' + k.text + '</span></div>';
   }
 
@@ -6390,8 +6420,12 @@ function AVJ_RECHNER(CFG){
 
     /* Die Verhaeltniszahlen, die es beim Anlegen schon gab. Sie
        aktualisieren sich beim Tippen mit — siehe updateDeltas. */
-    h += '<div class="avjt-slabel">Kennzahlen \u2013 gegen den eigenen Bestand</div>'
-      +  '<div class="nf-ampeln avjt-kenn" id="' + P + 'Kenn"></div>';
+    /* Eigener Kasten, damit die Ampeln am Bildschirm nicht in einer
+       Rasterspalte kleben und rechts daneben alles leer bleibt. */
+    h += '<div class="avjt-kennwrap">'
+      +  '<div class="avjt-slabel">Kennzahlen \u2013 gegen den eigenen Bestand</div>'
+      +  '<div class="nf-ampeln avjt-kenn" id="' + P + 'Kenn"></div>'
+      +  '</div>';
 
     h += '<div class="avjt-scale">'
       +    '<div class="avjt-slabel" style="margin-top:0">Alle Preise verschieben</div>'
@@ -7633,7 +7667,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 58;
+var AVJ_BUILD = 59;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */

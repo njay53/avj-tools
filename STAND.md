@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 58 · Onepage v54 · 20.08.2026**
+**Stand: Build 59 · Onepage v54 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -3123,12 +3123,26 @@ diff)` weiter in `CARS` und wandert in neue Dateien mit — gelesen wird
 er nirgends, das ist reiner Ballast. Wer ihn loswerden will, müsste ihn
 beim Erzeugen abstreifen; dafür gab es keinen Anlass.
 
-> **Nebenbefund, offen:** Die beiden PKW haben **weder** ein
-> `dayFrSa`-Raster **noch** einen Zuschlag. Wer den Golf am Freitag für
-> einen Tag holt, zahlt exakt den Montagspreis; beim Transporter zahlt
-> er 5 € mehr. Das ist keine Entscheidung gewesen, sondern
-> durchgerutscht. Niran weiß Bescheid — vier Preise eintragen, dann
-> hätten die PKW ihre Fr/Sa-Zeile.
+> **Nebenbefund — geklärt, bitte nicht "reparieren":** Die beiden PKW
+> haben **weder** ein `dayFrSa`-Raster **noch** einen Zuschlag. Wer den
+> Golf am Freitag für einen Tag holt, zahlt exakt den Montagspreis. Das
+> ist **Absicht**, keine Lücke. Niran dazu: *"die haben bewusst keinen
+> teureren preise, außerdem kann man dann gleich das ganze we buchen
+> wenn es so wäre weil das dann viel günstiger kommt … und um pkw nicht
+> unnötig komplizierter zu machen ist immer der selbe preis egal welcher
+> tag."*
+>
+> Die Zahlen geben ihm recht:
+>
+> | | 1 Tag Fr | Wochenende Fr–Mo |
+> |---|---|---|
+> | Golf | 90 € · 100 km | **195 € · 600 km** |
+> | Golf Variant | 100 € · 100 km | **215 € · 600 km** |
+>
+> Ein Freitagszuschlag würde den Kunden also nur in den
+> Wochenendtarif schieben, der pro Tag deutlich weniger einbringt.
+> Aufschläge am Wochenende gibt es bewusst nur dort, wo die Nachfrage
+> es hergibt: **Transporter und Kleinbusse**.
 
 ### 3. Die Tarif Config. steht in Abschnitten
 
@@ -3187,3 +3201,59 @@ Nur `index.html`. Onepage bleibt **v54**.
 Bauskript: `/tmp/build58.js`. Der große Umbau von `renderSettings()`
 liegt als `/tmp/rs-alt.txt` → `/tmp/rs-neu.txt` daneben, damit im
 Bauskript nichts abgetippt wird.
+
+---
+
+## 48. Build 59 — Kennzahlen: 2×2 zentriert und selbsterklärend
+
+Niran: *„kosmetik, aber im iphone ist es untereinander da passt es, beim
+desktop browser nimmt es unnötig platzweg. vlt. so dass man zwei links
+zwei rechts zentriert macht. und kannst du vlt. noch kleine erklärungen
+zu den faktoren geben … aber so das es aber nicht nochmehr platz
+wegnimmt."*
+
+### Die Anordnung
+
+`#tool-preise .avjt-set-body` ist am Bildschirm ein `auto-fit`-Raster.
+Die Überschrift landete darin in Spalte 1, die vier Ampeln in Spalte 2 —
+rechts daneben blieb die halbe Seite leer.
+
+Beide stehen jetzt zusammen in `.avjt-kennwrap`, das über `grid-column:
+1 / -1` die volle Breite nimmt; darin die Ampeln als
+`repeat(2,minmax(0,360px))` mit `justify-content:center`. Gemessen bei
+1440 px: Kasten 1.302 px breit, links wie rechts 287 px Rand — mittig.
+
+Auf dem Telefon ändert sich **nichts**: dort greift die Media Query
+nicht, `auto-fit` ergibt weiter eine Spalte.
+
+### Die Erklärungen
+
+Sie sollten keinen Platz kosten — also gehen sie dorthin, wo schon Platz
+frei war: rechtsbündig **in dieselbe Zeile wie der Name**. Dafür sitzen
+Name und Hinweis jetzt zusammen in `.nk` (`flex:1 1 100%`,
+`justify-content:space-between`); `.n` verliert sein `flex:1 1 100%`.
+
+| Kennzahl | Rechnung | Hinweis |
+|---|---|---|
+| Wochenfaktor | Wochenpreis ÷ Tagespreis | niedrig = mehr Wochenrabatt |
+| Wochenende je Tagespreis | WE-Preis ÷ Tagespreis | niedrig = WE günstiger |
+| Preis je Frei-km | Tagespreis ÷ Frei-km am Tag | hoch = wenig km inklusive |
+| km-Faktor Woche | Frei-km Woche ÷ Frei-km Tag | hoch = viele km in der Woche |
+
+Die Texte hängen in `AMPEL_HINWEIS` an **`ampel()`**, nicht an der
+Aufrufstelle — dadurch stehen sie im Bestand und im Anlegen-Dialog
+gleich, ohne dass jemand daran denken muss.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefkenn59.js` | **neu**, 15 Proben. Die schwierige Bedingung wird **gemessen, nicht angeschaut**: Name und Hinweis müssen dieselbe Oberkante haben (±2 px) — nur dann ist es dieselbe Zeile und die Kachel wird nicht höher. Ergebnis: 54 px, bei 1440 px wie bei 390 px, identisch mit Build 58. Dazu: alle vier Hinweise vorhanden und richtig zugeordnet; am Bildschirm zwei Spalten × zwei Reihen mit gleichem Rand links und rechts; auf dem Telefon weiter eine Spalte; der Anlegen-Dialog zeigt dieselben Hinweise |
+| `gold.js` | identisch mit Build 58 |
+| übrige 23 Tests | grün |
+
+### Geändert
+
+Nur `index.html`. Onepage bleibt **v54**.
+
+Bauskript: `/tmp/build59.js`.
