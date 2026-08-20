@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 59 · Onepage v54 · 20.08.2026**
+**Stand: Build 60 · Onepage v55 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -3257,3 +3257,116 @@ gleich, ohne dass jemand daran denken muss.
 Nur `index.html`. Onepage bleibt **v54**.
 
 Bauskript: `/tmp/build59.js`.
+
+---
+
+## 49. Build 60 / Onepage v55 — zuletzt benutzter Reiter, Direktlink für Kunden
+
+### 1. Der Reiter wird gemerkt
+
+Niran: *„immer wenn ich die tool app neu öffne dann lande ich im
+Mietdauer rechner … wahrscheinlich schwierig weil es im speicher vom
+browser liegt oder?"*
+
+Andersherum: **genau weil** es im Speicher des Browsers liegt, ist es
+leicht. Dort liegen schon die Tarifänderungen, das Archiv und seit
+Build 44 die Reihenfolge der Reiter.
+
+Neuer Schlüssel `avj_reiter_v1`. `showTool()` wird **umwickelt**, nicht
+umgeschrieben — die Reiter rufen sie über `onclick` auf, so bleibt der
+alte Ablauf unangetastet:
+
+```js
+var frueher = window.showTool;
+window.showTool = function(id, btn){
+  frueher(id, btn);
+  try{ window.localStorage.setItem(KEY, id); }catch(e){}
+};
+```
+
+Der Block steht **ganz unten** in der Datei: `dataset.tool` setzt das
+Sortiermodul weiter oben, und ohne das findet die Wiederherstellung den
+Reiter nicht. Ein gespeicherter Reiter, den es nicht mehr gibt, fällt
+still auf „Mietdauer" zurück.
+
+### 2. Der Kundenlink
+
+Niran: *„eine kleine Zeile dazu welchen Link ich den kunden schicken
+kann dass sie sofort im entsprechenden rechner landen … am besten
+zwischen rechner und tabelle … Aber nicht als extra button sondern der
+text vom link ist gleichzeitig der button so dass es platz spart."*
+
+Eine Zeile zwischen Ergebnis und Preistabelle, **der Linktext ist der
+Knopf** (17 px hoch, gemessen):
+
+> LINK FÜR KUNDEN  www.rent-in-nom.de/fahrzeuge#rechner-transporter
+
+| Rechner | Link |
+|---|---|
+| Kleinbus/Van | `…/fahrzeuge#rechner-kleinbus` |
+| Transporter | `…/fahrzeuge#rechner-transporter` |
+| PKW | `…/fahrzeuge#rechner-pkw` |
+| Low Budget | **keiner** — dafür gibt es auf der Website nur die Tariftabelle |
+
+Angezeigt wird der Link **ohne** `https://` (spart Platz), kopiert wird
+er **mit**. Low Budget bekommt statt eines toten Links den ehrlichen
+Hinweis.
+
+### 3. Damit der Link etwas tut: Onepage v55
+
+Die Kundenrechner kannten keine Anker. Neu in allen drei JS-Feldern,
+direkt hinter `open.addEventListener("click", show)`:
+
+```js
+function ausHash(){
+  var h = String(location.hash || "").replace(/^#/, "").toLowerCase();
+  if(h !== "rechner-transporter") return;
+  if(!ov.hidden) return;
+  show();
+  avjtTrack("rechner_aus_link", { kategorie: "Transporter" });
+}
+setTimeout(ausHash, 0);
+window.addEventListener("hashchange", ausHash);
+```
+
+Drei Feinheiten:
+
+- **`setTimeout(ausHash, 0)`** — die Popup-Steuerung steht im Feld
+  *vor* dem Rechner. Die Fahrzeugknöpfe gibt es also noch nicht, wenn
+  der Block läuft; `show()` will aber den ersten anspringen.
+- **`hashchange`** — falls jemand den Link auf der Seite anklickt, auf
+  der er schon steht.
+- **kleingeschrieben verglichen** — Links werden kopiert und dabei
+  verbogen.
+
+Der Ankername ist bewusst lang (`rechner-…`), damit er nicht mit einem
+Abschnittsanker von Onepage kollidiert.
+
+> **Falle beim Bauen:** Die drei Felder nennen ihre Zählfunktion
+> **verschieden** — `avjTrack`, `avjtTrack`, `avjpTrack` — und tragen
+> verschiedene Kategorienamen. `bauonepage60.js` liest beides aus der
+> vorhandenen `rechner_geoeffnet`-Zeile, statt es abzutippen; ein
+> hartcodiertes `avjtTrack` hätte in zwei von drei Feldern beim ersten
+> Klick einen Fehler geworfen. Eine Nachkontrolle prüft, dass die
+> benutzte Funktion im selben Feld auch existiert.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `prueflink60.js` | **neu**, 25 Proben. Reiter: erster Aufruf → Mietdauer; nach Wechsel und Neuladen → Transporter, auch beim übernächsten Mal; Tarif Config. kommt breit zurück; unbekannter Reiter fällt auf Mietdauer. Linkzeile: bei allen drei Rechnern vorhanden, Text ohne `https://`, **zwischen Ergebnis und Tabelle** (per `compareDocumentPosition` geprüft, nicht per Auge), 17 px hoch; LB ohne Link. Kopieren: die Zwischenablage enthält den **vollständigen** Link. Und die Kundenseite: ohne Anker bleibt alles zu, fremder Anker öffnet nichts, jeder der drei Anker öffnet **genau einen** Rechner, Groß-/Kleinschreibung egal, `hashchange` wirkt nachträglich |
+| `gold.js` | identisch mit Build 59 |
+| übrige 24 Tests | grün |
+
+**Test-Falle, die auffiel:** `page.goto` auf dieselbe Adresse mit
+anderem Anker lädt **nicht** neu — der Browser wechselt nur den Anker.
+Dadurch blieb das Popup der vorigen Probe offen und die Zählung stimmte
+nicht. Jede Probe hängt jetzt einen Zähler an die Adresse.
+
+### Geändert
+
+`index.html` **und** die drei Rechner-Felder (`9sitzer-3-JS`,
+`transporter-3-JS`, `pkw-3-JS`) — erstmals seit v50. Die Tariftabelle
+bleibt unverändert.
+
+Bauskripte: `/tmp/build60.js`, `/tmp/bauonepage60.js`.

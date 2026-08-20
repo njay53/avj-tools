@@ -1,6 +1,6 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 50;
-var AVJ_WEB_DATE  = "19.08.2026";
+var AVJ_WEB_BUILD = 55;
+var AVJ_WEB_DATE  = "20.08.2026";
 (function(){
   var el = document.getElementById("avjPVer");
   if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
@@ -184,6 +184,22 @@ function avjpTrack(name, params){
     if(lastFocus) lastFocus.focus();
   }
   open.addEventListener("click", show);
+
+  /* ─── Direktlink ─────────────────────────────────────────────────
+     …/fahrzeuge#rechner-pkw oeffnet den Rechner sofort.
+     Damit laesst sich einem Kunden ein Link schicken, der ihn nicht auf
+     die Seite, sondern in den Rechner bringt. */
+  function ausHash(){
+    var h = String(location.hash || "").replace(/^#/, "").toLowerCase();
+    if(h !== "rechner-pkw") return;
+    if(!ov.hidden) return;
+    show();
+    avjpTrack("rechner_aus_link", { kategorie: "PKW" });
+  }
+  /* Die Fahrzeugknoepfe entstehen weiter unten in diesem Feld — erst
+     danach kann show() sinnvoll den Fokus setzen. */
+  setTimeout(ausHash, 0);
+  window.addEventListener("hashchange", ausHash);
   if(close) close.addEventListener("click", hide);
   ov.addEventListener("click", function(e){ if(e.target.hasAttribute("data-close")) hide(); });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !ov.hidden) hide(); });

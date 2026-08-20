@@ -665,6 +665,27 @@
 }
 .avjt-shint b{color:#5A6675;font-weight:700;}
 
+/* ── Link fuer den Kunden ──────────────────────────────────────────
+   Eine Zeile, und der Linktext ist selbst der Knopf. Kein zusaetzlicher
+   Kasten, kein zweiter Klickpunkt. */
+.avj-klinkzeile{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  margin:10px 0 2px;font-size:11.5px;line-height:1.5;
+}
+.avj-klinkzeile .l{
+  flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:#8A96A3;
+}
+.avj-klink{
+  flex:0 1 auto;min-width:0;border:0;background:none;padding:0;margin:0;
+  font:inherit;font-size:11.5px;font-weight:650;color:#1B2FC4;
+  text-decoration:underline;text-decoration-style:dotted;
+  text-underline-offset:3px;cursor:pointer;text-align:left;
+  word-break:break-all;-webkit-appearance:none;
+}
+.avj-klink:hover{color:#101C6E;text-decoration-style:solid;}
+.avj-klinkzeile.leer .k{flex:1 1 200px;min-width:0;color:#8A96A3;font-style:italic;}
+
 /* ── Zugeklappte Abschnitte ────────────────────────────────────────
    Der Umfang bleibt, die Wand nicht: acht Kacheln statt 60 Feldern in
    einer Spalte. Zugeklappt zeigt jede ihre wichtigsten Werte. */
@@ -3990,6 +4011,7 @@ AVJ_RECHNER({
   frage:      "Was kostet dein PKW?",
   kategorie:  "PKW",
   schluessel: "pkw",
+  kundenLink: "https://www.rent-in-nom.de/fahrzeuge#rechner-pkw",
   titel:      "PKW",
   start:      "golf",
   speicher:   "avjP_preise_v1",
@@ -4061,6 +4083,7 @@ AVJ_RECHNER({
      Sitzen in die Kategorie passt. */
   kategorie:  "Kleinbus/Van",
   schluessel: "neunsitzer",
+  kundenLink: "https://www.rent-in-nom.de/fahrzeuge#rechner-kleinbus",
   titel:      "Kleinbus/Van",
   start:      "sprinter",
   speicher:   "avj_preise_v1",
@@ -4654,6 +4677,22 @@ function AVJ_RECHNER(CFG){
       +     'Text kopieren</button>'
       +   '<span class="avj-kopiehin" id="' + P + 'KopieHin"></span>'
       + '</div>'
+
+      /* Der Link fuer den Kunden. Der Linktext IST der Knopf: eine
+         Zeile statt Zeile plus Knopf. */
+      + (CFG.kundenLink
+        ? '<div class="avj-klinkzeile">'
+        +   '<span class="l">Link f\u00FCr Kunden</span>'
+        +   '<button type="button" class="avj-klink" id="' + P + 'Klink" '
+        +     'title="Klick kopiert den Link">'
+        +     CFG.kundenLink.replace(/^https?:\/\//, "") + '</button>'
+        +   '<span class="avj-kopiehin" id="' + P + 'KlinkHin"></span>'
+        + '</div>'
+        : '<div class="avj-klinkzeile leer">'
+        +   '<span class="l">Link f\u00FCr Kunden</span>'
+        +   '<span class="k">gibt es nicht \u2014 f\u00FCr diese Kategorie steht auf '
+        +     'der Website nur die Tariftabelle, kein Rechner.</span>'
+        + '</div>')
 
       + '<div class="' + K + '-set-body" id="' + P + 'SetBody" hidden></div>'
 
@@ -5686,6 +5725,22 @@ function AVJ_RECHNER(CFG){
     };
     if(!s){ sagen("Erst Abholung und R\u00FCckgabe eintragen."); return; }
     AVJ_KOPIE.text(s, function(ok){
+      sagen(ok ? "Kopiert \u2014 einf\u00FCgen mit \u2318V."
+               : "Kopieren hat nicht geklappt.");
+    });
+  });
+
+  /* Klick auf den Link legt ihn in die Zwischenablage — derselbe Weg
+     wie beim Knopf "Text kopieren" darueber. */
+  if($("Klink")) $("Klink").addEventListener("click", function(){
+    var hin = $("KlinkHin");
+    function sagen(txt){
+      if(!hin) return;
+      hin.textContent = txt;
+      clearTimeout(hin._weg);
+      hin._weg = setTimeout(function(){ hin.textContent = ""; }, 4500);
+    }
+    AVJ_KOPIE.text(CFG.kundenLink, function(ok){
       sagen(ok ? "Kopiert \u2014 einf\u00FCgen mit \u2318V."
                : "Kopieren hat nicht geklappt.");
     });
@@ -6932,6 +6987,7 @@ AVJ_RECHNER({
   frage:      "Was kostet dein Transporter?",
   kategorie:  "Transporter",
   schluessel: "transporter",
+  kundenLink: "https://www.rent-in-nom.de/fahrzeuge#rechner-transporter",
   titel:      "Transporter",
   start:      "m",
   speicher:   "avjT_preise_v1",
@@ -7667,7 +7723,7 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 59;
+var AVJ_BUILD = 60;
 var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
@@ -7684,6 +7740,38 @@ try{
 }catch(e){}
 
 try{ AVJ_PREISE.start(); }catch(e){}
+
+/* ═══ Der zuletzt benutzte Reiter ═══════════════════════════════
+   Niran landete bei jedem Oeffnen wieder bei "Mietdauer". Der Reiter
+   liegt im Speicher des Browsers — genau dort, wo auch die
+   Tarifaenderungen, das Archiv und die Reihenfolge der Reiter liegen.
+
+   showTool() wird umwickelt statt umgeschrieben: die Reiter rufen sie
+   ueber onclick auf, und so bleibt der alte Ablauf unangetastet.
+   dataset.tool setzt das Sortiermodul weiter oben — deshalb steht
+   dieser Block hier unten und nicht dazwischen. */
+(function(){
+  "use strict";
+  var KEY = "avj_reiter_v1";
+
+  var frueher = window.showTool;
+  if(typeof frueher !== "function") return;
+  window.showTool = function(id, btn){
+    frueher(id, btn);
+    try{ window.localStorage.setItem(KEY, id); }catch(e){}
+  };
+
+  var alt = null;
+  try{ alt = window.localStorage.getItem(KEY); }catch(e){}
+  /* "mietdauer" ist ohnehin der Startzustand — dann nichts anfassen,
+     damit beim ersten Aufbau nichts unnoetig neu gezeichnet wird. */
+  if(!alt || alt === "mietdauer") return;
+  var bs = document.querySelectorAll(".nav-btn");
+  for(var i=0;i<bs.length;i++){
+    /* Gibt es den Reiter nicht mehr, bleibt es beim Startzustand. */
+    if(bs[i].dataset.tool === alt){ bs[i].click(); return; }
+  }
+})();
 (function(){
   var el = document.getElementById("appBuild");
   if(el){

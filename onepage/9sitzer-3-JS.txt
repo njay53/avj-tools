@@ -1,6 +1,6 @@
 /* ═══ Versionskennung ═══ */
-var AVJ_WEB_BUILD = 50;
-var AVJ_WEB_DATE  = "19.08.2026";
+var AVJ_WEB_BUILD = 55;
+var AVJ_WEB_DATE  = "20.08.2026";
 (function(){
   var el = document.getElementById("avjVer");
   if(el) el.textContent = "Rechner v" + AVJ_WEB_BUILD + " \u00B7 " + AVJ_WEB_DATE;
@@ -189,6 +189,22 @@ function avjTrack(name, params){
   }
 
   open.addEventListener("click", show);
+
+  /* ─── Direktlink ─────────────────────────────────────────────────
+     …/fahrzeuge#rechner-kleinbus oeffnet den Rechner sofort.
+     Damit laesst sich einem Kunden ein Link schicken, der ihn nicht auf
+     die Seite, sondern in den Rechner bringt. */
+  function ausHash(){
+    var h = String(location.hash || "").replace(/^#/, "").toLowerCase();
+    if(h !== "rechner-kleinbus") return;
+    if(!ov.hidden) return;
+    show();
+    avjTrack("rechner_aus_link", { kategorie: "Kleinbus/Van" });
+  }
+  /* Die Fahrzeugknoepfe entstehen weiter unten in diesem Feld — erst
+     danach kann show() sinnvoll den Fokus setzen. */
+  setTimeout(ausHash, 0);
+  window.addEventListener("hashchange", ausHash);
   if(close) close.addEventListener("click", hide);
   ov.addEventListener("click", function(e){
     if(e.target.hasAttribute("data-close")) hide();
