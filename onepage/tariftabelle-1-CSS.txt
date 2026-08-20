@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    AVJ Tariftabellen · Aussehen
-   Version 41 · 19.08.2026
+   Version 54 · 20.08.2026
 
    Eigene Vorsilbe avjtab- , damit sich nichts mit den Rechnern
    beisst (die benutzen avj- , avjt- und avjp-).

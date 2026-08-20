@@ -1646,6 +1646,162 @@
   line-height:1.5;margin-top:2px;
 }
 .avj-zl-f[hidden]{display:none;}
+/* ═══════════════════════════════════════════════════════════════
+   AVJ Tariftabellen · Aussehen
+   Version 54 · 20.08.2026
+
+   Eigene Vorsilbe avjtab- , damit sich nichts mit den Rechnern
+   beisst (die benutzen avj- , avjt- und avjp-).
+   ═══════════════════════════════════════════════════════════════ */
+
+.avjtab{ display:block; }
+
+.avjtab-blatt{
+  background:#fff; padding:22px 20px 16px; border-radius:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  font-family:Arial,Helvetica,"Helvetica Neue",sans-serif;
+  color:#000; overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+.avjtab-in{ min-width:600px; }
+
+.avjtab-reihe{
+  display:grid; grid-template-columns:1.55fr 1fr 1fr 1fr 1fr .82fr;
+  gap:5px; margin-bottom:5px;
+}
+.avjtab-staffel{
+  display:grid; grid-template-columns:1.55fr repeat(7,1fr);
+  gap:5px; margin-bottom:5px;
+}
+.avjtab-z{
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; text-align:center;
+  padding:9px 6px; font-size:15px; line-height:1.35;
+}
+/* Die Kopfzeile bleibt eine Zeile, so wie auf den bisherigen Tabellen.
+   Ohne display:block macht das Spaltenlayout der Zelle aus dem roten
+   Modellnamen eine eigene Zeile — der Titel bräche dann dreifach um. */
+.avjtab-blau{
+  background:#0018C4; color:#fff; font-weight:700; font-size:19px;
+  padding:11px 8px; grid-column:1 / -1;
+  display:block; text-align:center;
+}
+.avjtab-blau .rot{ color:#FF2A2A; }
+.avjtab-gelb{ background:#FDFA61; font-weight:700; }
+.avjtab-gelb.links{ align-items:flex-start; text-align:left; padding-left:11px; }
+.avjtab-band{
+  background:#FDFA61; font-weight:700; font-size:18px;
+  grid-column:1 / 6; padding:10px 8px;
+}
+.avjtab-rot{ background:#FF7F7F; font-weight:700; font-size:15px; }
+.avjtab-grau{ background:#DCDCDC; }
+.avjtab-leer{ background:#FDFA61; }
+.avjtab-blatt .kl{ font-weight:400; font-style:italic; font-size:14px; }
+.avjtab-blatt .kl2{ font-weight:400; font-style:italic; font-size:12.5px; }
+.avjtab-km{ font-weight:400; font-size:14.5px; margin-bottom:5px; }
+.avjtab-pr{ font-weight:700; font-size:15.5px; }
+.avjtab-luecke{ height:14px; }
+
+/* Hinweis auf den Rechner, direkt unter der Kopfzeile.
+   Bewusst laut: die Tabelle beantwortet nur drei Mietdauern, alles
+   dazwischen kann nur der Rechner. Als Fliesstext mit Link ist das
+   niemandem aufgefallen. */
+.avjtab-schnell{
+  grid-column:1 / -1; background:#EEF1F6; border-left:5px solid #0018C4;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; flex-wrap:wrap; text-align:left; padding:13px 16px;
+}
+.avjtab-schnell .t{ font-size:15px; line-height:1.5; flex:1 1 300px; }
+.avjtab-schnell b{ font-weight:700; }
+.avjtab-knopf{
+  flex:0 0 auto; display:flex; flex-direction:column; align-items:center;
+  border:0; border-radius:999px; padding:13px 26px; cursor:pointer;
+  background:#0018C4; color:#fff; font-family:inherit; text-align:center;
+  box-shadow:0 2px 10px rgba(0,24,196,.28);
+}
+.avjtab-knopf:hover{ background:#0014A3; }
+.avjtab-knopf .k1{ font-size:16px; font-weight:700; line-height:1.25; }
+.avjtab-knopf .k2{ font-size:12px; font-weight:400; opacity:.85; margin-top:2px; }
+
+.avjtab-fuss{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:22px; margin-top:13px;
+}
+.avjtab-recht{ font-size:12.5px; font-style:italic; line-height:1.5; }
+.avjtab-stand{ margin-top:12px; font-style:italic; font-size:12.5px; }
+.avjtab-firma{ flex:0 0 auto; text-align:center; }
+.avjtab-firma img{ display:block; width:178px; height:auto; margin:0 0 3px auto; }
+.avjtab-firma .adr{ font-size:11px; font-style:normal; line-height:1.42; }
+.avjtab-firma .adr a{ color:#000; }
+
+/* Hinweis unter dem Langzeitblock */
+.avjtab-lang{
+  grid-column:1 / -1; background:#F4F6FA; border-left:5px solid #0018C4;
+  display:block; text-align:left; padding:9px 13px;
+  font-size:13px; line-height:1.5;
+}
+.avjtab-lang a{ color:#0018C4; font-weight:700; text-decoration:none; }
+
+/* Störungshinweis, wenn zu dem Fahrzeug keine Preise da sind */
+.avjtab-stoer{
+  background:#fff; border:2px solid #0018C4; border-radius:10px;
+  padding:22px 20px; text-align:center;
+  font-family:Arial,Helvetica,"Helvetica Neue",sans-serif; color:#111;
+}
+.avjtab-stoer b{ font-size:17px; display:block; margin-bottom:8px; }
+.avjtab-stoer p{ font-size:14px; line-height:1.55; margin:0 0 10px; }
+.avjtab-stoer .nr a{
+  font-size:26px; font-weight:700; color:#0018C4; text-decoration:none;
+  letter-spacing:.01em;
+}
+.avjtab-stoer .wa a{ font-size:14px; font-weight:700; color:#0018C4; }
+
+@media(max-width:640px){
+  .avjtab-blatt{ padding:14px 10px; }
+  .avjtab-in{ min-width:540px; }
+  .avjtab-fuss{ flex-direction:column; gap:14px; }
+  .avjtab-firma{ text-align:left; }
+  .avjtab-firma img{ margin:0 0 3px 0; }
+}
+
+/* ═══ Preistabelle unter dem Rechner ═══════════════════════════════
+   Der Rahmen drumherum. Das Blatt selbst kommt aus dem Kern und sieht
+   aus wie auf der Website — hier wird nur der Kasten gebaut, in dem
+   es steht, und die Schrumpfung auf Telefonbreite. */
+/* Der Rechner steht in einer schmalen Spalte (520 px), das Tabellen-
+   blatt ist fuer 640 px entworfen. Die Tabelle tritt deshalb aus der
+   Spalte heraus und nimmt sich die ganze Breite — je mehr sie bekommt,
+   desto weniger muss sie geschrumpft werden, desto groesser bleibt die
+   Schrift. Auf dem Telefon sind das die vollen 100 % des Fensters. */
+.avjtabx{
+  margin:18px 0 2px; width:100vw; margin-left:50%; transform:translateX(-50%);
+}
+@media(min-width:720px){
+  .avjtabx{ width:min(94vw,1040px); }
+}
+.avjtabx-kopf{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 12px;background:#EEF1F6;border:1px solid #DDE3EA;border-bottom:0;
+  border-radius:9px 9px 0 0;
+}
+.avjtabx-kopf .t{ font-size:12.5px;font-weight:650;color:#5A6673;letter-spacing:.02em; }
+.avjtabx-kopf .t b{ font-weight:700;color:#26313B; }
+.avjtabx-kopf .b{ display:flex;gap:6px;flex:0 0 auto; }
+.avjtabx-btn{
+  border:1px solid #C9D2DC;background:#fff;color:#4A5765;border-radius:999px;
+  padding:5px 11px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;
+  -webkit-appearance:none;
+}
+.avjtabx-btn:hover{ background:#F4F6FA;color:#0018C4;border-color:#0018C4; }
+.avjtabx-raum{
+  background:#fff;border:1px solid #DDE3EA;border-radius:0 0 9px 9px;
+  overflow:hidden;
+}
+/* 100 %: das Blatt bleibt in Lesegroesse und der Kasten wird seitwaerts
+   scrollbar — so wie es im Popup auf der Website auch ist. */
+.avjtabx-raum.voll{ overflow-x:auto;-webkit-overflow-scrolling:touch; }
+.avjtabx-raum[hidden]{ display:none; }
+.avjtabx-box{ transform-origin:top left; }
+.avjtabx-raum .avjtab-blatt{ box-shadow:none;border-radius:0;overflow:visible; }
 </style>
 </head>
 <body>
@@ -3813,6 +3969,398 @@ var AVJ_KOPIE = (function(){
   return { text: text };
 })();
 
+var AVJ_TAB_LOGO = "data:image/png;base64,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";
+
+/* ═══ AVJ-TAB-KERN · ANFANG ══════════════════════════════════════
+   Ab hier bis "KERN · ENDE" steht der reine Zeichner: aus einem
+   Fahrzeugobjekt wird HTML, sonst nichts. Kein preise.json, kein DOM,
+   keine Website.
+
+   DIESER BLOCK STEHT ZWEIMAL — hier und in index.html (dem internen
+   Tool). Er wird beim Bauen aus derselben Quelle geschnitten, damit
+   Tabelle im Popup und Tabelle im Tool nicht auseinanderlaufen
+   koennen. Von Hand aendern: nur in tab-motor.js.
+   ═══════════════════════════════════════════════════════════════ */
+/* ─── Zeigt die Tabelle beide km-Sätze? ───────────────────────────
+   Der Rechner unterscheidet vorab geplante Mehrkilometer (günstiger)
+   von ungeplanten bei der Rückgabe. Die bisherigen JPG-Tabellen
+   zeigten nur den ungeplanten Satz. Auf true stellen, sobald beide
+   in der Tabelle stehen sollen. */
+var AVJTAB_GEPLANT = false;
+
+/* ─── Modellname rot? ─────────────────────────────────────────────
+   In der blauen Kopfzeile wird rot, was zwischen *Sternchen* steht —
+   so war es auf den bisherigen JPG-Tabellen. Ohne eigene data-titel-
+   Zeile ist das immer genau der Name aus dem Tool. Auf false steht die
+   Kopfzeile einfarbig weiß. */
+var AVJTAB_ROT = true;
+
+window.AVJ_TAB_KERN = window.AVJ_TAB_KERN || (function(){
+  "use strict";
+
+  /* ─── Formatierung ───────────────────────────────────────────── */
+  function eur(n){
+    return Number(n).toLocaleString("de-DE",
+      { minimumFractionDigits:2, maximumFractionDigits:2 }) + " €";
+  }
+  function kmTxt(n){ return Number(n).toLocaleString("de-DE") + " km inkl."; }
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  /* Im Titel markiert *Sternchen* den Modellnamen — der wird rot,
+     genau wie auf den bisherigen Tabellen. Die Sternchen selbst
+     verschwinden in jedem Fall, auch wenn AVJTAB_ROT aus ist. */
+  function titelHtml(t){
+    var teile = esc(t).split("*"), h = "";
+    for(var i=0;i<teile.length;i++){
+      h += (i % 2 && AVJTAB_ROT) ? '<span class="rot">' + teile[i] + '</span>'
+                                 : teile[i];
+    }
+    return h;
+  }
+  function ahkTxt(v){
+    return v ? ' <span class="kl">(AHK ' + eur(v) + ')</span>' : '';
+  }
+  function zelle(kl, inhalt, stil){
+    return '<div class="avjtab-z ' + kl + '"' + (stil ? ' style="' + stil + '"' : '')
+         + '>' + inhalt + '</div>';
+  }
+  function wert(kmv, preis){
+    return '<div class="avjtab-km">' + kmTxt(kmv) + '</div>'
+         + '<div class="avjtab-pr">' + eur(preis) + '</div>';
+  }
+  /* ─── Langzeit ───────────────────────────────────────────────────
+     Wortgleiche Regel wie im Tool und in den Rechnern: vier Wochen
+     sind der zweite Anker, darueber gibt es keinen Automatikpreis.
+     Fehlt der Anker beim Fahrzeug, wird er geschaetzt — sonst wuerde
+     die Tabelle etwas anderes zeigen als der Rechner rechnet. */
+  var LZ_TAGE = 28;
+  function mRund5(n){  return Math.max(5,  Math.round(n / 5)  * 5);  }
+  function mRund50(n){ return Math.max(50, Math.round(n / 50) * 50); }
+  function lzPreis(c){
+    if(c.monthPrice > 0) return c.monthPrice;
+    return mRund5((c.tier ? c.tier[6] : 0) * 3);
+  }
+  function lzKm(c){
+    if(c.monthKm > 0) return c.monthKm;
+    return mRund50((c.tierKm ? c.tierKm[6] : 0) * 2);
+  }
+  function lzSb(stufe){
+    if(!stufe || !stufe.tier) return 0;
+    if(stufe.monat !== undefined && stufe.monat !== null) return stufe.monat;
+    return Math.round(stufe.tier[6] * 3);
+  }
+
+  /* Kurzzeit darf einen eigenen Mehrkilometer-Satz haben: wer die
+     Freigrenze auf 50 km zieht, kann nicht mit dem Tagessatz weiter-
+     rechnen. Fehlt er, gilt wie bisher der Satz des Fahrzeugs. */
+  /* Sechs Stunden duerfen mehr Frei-km haben als drei. Fehlt der Wert,
+     gilt wie bisher derselbe fuer beide — dadurch bleiben alle bisher
+     erzeugten preise.json unveraendert gueltig. */
+  function kzKm(c, sechs){
+    var kz = c.kurzzeit || {};
+    return (sechs && kz.km6 > 0) ? kz.km6 : kz.km;
+  }
+
+  function kzExtraKm(c){
+    var kz = c.kurzzeit || {};
+    if(!(kz.overKm > 0)) return extraKm(c);
+    if(AVJTAB_GEPLANT && kz.planKm > 0 && kz.planKm !== kz.overKm){
+      return '<div style="font-size:12.5px;line-height:1.45">vorab geplant<br><b>'
+        + eur(kz.planKm) + '</b><br>bei Rückgabe<br><b>' + eur(kz.overKm) + '</b></div>';
+    }
+    return eur(kz.overKm);
+  }
+
+  function extraKm(c){
+    if(AVJTAB_GEPLANT && c.planKm && c.overKm && c.planKm !== c.overKm){
+      return '<div style="font-size:12.5px;line-height:1.45">vorab geplant<br><b>'
+        + eur(c.planKm) + '</b><br>bei Rückgabe<br><b>' + eur(c.overKm) + '</b></div>';
+    }
+    return eur(c.overKm || c.planKm || 0);
+  }
+
+  /* ─── Bausteine ──────────────────────────────────────────────── */
+  function kopf(titel){
+    return '<div class="avjtab-reihe"><div class="avjtab-z avjtab-blau">'
+         + titel + '</div></div>';
+  }
+
+  function kurzzeit(c){
+    if(!c.kurzzeit) return "";
+    var ahk = c.ahk || {};
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Kurzzeittarife' + ahkTxt(ahk.kurz)
+      + ' <span class="kl">nicht reservierbar und nur innerhalb der '
+      + 'Geschäftszeiten</span></div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+    h += '<div class="avjtab-reihe" style="grid-template-rows:auto auto auto">'
+      + zelle('avjtab-leer','','grid-row:1')
+      + zelle('avjtab-grau','<b>3 Std.</b> ' + kmTxt(kzKm(c, false)), 'grid-column:2/4;grid-row:1')
+      + zelle('avjtab-grau','<b>6 Std.</b> ' + kmTxt(kzKm(c, true)),  'grid-column:4/6;grid-row:1')
+      + zelle('avjtab-grau', kzExtraKm(c), 'grid-column:6;grid-row:1/4')
+      + zelle('avjtab-gelb','Mo. - Do.','grid-column:1;grid-row:2')
+      + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.moDo[0]) + '</b>','grid-column:2/4;grid-row:2')
+      + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.moDo[1]) + '</b>','grid-column:4/6;grid-row:2')
+      + zelle('avjtab-gelb','Fr. - Sa.','grid-column:1;grid-row:3')
+      + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.frSa[0]) + '</b>','grid-column:2/4;grid-row:3')
+      + zelle('avjtab-grau','<b>' + eur(c.kurzzeit.frSa[1]) + '</b>','grid-column:4/6;grid-row:3')
+      + '</div>';
+    return h;
+  }
+
+  function tagestarife(c){
+    if(!c.dayMoDo || !c.dayMoDo.length) return "";
+    var ahk = c.ahk || {};
+    var hatFrSa = !!(c.dayFrSa && c.dayFrSa.length);
+    var reihen  = hatFrSa ? 3 : 2;
+
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Tagestarife' + ahkTxt(ahk.tag) + '</div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+
+    h += '<div class="avjtab-reihe" style="grid-template-rows:'
+      + (reihen === 3 ? 'auto auto auto' : 'auto auto') + '">';
+    h += zelle('avjtab-gelb', hatFrSa ? '1 Tag<br><br>Mo. - Do.' : '1 Tag',
+               'grid-column:1;grid-row:1');
+    for(var i=0;i<c.dayMoDo.length;i++){
+      h += zelle('avjtab-grau', wert(c.dayMoDo[i][0], c.dayMoDo[i][1]),
+                 'grid-column:' + (i+2) + ';grid-row:1');
+    }
+    h += zelle('avjtab-grau', extraKm(c), 'grid-column:6;grid-row:1/' + (reihen+1));
+    var z = 2;
+    if(hatFrSa){
+      h += zelle('avjtab-gelb','1 Tag<br><br>Fr. - Sa.','grid-column:1;grid-row:2');
+      for(var j=0;j<c.dayFrSa.length;j++){
+        h += zelle('avjtab-grau', wert(c.dayFrSa[j][0], c.dayFrSa[j][1]),
+                   'grid-column:' + (j+2) + ';grid-row:2');
+      }
+      z = 3;
+    }
+    h += zelle('avjtab-gelb','7 Tage'
+      + (ahk.woche ? '<br><span class="kl2">(AHK ' + eur(ahk.woche) + ')</span>' : ''),
+      'grid-column:1;grid-row:' + z);
+    h += zelle('avjtab-grau', wert(c.tierKm[6], c.tier[6]), 'grid-column:2/6;grid-row:' + z);
+    h += '</div>';
+    return h;
+  }
+
+  /* Fahrzeuge ohne Tagespaketraster — Low Budget — bekommen die
+     Staffel 1 bis 7 Tage und, falls hinterlegt, den Monatspreis. */
+  function staffel(c){
+    if(c.dayMoDo && c.dayMoDo.length) return "";
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Mietdauer</div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+    h += '<div class="avjtab-staffel">';
+    h += '<div class="avjtab-z avjtab-gelb"></div>';
+    for(var i=0;i<7;i++){
+      h += '<div class="avjtab-z avjtab-gelb">' + (i+1) + (i ? ' Tage' : ' Tag') + '</div>';
+    }
+    h += '<div class="avjtab-z avjtab-gelb links"><b>Preis</b></div>';
+    for(var p=0;p<7;p++){
+      h += '<div class="avjtab-z avjtab-grau"><b>' + eur(c.tier[p]) + '</b></div>';
+    }
+    h += '<div class="avjtab-z avjtab-gelb links"><b>inklusive</b></div>';
+    for(var k=0;k<7;k++){
+      h += '<div class="avjtab-z avjtab-grau">' + kmTxt(c.tierKm[k]) + '</div>';
+    }
+    h += '</div>';
+    h += '<div class="avjtab-reihe" style="grid-template-columns:1.55fr 1fr">'
+      + zelle('avjtab-gelb links','<b>je extra km</b>')
+      + zelle('avjtab-grau', extraKm(c)) + '</div>';
+    return h;
+  }
+
+  function wochenende(c){
+    if(!c.weekend || !c.weekend.length) return "";
+    var ahk = c.ahk || {};
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Wochenendtarife' + ahkTxt(ahk.we) + '</div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+    h += '<div class="avjtab-reihe">';
+    h += zelle('avjtab-gelb','ab<br>Freitag 12:00 Uhr<br>bis<br>Montag 10:00 Uhr','grid-column:1');
+    /* Vier Wertspalten stehen zur Verfuegung: 2,3,4,5. Sie werden
+       gleichmaessig auf die Stufen verteilt, Rest nach vorn:
+
+         2 Stufen  ->  2 + 2      (frueher 3 + 1, sah schief aus)
+         3 Stufen  ->  2 + 1 + 1
+         4 Stufen  ->  1 + 1 + 1 + 1
+
+       Die extra-km-Spalte bleibt unangetastet. */
+    var we = c.weekend, n = Math.min(we.length, 4), sp = 2;
+    var basis = Math.floor(4 / n), rest = 4 % n;
+    for(var w=0; w<n; w++){
+      var breite = basis + (w < rest ? 1 : 0);
+      h += zelle('avjtab-grau', wert(we[w][0], we[w][1]),
+                 'grid-column:' + sp + '/' + (sp + breite));
+      sp += breite;
+    }
+    h += zelle('avjtab-grau', extraKm(c), 'grid-column:6');
+    h += '</div>';
+    return h;
+  }
+
+  /* Eigener Block, weil er fuer jede Kategorie gilt — auch dort, wo
+     es Tagespakete gibt. */
+  function langzeit(c){
+    if(!c.tier || !c.tier[6]) return "";
+    /* Der Abschnitt faengt immer bei vier Wochen an — "Langzeitmiete"
+       passt erst da. Was davor liegt, rechnet der Preisrechner und zeigt
+       es auf den Euro genau; in der Tabelle waere es nur eine Zahlenwand.
+       Der Schalter im Tool tauscht seit v46 ausschliesslich den Betrag
+       gegen "auf Anfrage" — nicht mehr den ganzen Abschnitt. */
+    var h = '<div class="avjtab-reihe">'
+      + '<div class="avjtab-z avjtab-band">Langzeitmiete</div>'
+      + zelle('avjtab-rot','je extra km') + '</div>';
+
+    h += '<div class="avjtab-reihe">'
+      + zelle('avjtab-gelb', c.lzAnfrage
+          ? 'ab 4 Wochen<br><span class="kl2">28 Tage</span>'
+          : '1 Monat<br><span class="kl2">4 Wochen &middot; 28 Tage</span>',
+          'grid-column:1')
+      + zelle('avjtab-grau', c.lzAnfrage
+          ? '<b>Preis auf Anfrage</b>'
+          : wert(lzKm(c), lzPreis(c)), 'grid-column:2/6')
+      + zelle('avjtab-grau', extraKm(c), 'grid-column:6')
+      + '</div>';
+
+    h += '<div class="avjtab-reihe"><div class="avjtab-lang">'
+      + 'Zwischen einer und vier Wochen f\u00E4llt der Wochenpreis mit der '
+      + 'Mietdauer \u2014 den genauen Betrag zeigt der Preisrechner. '
+      + '<b>' + (c.lzAnfrage ? 'Ab' : '\u00DCber') + ' vier Wochen: Preis auf '
+      + 'Anfrage</b>, <a href="tel:+49555154545">05551-54545</a>.'
+      + '</div></div>';
+    return h;
+  }
+
+  function haftung(c){
+    if(!c.sb || !c.sb.length) return "";
+    var n = c.sb.length;
+    var raster = 'grid-template-columns:1.55fr repeat(' + n + ',1fr)';
+    var h = '<div class="avjtab-luecke"></div>'
+      + '<div class="avjtab-reihe"><div class="avjtab-z avjtab-blau">'
+      + 'Haftungsreduzierung pro Anmietung</div></div>';
+
+    h += '<div class="avjtab-reihe" style="' + raster + '">'
+      + zelle('avjtab-gelb links','<span><b>Selbstbeteiligung</b> '
+        + '<span class="kl">je Schadenfall</span></span>');
+    for(var s=0;s<n;s++){
+      var l = String(c.sb[s].label || "");
+      if(l.indexOf("SB") !== 0) l = "SB " + l;
+      /* Die drei Sätze sind Aufpreise auf den Grundtarif. Der erste ist
+         immer 0 — er ist im Preis enthalten. Bei Kurzzeittarifen gibt es
+         keine Reduzierung, das steht wie bisher an der Spalte. */
+      var frei = !c.sb[s].we && !(c.sb[s].tier && c.sb[s].tier[0]);
+      h += zelle('avjtab-rot', l
+        + (!frei && c.kurzzeit ? ' <span class="kl2">nicht bei KZ-Tarif</span>' : ''));
+    }
+    h += '</div>';
+
+    var zeilen = [['pro Tag', 0]];
+    if(c.weekend && c.weekend.length) zeilen.push(['pro Wochenende (WE-Tarif)', 'we']);
+    zeilen.push(['pro Woche (7-Tagestarif)', 6]);
+    if(!c.lzAnfrage) zeilen.push(['pro Monat (4 Wochen)', 'monat']);
+
+    for(var z=0;z<zeilen.length;z++){
+      h += '<div class="avjtab-reihe" style="' + raster + '">'
+        + zelle('avjtab-gelb links','<b>' + zeilen[z][0] + '</b>');
+      for(var q=0;q<n;q++){
+        var feld = zeilen[z][1], v;
+        if(feld === 'we')         v = c.sb[q].we;
+        else if(feld === 'monat') v = lzSb(c.sb[q]);
+        else                      v = (c.sb[q].tier || [])[feld];
+        h += zelle('avjtab-grau', v ? eur(v) : 'inklusive');
+      }
+      h += '</div>';
+    }
+    return h;
+  }
+
+  function kaution(c){
+    var n = (c.sb && c.sb.length) ? c.sb.length : 1;
+    var raster = 'grid-template-columns:1.55fr repeat(' + n + ',1fr)';
+    var k = c.kaution || {};
+    var tag = k.tag || 300;
+    var txt = k.stunden
+      ? '<div>&bull; <b>Stundentarife ' + eur(k.stunden) + '</b> <span class="kl">(Kaution)</span></div>'
+        + '<div>&bull; <b>Tages- und Wochenendtarife ' + eur(tag) + '</b> <span class="kl">(Kaution)</span></div>'
+        + '<div style="margin-top:2px">+</div>'
+        + '<div><b>Voraussichtliche Mietkosten</b> <span class="kl">(Anzahlung)</span></div>'
+      : '<div><b>' + eur(tag) + '</b> <span class="kl">(Kaution)</span></div>'
+        + '<div style="margin-top:2px">+</div>'
+        + '<div><b>Voraussichtliche Mietkosten</b> <span class="kl">(Anzahlung)</span></div>';
+
+    if(!c.sb || !c.sb.length){
+      return '<div class="avjtab-luecke"></div>'
+        + '<div class="avjtab-reihe" style="grid-template-columns:1.55fr 1fr">'
+        + zelle('avjtab-gelb links','<span><b>Kaution</b> <span class="kl">(Bar oder Kreditkarte)</span></span>')
+        + zelle('avjtab-rot', txt, 'font-size:14.5px;font-weight:400') + '</div>';
+    }
+    return '<div class="avjtab-reihe" style="' + raster + '">'
+      + zelle('avjtab-gelb links','<span><b>Kaution</b> <span class="kl">(Bar oder Kreditkarte)</span></span>')
+      + zelle('avjtab-rot', txt, 'grid-column:2/-1;font-size:14.5px;font-weight:400') + '</div>';
+  }
+
+  function fuss(stand, logo){
+    return '<div class="avjtab-fuss"><div class="avjtab-recht">'
+      + 'Alle Preise inkl. gesetzlicher MwSt. von 19%, zzgl. Kraftstoff.<br>'
+      + 'Von der Tarifliste abweichende Anmietungen auf Anfrage.<br>'
+      + 'Die Preise dienen der Orientierung und gelten vorbehaltlich Verfügbarkeit '
+      + 'sowie Auslastung/Saison.<br>'
+      + 'Maßgeblich sind das individuell bestätigte Angebot bzw. '
+      + 'Reservierungsbestätigung/Mietvertrag.'
+      + '<div class="avjtab-stand">Stand ' + esc(stand) + '</div></div>'
+      + '<div class="avjtab-firma"><img src="' + (logo || "") + '" alt="Autovermietung Jansen">'
+      + '<div class="adr">Inh. Niran Jayanthi-Losch<br>Berliner Allee 14<br>37154 Northeim<br>'
+      + 'Tel. &amp; WhatsApp: <b>05551-54545</b><br>'
+      + '<a href="https://www.rent-in-nom.de">www.rent-in-nom.de</a></div></div></div>';
+  }
+
+  /* ─── Störungshinweis ────────────────────────────────────────────
+     Greift, wenn zu dem Fahrzeug weder auf dem Server noch im Code
+     Daten liegen. Dann steht im Popup kein leeres Feld, sondern die
+     Telefonnummer. */
+  function stoerung(){
+    return '<div class="avjtab-stoer">'
+      + '<b>Die Preistabelle lädt gerade nicht.</b>'
+      + '<p>Wir kümmern uns darum. Ihren Preis nennen wir Ihnen sofort '
+      + 'am Telefon oder über WhatsApp — auch mit allen Kilometer- '
+      + 'und Haftungsstufen.</p>'
+      + '<p class="nr"><a href="tel:+49555154545">05551-54545</a></p>'
+      + '<p class="wa"><a href="https://wa.me/49555154545" rel="noopener">'
+      + 'per WhatsApp schreiben</a></p></div>';
+  }
+
+  /* ─── Das ganze Blatt ────────────────────────────────────────────
+     Reihenfolge wie bisher. opt.zwischen haengt einen Block direkt
+     unter die Kopfzeile — auf der Website ist das der Rechnerknopf,
+     im Tool bleibt es leer, weil der Rechner ja schon darueber steht. */
+  function autoTitel(c, key){
+    return "*" + (c.name || key || "") + "*" + (c.example ? " (" + c.example + ")" : "");
+  }
+
+  function blatt(c, opt){
+    opt = opt || {};
+    var h = '<div class="avjtab-blatt"><div class="avjtab-in">';
+    h += kopf(titelHtml(opt.titel || autoTitel(c, opt.key)));
+    h += (opt.zwischen || "");
+    h += kurzzeit(c);
+    h += staffel(c);
+    h += tagestarife(c);
+    h += wochenende(c);
+    h += langzeit(c);
+    h += haftung(c);
+    h += kaution(c);
+    h += fuss(opt.stand, opt.logo);
+    return h + '</div></div>';
+  }
+
+  return { blatt:blatt, stoerung:stoerung, titelHtml:titelHtml,
+           autoTitel:autoTitel, esc:esc, eur:eur };
+})();
+/* ═══ AVJ-TAB-KERN · ENDE ═══════════════════════════════════════ */
+
 function AVJ_RECHNER(CFG){
   "use strict";
   var P = CFG.p;
@@ -3910,6 +4458,23 @@ function AVJ_RECHNER(CFG){
       + '</div>'
 
       + '<div class="' + K + '-set-body" id="' + P + 'SetBody" hidden></div>'
+
+      /* Die Preistabelle, wie sie im Fahrzeug-Popup auf der Website
+         steht. Ganz unten, damit die Tarif Config. nicht dahinter
+         verschwindet. */
+      + '<div class="avjtabx" id="' + P + 'Tab">'
+      +   '<div class="avjtabx-kopf">'
+      +     '<span class="t">PREISTABELLE \u00B7 <b id="' + P + 'TabFz"></b></span>'
+      +     '<span class="b">'
+      +       '<button type="button" class="avjtabx-btn" id="' + P + 'TabLupe">100 %</button>'
+      +       '<button type="button" class="avjtabx-btn" id="' + P + 'TabAuf">zuklappen</button>'
+      +     '</span>'
+      +   '</div>'
+      +   '<div class="avjtabx-raum" id="' + P + 'TabRaum">'
+      +     '<div class="avjtabx-box" id="' + P + 'TabBox"></div>'
+      +   '</div>'
+      + '</div>'
+
       + '</div>';
     return h;
   }
@@ -4310,9 +4875,116 @@ function AVJ_RECHNER(CFG){
     return z.join("\n");
   }
 
+  /* ─── Preistabelle ───────────────────────────────────────────────
+     Gezeichnet vom selben Kern wie die Tabelle im Popup — nur mit CARS
+     statt preise.json. Heisst: sie zeigt den Stand im Tool, auch das
+     noch nicht Freigegebene. Wer gerade am Preis geschraubt hat und
+     dem Kunden etwas sagt, will genau den sehen.
+
+     Auf dem Telefon wird das Blatt geschrumpft statt seitwaerts
+     scrollbar gemacht: die Entwurfsbreite wird heruntergerechnet, bis
+     sie in den Kasten passt. */
+  var _tabSig = null, _tabBreite = 0, _tabVoll = false, _tabZu = false;
+
+  /* Wie breit das Blatt entworfen wird.
+
+     Auf dem Telefon schmal: das Raster darf laut CSS bis 540 px
+     zusammengehen, und je schmaler entworfen, desto weniger muss
+     geschrumpft werden — desto groesser bleibt die Schrift.
+
+     Am Bildschirm andersherum: da ist Platz, also nimmt das Blatt ihn
+     sich, bis 1000 px. Sonst stuende die Tabelle links in der Ecke und
+     rechts waere weiss. */
+  function tabBreite(raum){
+    if(raum < 480) return 560;
+    if(raum < 640) return 640;
+    return Math.min(raum, 1000);
+  }
+
+  /* Derselbe Stand, den auch die Tabelle im Popup zeigt: der aus
+     preise.json. Kommt keine an, bleibt das Datum des Programms. */
+  function tabStand(){
+    try{
+      var s = AVJ_PREISE.stand();
+      if(s) return s;
+    }catch(e){}
+    return (typeof AVJ_BUILD_DATE === "string") ? AVJ_BUILD_DATE : "";
+  }
+
+  function tabSkalieren(erzwinge){
+    var raum = $("TabRaum"), box = $("TabBox");
+    if(!raum || !box || _tabZu) return;
+    var b = raum.clientWidth;
+    /* Null Breite heisst: dieser Reiter ist gerade gar nicht sichtbar.
+       Dann nichts rechnen — sonst kaeme scale(0) heraus. */
+    if(!b) return;
+    if(!erzwinge && b === _tabBreite) return;
+    _tabBreite = b;
+    var soll = tabBreite(b);
+    box.style.width = soll + "px";
+    if(_tabVoll){
+      box.style.transform = "";
+      raum.style.height   = "";
+      return;
+    }
+    var f = Math.min(1, b / soll);
+    box.style.transform  = (f < 1) ? "scale(" + f + ")" : "";
+    /* Bleibt Platz uebrig, steht das Blatt in der Mitte statt links */
+    box.style.marginLeft = Math.max(0, Math.round((b - soll * f) / 2)) + "px";
+    raum.style.height    = (f < 1) ? Math.ceil(box.offsetHeight * f) + "px" : "";
+  }
+
+  function zeichneTabelle(){
+    var box = $("TabBox");
+    if(!box || typeof AVJ_TAB_KERN === "undefined") return;
+    var fz = $("TabFz"), car = CARS[carKey];
+    if(!car){
+      _tabSig = null; box.innerHTML = "";
+      if(fz) fz.textContent = "\u2014";
+      return;
+    }
+    /* render() laeuft bei jedem Tastendruck. Neu gezeichnet wird nur,
+       wenn sich am Fahrzeug wirklich etwas geaendert hat. */
+    var sig = carKey + "|" + tabStand() + "|" + JSON.stringify(car);
+    if(sig === _tabSig) return;
+    _tabSig = sig;
+    if(fz) fz.textContent = car.name || carKey;
+    box.innerHTML = AVJ_TAB_KERN.blatt(car,
+      { key:carKey, stand:tabStand(), logo:AVJ_TAB_LOGO });
+    tabSkalieren(true);
+  }
+
+  (function(){
+    var auf = $("TabAuf"), lupe = $("TabLupe"), raum = $("TabRaum");
+    if(auf) auf.addEventListener("click", function(){
+      _tabZu = !_tabZu;
+      if(raum){ if(_tabZu) raum.setAttribute("hidden",""); else raum.removeAttribute("hidden"); }
+      auf.textContent = _tabZu ? "aufklappen" : "zuklappen";
+      if(!_tabZu) tabSkalieren(true);
+    });
+    if(lupe) lupe.addEventListener("click", function(){
+      _tabVoll = !_tabVoll;
+      if(raum) raum.className = _tabVoll ? "avjtabx-raum voll" : "avjtabx-raum";
+      lupe.textContent = _tabVoll ? "einpassen" : "100 %";
+      tabSkalieren(true);
+    });
+    /* Der Reiter wird sichtbar, das Fenster gedreht, die Seitenleiste
+       zu — in allen drei Faellen aendert sich die Breite. */
+    try{
+      if(window.ResizeObserver && raum){
+        new ResizeObserver(function(){ tabSkalieren(false); }).observe(raum);
+      }
+      window.addEventListener("resize", function(){ tabSkalieren(false); });
+      window.addEventListener("orientationchange", function(){
+        setTimeout(function(){ tabSkalieren(true); }, 250);
+      });
+    }catch(e){}
+  })();
+
   function render(){
     renderDur();
     euroZeichen(true);
+    try{ zeichneTabelle(); }catch(e){}
     var q = $("Out");
     var r = quote();
 
@@ -6529,8 +7201,8 @@ function tkBuildPdf(D){
 })();
 
 /* ═══ Build-Kennung ═══ */
-var AVJ_BUILD = 54;
-var AVJ_BUILD_DATE = "19.08.2026";
+var AVJ_BUILD = 55;
+var AVJ_BUILD_DATE = "20.08.2026";
 
 /* Zentrale Preisliste holen — erst jetzt, damit alle Bereiche angemeldet sind. */
 try{ AVJ_EDITOR.start(); }catch(e){}

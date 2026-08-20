@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 54 · Onepage v53 · 19.08.2026**
+**Stand: Build 55 · Onepage v54 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -1315,6 +1315,12 @@ Bauskripte: `/tmp/bautabelle.js` (zieht die Fahrzeugdaten per
 Klammernzählung aus `index.html`, damit nichts abgetippt wird),
 `/tmp/bau404.js`. Tests: `/tmp/prueftab.js`, `/tmp/pruefnot.js`,
 `/tmp/pruefnachtrag.js`.
+
+> Seit Build 55 ist `tab-motor.js` zweigeteilt: ein **Kernblock**
+> (`AVJ_TAB_KERN`, der reine Zeichner) und die Hülle drumherum, die nur
+> die Website betrifft. `build55.js` schneidet den Kern heraus und setzt
+> ihn zusammen mit `tariftabelle-1-CSS.txt` in `index.html` — so zeigt
+> das Tool dieselbe Tabelle wie das Popup. Siehe Abschnitt 44.
 
 ---
 
@@ -2740,3 +2746,121 @@ Platzhalter, Eintippen landet in `km6`, Leeren entfernt es wieder, und
 ### Geändert
 
 `index.html` und `tariftabelle-2-JS.txt`. Rechner-Felder weiterhin v50.
+
+---
+
+## 44. Build 55 / Onepage v54 — die Preistabelle steht jetzt auch im Tool
+
+Niran: *„eine idee noch weil ich die preis tabelle auch gerne nutze um
+einen kunden schnell etwas zu sagen, kannst du die in den internen
+rechner auch anzeigen am besten unter den rechner setzen, so das man es
+auch schnell auf dem iphone auf einen blick sehen kann. also jeweils für
+die aktuell drei rechner. meinetwegen auch schon für LB"*
+
+Umgesetzt für **alle vier** Rechner: Kleinbus/Van, Transporter, PKW und
+LB-Preis. Die Tabelle sitzt ganz unten im Rechner — unter der Tarif
+Config., damit die nicht dahinter verschwindet.
+
+### Der Punkt: eine Quelle, zwei Ausgaben
+
+Den Zeichner ein zweites Mal abzutippen wäre der sichere Weg in zwei
+Tabellen, die nach drei Builds verschiedene Preise zeigen. Stattdessen
+ist `tab-motor.js` in zwei Teile zerlegt:
+
+```
+/* ═══ AVJ-TAB-KERN · ANFANG ═══ */
+var AVJTAB_GEPLANT = false;
+var AVJTAB_ROT     = true;
+window.AVJ_TAB_KERN = … { blatt, stoerung, titelHtml, autoTitel, esc, eur }
+/* ═══ AVJ-TAB-KERN · ENDE ═══ */
+
+window.AVJ_TABELLE = …   ← nur noch Website: preise.json, data-fz, Rechnerknopf
+```
+
+Im **Kern** steht alles, was aus einem Fahrzeugobjekt HTML macht:
+`eur`, `kmTxt`, `esc`, `titelHtml`, `ahkTxt`, `zelle`, `wert`, die
+Langzeit-Helfer (`LZ_TAGE`, `lzPreis`, `lzKm`, `lzSb`), `kzKm`,
+`kzExtraKm`, `extraKm`, `kopf`, `kurzzeit`, `staffel`, `tagestarife`,
+`wochenende`, `langzeit`, `haftung`, `kaution`, `fuss`, `stoerung` — und
+neu `autoTitel(c, key)` und `blatt(c, opt)`.
+
+Draußen bleibt, was mit der Website zu tun hat: `hole(pfad)`,
+`hinweisRechner()`, `zeichne(el)`, `alle()`, `start()`, der Klickfänger
+für den Rechnerknopf.
+
+`blatt(c, opt)` kennt drei Schalter:
+
+| `opt` | Website | Tool |
+|---|---|---|
+| `titel` | `data-titel` oder `null` | `null` (immer `autoTitel`) |
+| `zwischen` | `hinweisRechner(…)` — der blaue Knopf | leer, der Rechner steht ja schon darüber |
+| `stand` / `logo` | aus `preise.json` / `LOGO` | `AVJ_PREISE.stand()` / `AVJ_TAB_LOGO` |
+
+`fuss(stand, logo)` bekommt das Logo als Parameter — das war die einzige
+Stelle im Zeichner, die etwas von der Website wusste.
+
+> **Wichtig für den nächsten Umbau:** Der Kernblock steht **zweimal** —
+> in `tab-motor.js` und in `index.html`. Von Hand geändert wird er nur in
+> `tab-motor.js`; `build55.js` schneidet ihn zwischen den beiden Marken
+> heraus und setzt ihn vor `function AVJ_RECHNER(CFG){`. Wer ihn direkt
+> in `index.html` bearbeitet, hat beim nächsten Build wieder zwei
+> Fassungen. Ebenso wird `tariftabelle-1-CSS.txt` (das Aussehen der
+> Tabelle) beim Bauen in den `<style>`-Block von `index.html` kopiert.
+
+### Was das Tool anders macht als die Website
+
+Die Tabelle im Tool rechnet mit **`CARS`** — dem Stand im Tool,
+einschließlich dessen, was noch nicht freigegeben ist. Wer gerade am
+Preis geschraubt hat und dem Kunden etwas sagt, sieht seinen neuen Preis
+und nicht den alten des Kunden. Die Zeile *„Stand …"* im Fuß bleibt das
+Datum aus `preise.json` — sie sagt, worauf der Kunde schaut.
+
+Neu gezeichnet wird nur, wenn sich wirklich etwas geändert hat
+(`_tabSig` = Fahrzeugschlüssel + Stand + `JSON.stringify(car)`);
+`render()` läuft bei jedem Tastendruck.
+
+### Auf dem iPhone: schrumpfen statt schieben
+
+Das Blatt ist für 600–1000 px Rasterbreite gebaut, das Telefon hat 390.
+Auf der Website scrollt die Tabelle deshalb seitwärts. Im Tool wäre das
+genau das Gegenteil von „auf einen Blick":
+
+- Der Kasten tritt aus der 520-px-Spalte heraus und nimmt sich die volle
+  Fensterbreite (`width:100vw` bzw. `min(94vw,1040px)` am Bildschirm).
+- Die Entwurfsbreite richtet sich nach dem Platz:
+  unter 480 px → **560** (das Raster darf laut CSS bis 540 zusammengehen,
+  je schmaler entworfen, desto größer bleibt die Schrift),
+  bis 640 px → **640**, darüber → so breit wie der Kasten, höchstens 1000.
+- Passt es nicht, wird per `transform: scale()` heruntergerechnet und die
+  Höhe des Kastens mitgerechnet. Auf einem iPhone 14 sind das ≈ 0,69 —
+  Schrift ~10 px, lesbar.
+- Zwei Knöpfe in der Kopfzeile: **100 %** schaltet auf Lesegröße mit
+  seitwärts scrollen (wie im Popup), **zuklappen** blendet sie ganz aus.
+- Neu gemessen wird bei Fensterwechsel, Drehung und wenn der Reiter
+  sichtbar wird (`ResizeObserver`). Breite 0 heißt „Reiter ist versteckt"
+  — dann wird nichts gerechnet, sonst käme `scale(0)` heraus.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `prueftabkern.js` | **neu.** Rendert alle sieben Popup-Fahrzeuge einmal mit Onepage **v53** und einmal mit **v54** und vergleicht Zeichen für Zeichen — inklusive Rechnerknopf und Fußleiste. **Alle identisch.** Der Umbau ist reines Verschieben. |
+| `prueftabtool.js` | **neu**, 30 Proben. Tabelle unter allen vier Rechnern; **zeichengleich mit der Tabelle im Popup** für alle 8 Fahrzeuge (auch `transporter.testl`), abzüglich des Rechnerknopfs; Fahrzeugwechsel zieht die Tabelle mit; `overKm` = 9,99 € steht sofort drin (ohne Freigeben); zuklappen/aufklappen; 100 % / einpassen; auf 390 px wird geschrumpft und nichts ragt heraus; auf 1440 px 1:1 |
+| `gold.js` | identisch mit Build 54 — 1.354 Zeilen, einziger Unterschied die Buildnummer |
+| übrige 18 Tests | grün |
+
+`prueftab.js` schlug zunächst fehl (*Stand 19.08. statt 20.08.*): die
+Testseite `/tmp/srv/seite2.html` war noch die alte. `macheseite2.js` neu
+laufen lassen, dann grün. **Fürs nächste Mal:** nach jedem
+`bautabelle.js` auch `macheseite2.js` laufen lassen, sonst prüft
+`prueftab.js` eine veraltete Seite.
+
+### Geändert
+
+`index.html`, `tariftabelle-2-JS.txt`, `-1-CSS.txt` und `-3-EINBAU.txt`
+(die beiden letzten nur die Versionszeile im Kopf). Die drei
+Rechner-Felder sind unverändert (**v50**) — beim Einsetzen reicht also
+das Tabellen-Feld.
+
+Bauskripte: `/tmp/fixmotor55.js` (zerlegt `tab-motor.js` in Kern und
+Hülle, einmalig), `/tmp/build55.js`, `/tmp/bautabelle.js`.
