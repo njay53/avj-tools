@@ -18,19 +18,19 @@
         210
       ],
       "tierKm": [
-        400,
-        700,
+        200,
+        300,
+        450,
+        600,
+        800,
         1000,
-        1250,
-        1450,
-        1650,
-        1800
+        1200
       ],
       "monthPrice": 620,
       "monthKm": 3500,
       "kaution": {
         "stunden": 0,
-        "tag": 300
+        "tag": 150
       },
       "merkmale": {
         "klasse": "Kleinwagen",
