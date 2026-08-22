@@ -144,7 +144,6 @@
           ]
         }
       ],
-      "lzAnfrage": true,
       "monthPrice": 1200
     },
     "golfvariant": {
@@ -249,7 +248,6 @@
           ]
         }
       ],
-      "lzAnfrage": true,
       "monthPrice": 1275
     },
     "vwtouran": {
@@ -355,7 +353,6 @@
           ]
         }
       ],
-      "lzAnfrage": true,
       "monthPrice": 1650
     },
     "skodaoctavia": {
@@ -460,7 +457,6 @@
           ]
         }
       ],
-      "lzAnfrage": true,
       "tag2Ab": 5,
       "monthPrice": 1400
     },
@@ -566,7 +562,6 @@
           ]
         }
       ],
-      "lzAnfrage": true,
       "monthPrice": 1265
     }
   },
@@ -664,29 +659,31 @@
         },
         {
           "label": "1.000 €",
-          "we": 25,
+          "we": 35,
           "tier": [
             15,
-            30,
-            43,
-            54,
-            63,
-            70,
+            29,
+            41,
+            51,
+            61,
+            68,
             75
-          ]
+          ],
+          "monat": 250
         },
         {
           "label": "500 €",
-          "we": 60,
+          "we": 75,
           "tier": [
-            30,
-            58,
-            78,
-            90,
-            98,
-            102,
-            105
-          ]
+            35,
+            56,
+            74,
+            89,
+            104,
+            115,
+            125
+          ],
+          "monat": 350
         }
       ],
       "ahk": {
@@ -707,7 +704,8 @@
         "getriebe": "Handschaltung",
         "zusatz": "214 kurz"
       },
-      "lzAnfrage": true
+      "monthPrice": 2450,
+      "monthKm": 4000
     },
     "vito": {
       "name": "Vito Tourer",
@@ -802,29 +800,31 @@
         },
         {
           "label": "1.000 €",
-          "we": 35,
+          "we": 45,
           "tier": [
             18,
-            36,
-            52,
-            68,
-            82,
-            92,
-            100
-          ]
+            49,
+            75,
+            96,
+            117,
+            133,
+            150
+          ],
+          "monat": 350
         },
         {
           "label": "500 €",
           "we": 75,
           "tier": [
             35,
-            68,
-            95,
-            118,
-            134,
-            144,
-            150
-          ]
+            86,
+            128,
+            164,
+            198,
+            225,
+            250
+          ],
+          "monat": 550
         }
       ],
       "ahk": {
@@ -845,7 +845,8 @@
         "getriebe": "Automatik",
         "zusatz": "119 extralang"
       },
-      "lzAnfrage": true
+      "monthPrice": 3150,
+      "monthKm": 4000
     }
   },
   "transporter": {
@@ -853,8 +854,8 @@
       "name": "Transporter M / L2H1",
       "frSaPlus": 5,
       "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Handschaltung · z.B. Renault Trafic L2H1",
-      "planKm": 0.23,
-      "overKm": 0.3,
+      "planKm": 0.25,
+      "overKm": 0.32,
       "dayMoDo": [
         [
           100,
@@ -862,15 +863,15 @@
         ],
         [
           400,
-          115
+          120
         ],
         [
           800,
-          155
+          160
         ],
         [
           1200,
-          200
+          210
         ]
       ],
       "dayFrSa": [
@@ -880,15 +881,15 @@
         ],
         [
           400,
-          125
+          130
         ],
         [
           800,
-          165
+          175
         ],
         [
           1200,
-          220
+          225
         ]
       ],
       "weekend": [
@@ -898,7 +899,7 @@
         ],
         [
           600,
-          225
+          230
         ],
         [
           1200,
@@ -907,12 +908,12 @@
       ],
       "tier": [
         80,
-        150,
-        230,
-        295,
+        160,
+        235,
+        300,
         355,
-        400,
-        430
+        405,
+        440
       ],
       "tierKm": [
         100,
@@ -994,7 +995,8 @@
         "getriebe": "Handschaltung",
         "zusatz": "z.B. Renault Trafic L2H1"
       },
-      "lzAnfrage": true
+      "monthKm": 4000,
+      "monthPrice": 1650
     },
     "xl": {
       "name": "Transporter XL / L3H2",
@@ -1013,7 +1015,7 @@
         ],
         [
           800,
-          199
+          200
         ],
         [
           1200,
@@ -1031,7 +1033,7 @@
         ],
         [
           800,
-          210
+          215
         ],
         [
           1200,
@@ -1054,12 +1056,12 @@
       ],
       "tier": [
         110,
-        220,
-        330,
-        430,
-        520,
+        225,
+        340,
+        440,
+        525,
         595,
-        645
+        650
       ],
       "tierKm": [
         100,
@@ -1086,29 +1088,31 @@
         },
         {
           "label": "1.000 €",
-          "we": 65,
+          "we": 60,
           "tier": [
             25,
-            50,
-            72,
-            95,
-            115,
-            133,
+            55,
+            80,
+            102,
+            121,
+            137,
             150
-          ]
+          ],
+          "monat": 300
         },
         {
           "label": "500 €",
-          "we": 120,
+          "we": 100,
           "tier": [
-            45,
-            90,
-            132,
-            175,
-            212,
-            255,
-            295
-          ]
+            40,
+            92,
+            134,
+            170,
+            202,
+            228,
+            250
+          ],
+          "monat": 450
         }
       ],
       "kurzzeit": {
@@ -1141,13 +1145,14 @@
         "getriebe": "Handschaltung",
         "zusatz": "z.B. Mercedes Sprinter o. MAN TGE"
       },
-      "lzAnfrage": true
+      "monthKm": 3500,
+      "monthPrice": 2250
     },
     "transporterxll3h2at": {
       "name": "Transporter XL / L3H2 AT",
       "frSaPlus": 10,
       "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Automatik · z.b. Mercedes Sprinter L3H2",
-      "planKm": 0.27,
+      "planKm": 0.29,
       "overKm": 0.37,
       "dayMoDo": [
         [
@@ -1233,29 +1238,31 @@
         },
         {
           "label": "1.000 €",
-          "we": 65,
+          "we": 60,
           "tier": [
             25,
-            50,
-            72,
-            95,
-            115,
-            133,
+            55,
+            80,
+            101,
+            121,
+            136,
             150
-          ]
+          ],
+          "monat": 300
         },
         {
           "label": "500 €",
-          "we": 120,
+          "we": 100,
           "tier": [
-            45,
+            40,
             90,
             132,
-            175,
-            212,
-            255,
-            295
-          ]
+            168,
+            200,
+            227,
+            250
+          ],
+          "monat": 450
         }
       ],
       "kurzzeit": {
@@ -1288,7 +1295,8 @@
         "getriebe": "Automatik",
         "zusatz": "z.b. Mercedes Sprinter L3H2"
       },
-      "lzAnfrage": true
+      "monthKm": 3500,
+      "monthPrice": 2450
     }
   }
 }
