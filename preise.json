@@ -1,33 +1,32 @@
 {
   "version": 1,
-  "stand": "21.08.2026",
+  "stand": "22.08.2026",
   "erzeugtVon": "AVJ Tools Build 61",
   "lb": {
     "yaris": {
-      "name": "Low-Budget",
-      "example": "Kleinwagen · Limousine · Benzin · Handschaltung · z. B. Toyota Yaris",
+      "name": "Toyota Yaris Bj 2010",
+      "example": "Kleinwagen · Limousine · Benzin · Handschaltung · Low Budget",
       "planKm": 0.09,
       "overKm": 0.15,
       "tier": [
         45,
-        85,
-        120,
-        150,
-        175,
-        195,
-        210
+        80,
+        110,
+        140,
+        165,
+        185,
+        200
       ],
       "tierKm": [
         200,
-        300,
+        250,
+        350,
         450,
-        600,
-        800,
-        1000,
-        1200
+        550,
+        700,
+        800
       ],
-      "monthPrice": 620,
-      "monthKm": 3500,
+      "monthKm": 2500,
       "kaution": {
         "stunden": 0,
         "tag": 150
@@ -37,9 +36,9 @@
         "karosserie": "Limousine",
         "kraftstoff": "Benzin",
         "getriebe": "Handschaltung",
-        "zusatz": "z. B. Toyota Yaris"
+        "zusatz": "Low Budget"
       },
-      "lzAnfrage": true
+      "monthPrice": 665
     }
   },
   "pkw": {
@@ -145,7 +144,8 @@
           ]
         }
       ],
-      "lzAnfrage": true
+      "lzAnfrage": true,
+      "monthPrice": 1200
     },
     "golfvariant": {
       "name": "VW Golf 8 Energy Variant",
@@ -249,7 +249,8 @@
           ]
         }
       ],
-      "lzAnfrage": true
+      "lzAnfrage": true,
+      "monthPrice": 1275
     },
     "vwtouran": {
       "name": "VW Touran Energy",
@@ -293,12 +294,12 @@
       ],
       "tier": [
         125,
-        225,
-        325,
-        415,
-        490,
-        550,
-        595
+        220,
+        310,
+        390,
+        460,
+        515,
+        554
       ],
       "tierKm": [
         100,
@@ -354,7 +355,8 @@
           ]
         }
       ],
-      "lzAnfrage": true
+      "lzAnfrage": true,
+      "monthPrice": 1650
     },
     "skodaoctavia": {
       "name": "Skoda Octavia Combi",
@@ -459,7 +461,8 @@
         }
       ],
       "lzAnfrage": true,
-      "tag2Ab": 5
+      "tag2Ab": 5,
+      "monthPrice": 1400
     },
     "vwtroc": {
       "name": "VW T-Roc",
@@ -563,7 +566,8 @@
           ]
         }
       ],
-      "lzAnfrage": true
+      "lzAnfrage": true,
+      "monthPrice": 1265
     }
   },
   "neunsitzer": {
@@ -970,7 +974,8 @@
           50,
           70
         ],
-        "overKm": 0.5
+        "overKm": 0.5,
+        "km6": 100
       },
       "ahk": {
         "kurz": 15,
@@ -1114,9 +1119,10 @@
         ],
         "frSa": [
           65,
-          80
+          85
         ],
-        "overKm": 0.6
+        "overKm": 0.6,
+        "km6": 100
       },
       "ahk": {
         "kurz": 20,
@@ -1134,6 +1140,153 @@
         "kraftstoff": "Diesel",
         "getriebe": "Handschaltung",
         "zusatz": "z.B. Mercedes Sprinter o. MAN TGE"
+      },
+      "lzAnfrage": true
+    },
+    "transporterxll3h2at": {
+      "name": "Transporter XL / L3H2 AT",
+      "frSaPlus": 10,
+      "example": "Transporter bis 3,5 t · Kastenwagen · Diesel · Automatik · z.b. Mercedes Sprinter L3H2",
+      "planKm": 0.27,
+      "overKm": 0.37,
+      "dayMoDo": [
+        [
+          100,
+          120
+        ],
+        [
+          400,
+          170
+        ],
+        [
+          800,
+          215
+        ],
+        [
+          1200,
+          270
+        ]
+      ],
+      "dayFrSa": [
+        [
+          100,
+          130
+        ],
+        [
+          400,
+          180
+        ],
+        [
+          800,
+          230
+        ],
+        [
+          1200,
+          295
+        ]
+      ],
+      "weekend": [
+        [
+          200,
+          250
+        ],
+        [
+          600,
+          395
+        ],
+        [
+          1200,
+          515
+        ]
+      ],
+      "tier": [
+        120,
+        255,
+        390,
+        505,
+        605,
+        690,
+        750
+      ],
+      "tierKm": [
+        100,
+        250,
+        450,
+        650,
+        900,
+        1200,
+        1500
+      ],
+      "sb": [
+        {
+          "label": "2.000 €",
+          "we": 0,
+          "tier": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "1.000 €",
+          "we": 65,
+          "tier": [
+            25,
+            50,
+            72,
+            95,
+            115,
+            133,
+            150
+          ]
+        },
+        {
+          "label": "500 €",
+          "we": 120,
+          "tier": [
+            45,
+            90,
+            132,
+            175,
+            212,
+            255,
+            295
+          ]
+        }
+      ],
+      "kurzzeit": {
+        "km": 50,
+        "moDo": [
+          65,
+          85
+        ],
+        "frSa": [
+          70,
+          95
+        ],
+        "overKm": 0.6,
+        "km6": 100
+      },
+      "ahk": {
+        "kurz": 20,
+        "tag": 20,
+        "we": 50,
+        "woche": 105
+      },
+      "kaution": {
+        "stunden": 150,
+        "tag": 300
+      },
+      "merkmale": {
+        "klasse": "Transporter bis 3,5 t",
+        "karosserie": "Kastenwagen",
+        "kraftstoff": "Diesel",
+        "getriebe": "Automatik",
+        "zusatz": "z.b. Mercedes Sprinter L3H2"
       },
       "lzAnfrage": true
     }
