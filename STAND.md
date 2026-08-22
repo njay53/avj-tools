@@ -1,6 +1,6 @@
 # AVJ Tools — Projektstand
 
-**Stand: Build 61 · Onepage v56 · 20.08.2026**
+**Stand: Build 62 · Onepage v56 · 20.08.2026**
 Diese Datei zu Beginn eines neuen Chats hochladen. Sie enthält alles, was für die
 Weiterarbeit nötig ist — Aufbau, Preisdaten, Fallstricke, Arbeitsablauf.
 
@@ -3484,3 +3484,67 @@ rechnen mit 75. Ein Klick auf „auf 80 € angleichen" räumt das auf.
 stimmte). Die Tariftabelle bleibt unverändert.
 
 Bauskripte: `/tmp/build61.js`, `/tmp/bauonepage61.js`.
+
+---
+
+## 51. Build 62 — Netto und die Rechnung pro Tag, nur intern
+
+Niran: *„kannst du beim internen Rechner noch die netto preise also ohne
+19% MwSt. unter die brutto preise schreiben? und was auch cool wäre,
+wenn ich dann sehen würde was das auto pro tag kostet auch in brutto
+netto … die tagespreise dann unter dem gesamtpreis in die Auflistung
+nehmen, vlt. weils für mich ist anders farblich markiert und auch gerne
+die km pro tag."*
+
+### Zwei Stellen
+
+**Unter dem großen Preis:** `netto 218,49 € · ohne 19 % MwSt.`
+
+**Unter „Richtpreis gesamt"** vier Zeilen in Mint statt Weiß:
+
+| Zeile | Rechnung |
+|---|---|
+| Netto ohne 19 % MwSt. | Endpreis ÷ 1,19 |
+| Pro Tag brutto · *n* Tage | Endpreis ÷ Mietdauer |
+| Pro Tag netto | Netto ÷ Mietdauer |
+| Frei-km pro Tag | Frei-km ÷ Mietdauer |
+
+Die Tagezahl steht **in** der Zeile, damit niemand raten muss, womit
+geteilt wurde — beim Wochenendtarif sind das die angefangenen Tage
+zwischen Abholung und Rückgabe, nicht immer drei.
+
+Gerechnet wird vom **Endpreis**, also nach Rabatt und mit Zusatzposten.
+Der Mehrwertsteuersatz steht als `MWST` an einer Stelle.
+
+### Das Wichtigste daran
+
+Die vier Zeilen tragen die Klasse `intern`, und **`angebotText()` lässt
+genau die aus**. Der Text, den Niran dem Kunden schickt, enthält
+weiterhin nur Bruttobeträge. Wäre das nicht so, stünde seine
+Kalkulationsgrundlage in der nächsten WhatsApp.
+
+Der Kundenrechner auf der Website ist nicht betroffen — das passiert
+allein in `index.html`.
+
+### Geprüft
+
+| Test | Ergebnis |
+|---|---|
+| `pruefnetto62.js` | **neu**, 24 Proben. Netto stimmt an beiden Stellen (brutto ÷ 1,19); pro Tag = Endpreis ÷ 3 mit „3 Tage" in der Zeile; Frei-km pro Tag; bei einem Tag heißt es „1 Tag" und der Tagespreis ist der Gesamtpreis; **30 € Rabatt schlagen durch** (Netto rechnet vom ermäßigten Preis, nicht vom Grundpreis); ohne Zeitraum und bei „auf Anfrage" bleibt die Zeile **leer**; die Zeilen sind farblich abgesetzt (`rgb(134,224,210)` gegen Weiß), auch im Kleinbus-Rechner mit dem anderen Klassenpräfix. Und die vier Proben, auf die es ankommt: **kein Netto, kein „Pro Tag", keine Frei-km pro Tag im Kopiertext** |
+| `gold.js` | 572 geänderte Zeilen — in **jeder** ist der alte Inhalt Zeichen für Zeichen erhalten und nur die vier internen Zeilen angehängt. Maschinell geprüft: **0 unerwartete Änderungen**, kein Preis hat sich bewegt |
+| übrige 26 Tests | grün |
+
+**`pruefkopie50.js` musste nachgezogen werden** — und das war ein
+richtiges Signal, kein Rauschen: der Test hielt fest „**jede** Geldzeile
+der Anzeige steht auch im kopierten Text". Genau das gilt seit Build 62
+absichtlich nicht mehr. Die Regel ist jetzt zweigeteilt und prüft
+dadurch **mehr** als vorher:
+
+- jede **Angebotszeile** muss im Text stehen
+- **keine interne** darf darin auftauchen
+
+### Geändert
+
+Nur `index.html`. Onepage bleibt **v56**.
+
+Bauskript: `/tmp/build62.js`.
